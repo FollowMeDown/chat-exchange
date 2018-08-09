@@ -1,0 +1,8 @@
+{
+    "extends": "../../tsconfig",
+    "compilerOptions": {
+        "outDir": "lib",
+        "downlevelIteration": true
+    },
+    "include": ["./src/**/*", "./test/**/*"]
+}

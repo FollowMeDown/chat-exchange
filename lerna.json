@@ -1,0 +1,17 @@
+{
+    "lerna": "2.5.1",
+    "packages": ["packages/*"],
+    "commands": {
+        "publish": {
+            "allowBranch": "development"
+        }
+    },
+    "version": "independent",
+    "commands": {
+        "publish": {
+            "ignore": ["test/**/*", "*.md", "scripts", "lib", "tslint.json", "tsconfig.json"]
+        }
+    },
+    "npmClient": "yarn",
+    "useWorkspaces": true
+}
