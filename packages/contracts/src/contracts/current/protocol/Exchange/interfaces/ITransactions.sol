@@ -15,25 +15,19 @@
   limitations under the License.
 
 */
-
 pragma solidity ^0.4.23;
-pragma experimental ABIEncoderV2;
 
-import "../interfaces/IAssetProxy.sol";
+contract ITransactions {
 
-contract MAssetProxy is
-    IAssetProxy
-{
-
-    /// @dev Internal version of `transferFrom`.
-    /// @param assetMetadata Encoded byte array.
-    /// @param from Address to transfer asset from.
-    /// @param to Address to transfer asset to.
-    /// @param amount Amount of asset to transfer.
-    function transferFromInternal(
-        bytes memory assetMetadata,
-        address from,
-        address to,
-        uint256 amount)
-        internal;
+    /// @dev Executes an exchange method call in the context of signer.
+    /// @param salt Arbitrary number to ensure uniqueness of transaction hash.
+    /// @param signer Address of transaction signer.
+    /// @param data AbiV2 encoded calldata.
+    /// @param signature Proof of signer transaction by signer.
+    function executeTransaction(
+        uint256 salt,
+        address signer,
+        bytes data,
+        bytes signature)
+        external;
 }

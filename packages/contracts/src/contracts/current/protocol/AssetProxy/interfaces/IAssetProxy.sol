@@ -19,16 +19,14 @@
 pragma solidity ^0.4.23;
 pragma experimental ABIEncoderV2;
 
-import "./mixins/MAssetProxy.sol";
-import "../../utils/Authorizable/Authorizable.sol";
+import "../../../utils/Authorizable/IAuthorizable.sol";
 
-contract MixinAssetProxy is 
-    Authorizable,
-    MAssetProxy
+contract IAssetProxy is
+    IAuthorizable
 {
 
     /// @dev Transfers assets. Either succeeds or throws.
-    /// @param assetMetadata Encoded byte array.
+    /// @param assetMetadata Byte array encoded for the respective asset proxy.
     /// @param from Address to transfer asset from.
     /// @param to Address to transfer asset to.
     /// @param amount Amount of asset to transfer.
@@ -37,17 +35,8 @@ contract MixinAssetProxy is
         address from,
         address to,
         uint256 amount)
-        external
-        onlyAuthorized
-    {
-        transferFromInternal(
-            assetMetadata,
-            from,
-            to,
-            amount
-        );
-    }
-
+        external;
+    
     /// @dev Makes multiple transfers of assets. Either succeeds or throws.
     /// @param assetMetadata Array of byte arrays encoded for the respective asset proxy.
     /// @param from Array of addresses to transfer assets from.
@@ -58,16 +47,13 @@ contract MixinAssetProxy is
         address[] memory from,
         address[] memory to,
         uint256[] memory amounts)
-        public
-        onlyAuthorized
-    {
-        for (uint256 i = 0; i < assetMetadata.length; i++) {
-            transferFromInternal(
-                assetMetadata[i],
-                from[i],
-                to[i],
-                amounts[i]
-            );
-        }
-    }
+        public;
+
+    /// @dev Gets the proxy id associated with the proxy address.
+    /// @return Proxy id.
+    function getProxyId()
+        external
+        view
+        returns (uint8);
 }
+
