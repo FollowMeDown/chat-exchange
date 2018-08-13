@@ -10,6 +10,7 @@ import { constants } from './constants';
 import { utils } from './utils';
 
 const publishReleaseAsync = promisify(publishRelease);
+const githubPersonalAccessToken = process.env.GITHUB_PERSONAL_ACCESS_TOKEN_0X_JS;
 const generatedDocsDirectoryName = 'generated_docs';
 
 export interface PostpublishConfigs {
@@ -96,7 +97,7 @@ export const postpublishUtils = {
         const finalAssets = this.adjustAssetPaths(cwd, assets);
         utils.log('POSTPUBLISH: Releasing ', releaseName, '...');
         const result = await publishReleaseAsync({
-            token: constants.githubPersonalAccessToken,
+            token: githubPersonalAccessToken,
             owner: '0xProject',
             repo: '0x-monorepo',
             tag,

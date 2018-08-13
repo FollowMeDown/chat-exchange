@@ -12,7 +12,8 @@ export interface RelayerGridTileProps {
     networkId: number;
 }
 
-// TODO: Get top tokens from remote
+// TODO: Get top tokens and headerurl from remote
+const headerUrl = '/images/og_image.png';
 const topTokens = [
     {
         address: '0x1dad4783cf3fe3085c1426157ab175a6119a04ba',
@@ -67,9 +68,6 @@ const styles: Styles = {
         borderBottomLeftRadius: 4,
         borderTopRightRadius: 4,
         borderTopLeftRadius: 4,
-        borderWidth: 1,
-        borderStyle: 'solid',
-        borderColor: colors.walletBorder,
     },
     body: {
         paddingLeft: 6,
@@ -94,27 +92,24 @@ const styles: Styles = {
 };
 
 export const RelayerGridTile: React.StatelessComponent<RelayerGridTileProps> = (props: RelayerGridTileProps) => {
-    const link = props.relayerInfo.appUrl || props.relayerInfo.url;
     return (
-        <a href={link} target="_blank" style={{ textDecoration: 'none' }}>
-            <GridTile style={styles.root}>
-                <div style={styles.innerDiv}>
-                    <img src={props.relayerInfo.headerImgUrl} style={styles.header} />
-                    <div style={styles.body}>
-                        <div className="py1" style={styles.relayerNameLabel}>
-                            {props.relayerInfo.name}
-                        </div>
-                        <div style={styles.dailyTradeVolumeLabel}>{props.relayerInfo.dailyTxnVolume}</div>
-                        <div className="py1" style={styles.subLabel}>
-                            Daily Trade Volume
-                        </div>
-                        <TopTokens tokens={topTokens} networkId={props.networkId} />
-                        <div className="py1" style={styles.subLabel}>
-                            Top tokens
-                        </div>
+        <GridTile style={styles.root}>
+            <div style={styles.innerDiv}>
+                <img src={headerUrl} style={styles.header} />
+                <div style={styles.body}>
+                    <div className="py1" style={styles.relayerNameLabel}>
+                        {props.relayerInfo.name}
+                    </div>
+                    <div style={styles.dailyTradeVolumeLabel}>{props.relayerInfo.dailyTxnVolume}</div>
+                    <div className="py1" style={styles.subLabel}>
+                        Daily Trade Volume
+                    </div>
+                    <TopTokens tokens={topTokens} networkId={props.networkId} />
+                    <div className="py1" style={styles.subLabel}>
+                        Top tokens
                     </div>
                 </div>
-            </GridTile>
-        </a>
+            </div>
+        </GridTile>
     );
 };

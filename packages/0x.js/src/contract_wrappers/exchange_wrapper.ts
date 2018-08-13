@@ -1,5 +1,4 @@
 import { schemas } from '@0xproject/json-schemas';
-import { getOrderHashHex } from '@0xproject/order-utils';
 import {
     BlockParamLiteral,
     DecodedLogArgs,
@@ -571,7 +570,7 @@ export class ExchangeWrapper extends ContractWrapper {
             ? SHOULD_VALIDATE_BY_DEFAULT
             : orderTransactionOpts.shouldValidate;
         if (shouldValidate) {
-            const orderHash = getOrderHashHex(order);
+            const orderHash = utils.getOrderHashHex(order);
             const unavailableTakerTokenAmount = await this.getUnavailableTakerAmountAsync(orderHash);
             OrderValidationUtils.validateCancelOrderThrowIfInvalid(
                 order,
@@ -630,7 +629,7 @@ export class ExchangeWrapper extends ContractWrapper {
             : orderTransactionOpts.shouldValidate;
         if (shouldValidate) {
             for (const orderCancellationRequest of orderCancellationRequests) {
-                const orderHash = getOrderHashHex(orderCancellationRequest.order);
+                const orderHash = utils.getOrderHashHex(orderCancellationRequest.order);
                 const unavailableTakerTokenAmount = await this.getUnavailableTakerAmountAsync(orderHash);
                 OrderValidationUtils.validateCancelOrderThrowIfInvalid(
                     orderCancellationRequest.order,
@@ -802,7 +801,7 @@ export class ExchangeWrapper extends ContractWrapper {
     ): Promise<void> {
         assert.doesConformToSchema('order', order, schemas.orderSchema);
         assert.isValidBaseUnitAmount('cancelTakerTokenAmount', cancelTakerTokenAmount);
-        const orderHash = getOrderHashHex(order);
+        const orderHash = utils.getOrderHashHex(order);
         const unavailableTakerTokenAmount = await this.getUnavailableTakerAmountAsync(orderHash);
         OrderValidationUtils.validateCancelOrderThrowIfInvalid(
             order,
