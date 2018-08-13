@@ -1,5 +1,4 @@
-pragma solidity ^0.4.23;
-pragma experimental ABIEncoderV2;
+pragma solidity ^0.4.18;
 
 /*
  * Ownable
@@ -8,22 +7,17 @@ pragma experimental ABIEncoderV2;
  * Provides onlyOwner modifier, which prevents function from running if it is called by anyone other than the owner.
  */
 
-import "../Ownable/IOwnable.sol";
-
-contract Ownable is IOwnable {
+contract Ownable {
     address public owner;
 
-    constructor ()
+    function Ownable()
         public
     {
         owner = msg.sender;
     }
 
     modifier onlyOwner() {
-        require(
-            msg.sender == owner,
-            "Only contract owner is allowed to call this method."
-        );
+        require(msg.sender == owner);
         _;
     }
 
