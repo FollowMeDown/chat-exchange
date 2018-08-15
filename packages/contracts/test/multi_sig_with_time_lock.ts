@@ -8,16 +8,16 @@ import * as Web3 from 'web3';
 import * as multiSigWalletJSON from '../../build/contracts/MultiSigWalletWithTimeLock.json';
 import { MultiSigWalletContract } from '../src/contract_wrappers/generated/multi_sig_wallet';
 import { MultiSigWalletWithTimeLockContract } from '../src/contract_wrappers/generated/multi_sig_wallet_with_time_lock';
-import { artifacts } from '../src/utils/artifacts';
-import { constants } from '../src/utils/constants';
-import { MultiSigWrapper } from '../src/utils/multi_sig_wrapper';
-import { ContractName, SubmissionContractEventArgs } from '../src/utils/types';
+import { artifacts } from '../util/artifacts';
+import { constants } from '../util/constants';
+import { MultiSigWrapper } from '../util/multi_sig_wrapper';
+import { ContractName, SubmissionContractEventArgs } from '../util/types';
 
 import { chaiSetup } from './utils/chai_setup';
 import { deployer } from './utils/deployer';
 import { provider, web3Wrapper } from './utils/web3_wrapper';
 
-const MULTI_SIG_ABI = artifacts.MultiSigWalletWithTimeLockArtifact.networks[constants.TESTRPC_NETWORK_ID].abi;
+const MULTI_SIG_ABI = artifacts.MultiSigWalletWithTimeLockArtifact.compilerOutput.abi;
 chaiSetup.configure();
 const expect = chai.expect;
 const blockchainLifecycle = new BlockchainLifecycle(web3Wrapper);
