@@ -19,22 +19,24 @@
 pragma solidity ^0.4.23;
 pragma experimental ABIEncoderV2;
 
-import "../../tokens/UnlimitedAllowanceToken/UnlimitedAllowanceToken.sol";
-import "../../utils/SafeMath/SafeMath.sol";
+import "../interfaces/IAuthorizable.sol";
 
-/*
- * Mintable
- * Base contract that creates a mintable UnlimitedAllowanceToken
- */
-contract Mintable is UnlimitedAllowanceToken, SafeMath {
-    function mint(uint256 _value)
-        public
-    {
-        require(
-            _value <= 100000000000000000000,
-            "Minting more than 100000000000000000000 is not allowed."
-        );
-        balances[msg.sender] = safeAdd(_value, balances[msg.sender]);
-        totalSupply = safeAdd(totalSupply, _value);
-    }
+contract MAuthorizable is
+    IAuthorizable
+{
+
+    // Event logged when a new address is authorized.
+    event AuthorizedAddressAdded(
+        address indexed target,
+        address indexed caller
+    );
+
+    // Event logged when a currently authorized address is unauthorized.
+    event AuthorizedAddressRemoved(
+        address indexed target,
+        address indexed caller
+    );
+
+    /// @dev Only authorized addresses can invoke functions with this modifier.
+    modifier onlyAuthorized { _; }
 }
