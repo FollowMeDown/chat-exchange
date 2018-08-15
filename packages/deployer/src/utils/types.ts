@@ -1,5 +1,4 @@
 import { ContractAbi, Provider, TxData } from '@0xproject/types';
-import * as solc from 'solc';
 import * as Web3 from 'web3';
 import * as yargs from 'yargs';
 
@@ -10,40 +9,28 @@ export enum AbiType {
     Fallback = 'fallback',
 }
 
-export interface ContractArtifact extends ContractVersionData {
-    schemaVersion: string;
-    contractName: string;
+export interface ContractArtifact {
+    contract_name: string;
     networks: ContractNetworks;
 }
 
-export interface ContractVersionData {
-    compiler: {
-        name: 'solc';
-        version: string;
-        settings: solc.CompilerSettings;
-    };
-    sources: {
-        [sourceName: string]: {
-            id: number;
-        };
-    };
-    sourceCodes: {
-        [sourceName: string]: string;
-    };
-    sourceTreeHashHex: string;
-    compilerOutput: solc.StandardContractOutput;
-}
-
 export interface ContractNetworks {
-    [networkId: number]: ContractNetworkData;
+    [key: number]: ContractNetworkData;
 }
 
 export interface ContractNetworkData {
-    address: string;
-    links: {
-        [linkName: string]: string;
-    };
-    constructorArgs: string;
+    solc_version: string;
+    optimizer_enabled: boolean;
+    source_tree_hash: string;
+    abi: ContractAbi;
+    bytecode: string;
+    runtime_bytecode: string;
+    address?: string;
+    constructor_args?: string;
+    updated_at: number;
+    source_map: string;
+    source_map_runtime: string;
+    sources: string[];
 }
 
 export interface SolcErrors {
@@ -55,6 +42,7 @@ export interface CliOptions extends yargs.Arguments {
     contractsDir: string;
     jsonrpcUrl: string;
     networkId: number;
+    shouldOptimize: boolean;
     gasPrice: string;
     account?: string;
     contract?: string;
@@ -62,10 +50,11 @@ export interface CliOptions extends yargs.Arguments {
 }
 
 export interface CompilerOptions {
-    contractsDir?: string;
-    artifactsDir?: string;
-    compilerSettings?: solc.CompilerSettings;
-    contracts?: string[] | '*';
+    contractsDir: string;
+    networkId: number;
+    optimizerEnabled: boolean;
+    artifactsDir: string;
+    specifiedContracts: Set<string>;
 }
 
 export interface BaseDeployerOptions {

@@ -19,12 +19,7 @@ import { Deco, Key, ProviderType, WebsiteLegacyPaths, WebsitePaths } from 'ts/ty
 import { constants } from 'ts/utils/constants';
 import { Translate } from 'ts/utils/translate';
 
-export enum TopBarDisplayType {
-    Default,
-    Expanded,
-}
-
-export interface TopBarProps {
+interface TopBarProps {
     userAddress?: string;
     networkId?: number;
     injectedProviderName?: string;
@@ -39,7 +34,7 @@ export interface TopBarProps {
     availableDocVersions?: string[];
     menu?: DocsMenu;
     menuSubsectionsBySection?: MenuSubsectionsBySection;
-    displayType?: TopBarDisplayType;
+    shouldFullWidth?: boolean;
     docsInfo?: DocsInfo;
     style?: React.CSSProperties;
     isNightVersion?: boolean;
@@ -52,8 +47,17 @@ interface TopBarState {
 }
 
 const styles: Styles = {
+    address: {
+        marginRight: 12,
+        overflow: 'hidden',
+        paddingTop: 4,
+        textOverflow: 'ellipsis',
+        whiteSpace: 'nowrap',
+        width: 70,
+    },
     topBar: {
         backgroundColor: colors.white,
+        height: 59,
         width: '100%',
         position: 'relative',
         top: 0,
@@ -74,19 +78,12 @@ const styles: Styles = {
     },
 };
 
-const DEFAULT_HEIGHT = 59;
-const EXPANDED_HEIGHT = 75;
-
 export class TopBar extends React.Component<TopBarProps, TopBarState> {
     public static defaultProps: Partial<TopBarProps> = {
-        displayType: TopBarDisplayType.Default,
+        shouldFullWidth: false,
         style: {},
         isNightVersion: false,
     };
-    public static heightForDisplayType(displayType: TopBarDisplayType) {
-        const result = displayType === TopBarDisplayType.Expanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
-        return result + 1;
-    }
     constructor(props: TopBarProps) {
         super(props);
         this.state = {
@@ -95,9 +92,8 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
     }
     public render() {
         const isNightVersion = this.props.isNightVersion;
-        const isExpandedDisplayType = this.props.displayType === TopBarDisplayType.Expanded;
-        const parentClassNames = `flex mx-auto ${isExpandedDisplayType ? 'pl3 py1' : 'max-width-4'}`;
-        const height = isExpandedDisplayType ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
+        const isFullWidthPage = this.props.shouldFullWidth;
+        const parentClassNames = `flex mx-auto ${isFullWidthPage ? 'pl2' : 'max-width-4'}`;
         const developerSectionMenuItems = [
             <Link key="subMenuItem-zeroEx" to={WebsitePaths.ZeroExJs} className="text-decoration-none">
                 <MenuItem style={{ fontSize: styles.menuItem.fontSize }} primaryText="0x.js" />
@@ -182,11 +178,9 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
             </a>,
         ];
         const bottomBorderStyle = this._shouldDisplayBottomBar() ? styles.bottomBar : {};
-        const fullWidthClasses = isExpandedDisplayType ? 'pr4' : '';
+        const fullWidthClasses = isFullWidthPage ? 'pr4' : '';
         const logoUrl = isNightVersion ? '/images/protocol_logo_white.png' : '/images/protocol_logo_black.png';
-        const menuClasses = `col col-${
-            isExpandedDisplayType ? '4' : '5'
-        } ${fullWidthClasses} lg-pr0 md-pr2 sm-hide xs-hide`;
+        const menuClasses = `col col-${isFullWidthPage ? '4' : '5'} ${fullWidthClasses} lg-pr0 md-pr2 sm-hide xs-hide`;
         const menuIconStyle = {
             fontSize: 25,
             color: isNightVersion ? 'white' : 'black',
@@ -203,15 +197,15 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
         );
         const popoverContent = <Menu style={{ color: colors.darkGrey }}>{developerSectionMenuItems}</Menu>;
         return (
-            <div style={{ ...styles.topBar, ...bottomBorderStyle, ...this.props.style, ...{ height } }} className="pb1">
+            <div style={{ ...styles.topBar, ...bottomBorderStyle, ...this.props.style }} className="pb1">
                 <div className={parentClassNames}>
                     <div className="col col-2 sm-pl1 md-pl2 lg-pl0" style={{ paddingTop: 15 }}>
                         <Link to={`${WebsitePaths.Home}`} className="text-decoration-none">
                             <img src={logoUrl} height="30" />
                         </Link>
                     </div>
-                    <div className={`col col-${isExpandedDisplayType ? '8' : '9'} lg-hide md-hide`} />
-                    <div className={`col col-${isExpandedDisplayType ? '6' : '5'} sm-hide xs-hide`} />
+                    <div className={`col col-${isFullWidthPage ? '8' : '9'} lg-hide md-hide`} />
+                    <div className={`col col-${isFullWidthPage ? '6' : '5'} sm-hide xs-hide`} />
                     {!this._isViewingPortal() && (
                         <div className={menuClasses}>
                             <div className="flex justify-between">
@@ -248,7 +242,7 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
                                     path={`${WebsitePaths.Portal}`}
                                     isPrimary={true}
                                     style={styles.menuItem}
-                                    className={`${isExpandedDisplayType && 'md-hide'}`}
+                                    className={`${isFullWidthPage && 'md-hide'}`}
                                     isNightVersion={isNightVersion}
                                     isExternal={false}
                                 />
@@ -256,7 +250,7 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
                         </div>
                     )}
                     {this.props.blockchainIsLoaded && (
-                        <div className="sm-hide xs-hide col col-5" style={{ paddingTop: 8, marginRight: 36 }}>
+                        <div className="sm-hide xs-hide col col-5">
                             <ProviderDisplay
                                 dispatcher={this.props.dispatcher}
                                 userAddress={this.props.userAddress}
@@ -268,7 +262,7 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
                             />
                         </div>
                     )}
-                    <div className={`col ${isExpandedDisplayType ? 'col-2 pl2' : 'col-1'} md-hide lg-hide`}>
+                    <div className={`col ${isFullWidthPage ? 'col-2 pl2' : 'col-1'} md-hide lg-hide`}>
                         <div style={menuIconStyle}>
                             <i className="zmdi zmdi-menu" onClick={this._onMenuButtonClick.bind(this)} />
                         </div>
@@ -447,6 +441,21 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
             </div>
         );
     }
+    private _renderUser() {
+        const userAddress = this.props.userAddress;
+        const identiconDiameter = 26;
+        return (
+            <div className="flex right lg-pr0 md-pr2 sm-pr2" style={{ paddingTop: 16 }}>
+                <div style={styles.address} data-tip={true} data-for="userAddressTooltip">
+                    {!_.isEmpty(userAddress) ? userAddress : ''}
+                </div>
+                <ReactTooltip id="userAddressTooltip">{userAddress}</ReactTooltip>
+                <div>
+                    <Identicon address={userAddress} diameter={identiconDiameter} />
+                </div>
+            </div>
+        );
+    }
     private _onMenuButtonClick() {
         this.setState({
             isDrawerOpen: !this.state.isDrawerOpen,
@@ -502,8 +511,7 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
             this._isViewingJsonSchemasDocs() ||
             this._isViewingSolCovDocs() ||
             this._isViewingSubprovidersDocs() ||
-            this._isViewingConnectDocs() ||
-            this._isViewingPortal()
+            this._isViewingConnectDocs()
         );
     }
 } // tslint:disable:max-file-line-count
