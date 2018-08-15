@@ -32,9 +32,9 @@ const styles: Styles = {
     },
 };
 
-const CELL_HEIGHT = 260;
+const CELL_HEIGHT = 290;
 const NUMBER_OF_COLUMNS = 4;
-const GRID_PADDING = 16;
+const GRID_PADDING = 20;
 
 export class RelayerIndex extends React.Component<RelayerIndexProps, RelayerIndexState> {
     private _isUnmounted: boolean;
@@ -66,7 +66,7 @@ export class RelayerIndex extends React.Component<RelayerIndexProps, RelayerInde
                     >
                         {this.state.relayerInfos.map((relayerInfo: WebsiteBackendRelayerInfo) => (
                             <RelayerGridTile
-                                key={relayerInfo.id}
+                                key={relayerInfo.name}
                                 relayerInfo={relayerInfo}
                                 networkId={this.props.networkId}
                             />
