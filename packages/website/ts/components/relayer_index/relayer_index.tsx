@@ -32,9 +32,9 @@ const styles: Styles = {
     },
 };
 
-const CELL_HEIGHT = 290;
+const CELL_HEIGHT = 260;
 const NUMBER_OF_COLUMNS = 4;
-const GRID_PADDING = 20;
+const GRID_PADDING = 16;
 
 export class RelayerIndex extends React.Component<RelayerIndexProps, RelayerIndexState> {
     private _isUnmounted: boolean;
