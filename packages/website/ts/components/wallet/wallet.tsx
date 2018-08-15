@@ -55,13 +55,11 @@ export interface WalletProps {
     injectedProviderName: string;
     providerType: ProviderType;
     onToggleLedgerDialog: () => void;
-    onAddToken: () => void;
 }
 
 interface WalletState {
     trackedTokenStateByAddress: TokenStateByAddress;
     wrappedEtherDirection?: Side;
-    isHoveringSidebar: boolean;
 }
 
 interface AllowanceToggleConfig {
@@ -96,9 +94,6 @@ const styles: Styles = {
     },
     footerItemInnerDiv: {
         paddingLeft: 24,
-        borderTopColor: colors.walletBorder,
-        borderTopStyle: 'solid',
-        borderWidth: 1,
     },
     borderedItem: {
         borderBottomColor: colors.walletBorder,
@@ -119,17 +114,7 @@ const styles: Styles = {
         paddingTop: 8,
         paddingBottom: 8,
     },
-    accessoryItemsContainer: {
-        width: 150,
-        right: 8,
-    },
-    bodyInnerDiv: {
-        padding: 0,
-        // TODO: make this completely responsive
-        maxHeight: 475,
-        overflow: 'auto',
-        WebkitOverflowScrolling: 'touch',
-    },
+    accessoryItemsContainer: { width: 150, right: 8 },
 };
 
 const ETHER_ICON_PATH = '/images/ether.png';
@@ -154,7 +139,6 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         this.state = {
             trackedTokenStateByAddress: initialTrackedTokenStateByAddress,
             wrappedEtherDirection: undefined,
-            isHoveringSidebar: false,
         };
     }
     public componentWillMount() {
@@ -200,7 +184,12 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         return (
             <List style={styles.list}>
                 {isAddressAvailable
-                    ? _.concat(this._renderConnectedHeaderRows(), this._renderBody(), this._renderFooterRows())
+                    ? _.concat(
+                          this._renderConnectedHeaderRows(),
+                          this._renderEthRows(),
+                          this._renderTokenRows(),
+                          this._renderFooterRows(),
+                      )
                     : _.concat(this._renderDisconnectedHeaderRows(), this._renderDisconnectedRows())}
             </List>
         );
@@ -241,43 +230,9 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             />
         );
     }
-    private _renderBody() {
-        const bodyStyle: React.CSSProperties = {
-            ...styles.bodyInnerDiv,
-            overflow: this.state.isHoveringSidebar ? 'auto' : 'hidden',
-        };
-        return (
-            <ListItem
-                key="body"
-                innerDivStyle={bodyStyle}
-                onMouseEnter={this._onSidebarHover.bind(this)}
-                onMouseLeave={this._onSidebarHoverOff.bind(this)}
-            >
-                {this._renderEthRows()}
-                {this._renderTokenRows()}
-            </ListItem>
-        );
-    }
-    private _onSidebarHover(event: React.FormEvent<HTMLInputElement>) {
-        this.setState({
-            isHoveringSidebar: true,
-        });
-    }
-    private _onSidebarHoverOff() {
-        this.setState({
-            isHoveringSidebar: false,
-        });
-    }
     private _renderFooterRows() {
         const primaryText = '+ other tokens';
-        return (
-            <ListItem
-                key={FOOTER_ITEM_KEY}
-                primaryText={primaryText}
-                innerDivStyle={styles.footerItemInnerDiv}
-                onClick={this.props.onAddToken}
-            />
-        );
+        return <ListItem key={FOOTER_ITEM_KEY} primaryText={primaryText} innerDivStyle={styles.footerItemInnerDiv} />;
     }
     private _renderEthRows() {
         const primaryText = this._renderAmount(
@@ -338,7 +293,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         );
         return _.map(trackedTokensStartingWithEtherToken, this._renderTokenRow.bind(this));
     }
-    private _renderTokenRow(token: Token, index: number) {
+    private _renderTokenRow(token: Token) {
         const tokenState = this.state.trackedTokenStateByAddress[token.address];
         const tokenLink = sharedUtils.getEtherScanLinkIfExists(
             token.address,
@@ -355,14 +310,12 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
                 tokenState,
             },
         };
-        // if this is the last item in the list, do not render the border, it is rendered by the footer
-        const borderedStyle = index !== this.props.trackedTokens.length - 1 ? styles.borderedItem : {};
         const shouldShowWrapEtherItem =
             !_.isUndefined(this.state.wrappedEtherDirection) &&
             this.state.wrappedEtherDirection === accessoryItemConfig.wrappedEtherDirection;
         const style = shouldShowWrapEtherItem
             ? { ...walletItemStyles.focusedItem, ...styles.paddedItem }
-            : { ...styles.tokenItem, ...borderedStyle, ...styles.paddedItem };
+            : { ...styles.tokenItem, ...styles.borderedItem, ...styles.paddedItem };
         const etherToken = this._getEthToken();
         return (
             <div key={token.address}>
@@ -508,16 +461,16 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             );
             balanceAndAllowanceTupleByAddress[tokenAddress] = balanceAndAllowanceTuple;
         }
-        const priceByAddress = await this._getPriceByAddressAsync(tokenAddresses);
+        const pricesByAddress = await this._getPricesByAddressAsync(tokenAddresses);
         const trackedTokenStateByAddress = _.reduce(
             tokenAddresses,
             (acc, address) => {
                 const [balance, allowance] = balanceAndAllowanceTupleByAddress[address];
-                const priceIfExists = _.get(priceByAddress, address);
+                const price = pricesByAddress[address];
                 acc[address] = {
                     balance,
                     allowance,
-                    price: priceIfExists,
+                    price,
                     isLoaded: true,
                 };
                 return acc;
@@ -534,29 +487,16 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
     private async _refetchTokenStateAsync(tokenAddress: string) {
         await this._fetchBalancesAndAllowancesAsync([tokenAddress]);
     }
-    private async _getPriceByAddressAsync(tokenAddresses: string[]): Promise<ItemByAddress<BigNumber>> {
+    private async _getPricesByAddressAsync(tokenAddresses: string[]): Promise<ItemByAddress<BigNumber>> {
         if (_.isEmpty(tokenAddresses)) {
             return {};
         }
-        // for each input token address, search for the corresponding symbol in this.props.tokenByAddress, if it exists
-        // create a mapping from existing symbols -> address
-        const tokenAddressBySymbol: { [symbol: string]: string } = {};
-        _.each(tokenAddresses, address => {
-            const tokenIfExists = _.get(this.props.tokenByAddress, address);
-            if (!_.isUndefined(tokenIfExists)) {
-                const symbol = tokenIfExists.symbol;
-                tokenAddressBySymbol[symbol] = address;
-            }
-        });
-        const tokenSymbols = _.keys(tokenAddressBySymbol);
         try {
-            const priceBySymbol = await backendClient.getPriceInfoAsync(tokenSymbols);
-            const priceByAddress = _.mapKeys(priceBySymbol, (value, symbol) => _.get(tokenAddressBySymbol, symbol));
-            const result = _.mapValues(priceByAddress, price => {
-                const priceBigNumber = new BigNumber(price);
-                return priceBigNumber;
-            });
-            return result;
+            const websiteBackendPriceInfos = await backendClient.getPriceInfosAsync(tokenAddresses);
+            const addresses = _.map(websiteBackendPriceInfos, info => info.address);
+            const prices = _.map(websiteBackendPriceInfos, info => new BigNumber(info.price));
+            const pricesByAddress = _.zipObject(addresses, prices);
+            return pricesByAddress;
         } catch (err) {
             return {};
         }

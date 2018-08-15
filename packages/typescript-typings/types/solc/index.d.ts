@@ -59,33 +59,32 @@ declare module 'solc' {
         | 'evm.gasEstimates'
         | 'ewasm.wast'
         | 'ewasm.wasm';
-    export interface CompilerSettings {
-        remappings?: string[];
-        optimizer?: {
-            enabled: boolean;
-            runs?: number;
-        };
-        evmVersion?: 'homestead' | 'tangerineWhistle' | 'spuriousDragon' | 'byzantium' | 'constantinople';
-        metadata?: {
-            useLiteralContent: true;
-        };
-        libraries?: {
-            [fileName: string]: {
-                [libName: string]: string;
-            };
-        };
-        outputSelection: {
-            [fileName: string]: {
-                [contractName: string]: OutputField[];
-            };
-        };
-    }
     export interface StandardInput {
         language: 'Solidity' | 'serpent' | 'lll' | 'assembly';
         sources: {
             [fileName: string]: Source;
         };
-        settings: CompilerSettings;
+        settings: {
+            remappings?: string[];
+            optimizer?: {
+                enabled: boolean;
+                runs?: number;
+            };
+            evmVersion?: 'homestead' | 'tangerineWhistle' | 'spuriousDragon' | 'byzantium' | 'constantinople';
+            metadata?: {
+                useLiteralContent: true;
+            };
+            libraries?: {
+                [fileName: string]: {
+                    [libName: string]: string;
+                };
+            };
+            outputSelection: {
+                [fileName: string]: {
+                    [contractName: string]: OutputField[];
+                };
+            };
+        };
     }
     export type ErrorType =
         | 'JSONError'
@@ -115,19 +114,6 @@ declare module 'solc' {
         formattedMessage?: string;
     }
     import { ContractAbi } from '@0xproject/types';
-    export interface StandardContractOutput {
-        abi: ContractAbi;
-        evm: {
-            bytecode: {
-                object: string;
-                sourceMap: string;
-            };
-            deployedBytecode: {
-                object: string;
-                sourceMap: string;
-            };
-        };
-    }
     export interface StandardOutput {
         errors: Error[];
         sources: {
@@ -139,7 +125,19 @@ declare module 'solc' {
         };
         contracts: {
             [fileName: string]: {
-                [contractName: string]: StandardContractOutput;
+                [contractName: string]: {
+                    abi: ContractAbi;
+                    evm: {
+                        bytecode: {
+                            object: string;
+                            sourceMap: string;
+                        };
+                        deployedBytecode: {
+                            object: string;
+                            sourceMap: string;
+                        };
+                    };
+                };
             };
         };
     }

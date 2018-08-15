@@ -34,7 +34,6 @@ const docIdToSubpackageName: { [id: string]: string } = {
     [DocPackages.JSONSchemas]: 'json-schemas',
     [DocPackages.SolCov]: 'sol-cov',
     [DocPackages.Subproviders]: 'subproviders',
-    [DocPackages.OrderUtils]: 'order-utils',
 };
 
 export interface DocPageProps {

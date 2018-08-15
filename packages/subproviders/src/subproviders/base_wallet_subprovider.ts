@@ -9,10 +9,9 @@ import { Subprovider } from './subprovider';
 
 export abstract class BaseWalletSubprovider extends Subprovider {
     protected static _validateTxParams(txParams: PartialTxParams) {
-        if (!_.isUndefined(txParams.to)) {
-            assert.isETHAddressHex('to', txParams.to);
-        }
+        assert.isETHAddressHex('to', txParams.to);
         assert.isHexString('nonce', txParams.nonce);
+        assert.isHexString('gas', txParams.gas);
     }
     private static _validateSender(sender: string) {
         if (_.isUndefined(sender) || !addressUtils.isAddress(sender)) {

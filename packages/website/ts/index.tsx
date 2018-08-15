@@ -34,14 +34,9 @@ import 'less/all.less';
 // cause we only want to import the module when the user navigates to the page.
 // At the same time webpack statically parses for System.import() to determine bundle chunk split points
 // so each lazy import needs it's own `System.import()` declaration.
-const LazyPortal =
-    utils.isDevelopment() || utils.isStaging()
-        ? createLazyComponent('Portal', async () =>
-              System.import<any>(/* webpackChunkName: "portal" */ 'ts/containers/portal'),
-          )
-        : createLazyComponent('LegacyPortal', async () =>
-              System.import<any>(/* webpackChunkName: "legacyPortal" */ 'ts/containers/legacy_portal'),
-          );
+const LazyPortal = createLazyComponent('Portal', async () =>
+    System.import<any>(/* webpackChunkName: "portal" */ 'ts/containers/portal'),
+);
 const LazyZeroExJSDocumentation = createLazyComponent('Documentation', async () =>
     System.import<any>(/* webpackChunkName: "zeroExDocs" */ 'ts/containers/zero_ex_js_documentation'),
 );
@@ -65,9 +60,6 @@ const LazySolCovDocumentation = createLazyComponent('Documentation', async () =>
 );
 const LazySubprovidersDocumentation = createLazyComponent('Documentation', async () =>
     System.import<any>(/* webpackChunkName: "subproviderDocs" */ 'ts/containers/subproviders_documentation'),
-);
-const LazyOrderUtilsDocumentation = createLazyComponent('Documentation', async () =>
-    System.import<any>(/* webpackChunkName: "orderUtilsDocs" */ 'ts/containers/order_utils_documentation'),
 );
 
 analytics.init();
@@ -100,10 +92,6 @@ render(
                             <Route
                                 path={`${WebsitePaths.Subproviders}/:version?`}
                                 component={LazySubprovidersDocumentation}
-                            />
-                            <Route
-                                path={`${WebsitePaths.OrderUtils}/:version?`}
-                                component={LazyOrderUtilsDocumentation}
                             />
                             <Route
                                 path={`${WebsitePaths.Web3Wrapper}/:version?`}
