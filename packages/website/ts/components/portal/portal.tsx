@@ -8,14 +8,13 @@ import { Blockchain } from 'ts/blockchain';
 import { BlockchainErrDialog } from 'ts/components/dialogs/blockchain_err_dialog';
 import { LedgerConfigDialog } from 'ts/components/dialogs/ledger_config_dialog';
 import { PortalDisclaimerDialog } from 'ts/components/dialogs/portal_disclaimer_dialog';
-import { AssetPicker } from 'ts/components/generate_order/asset_picker';
 import { RelayerIndex } from 'ts/components/relayer_index/relayer_index';
-import { TopBar } from 'ts/components/top_bar/top_bar';
+import { TopBar, TopBarDisplayType } from 'ts/components/top_bar/top_bar';
 import { FlashMessage } from 'ts/components/ui/flash_message';
 import { Wallet } from 'ts/components/wallet/wallet';
 import { localStorage } from 'ts/local_storage/local_storage';
 import { Dispatcher } from 'ts/redux/dispatcher';
-import { BlockchainErrs, HashData, Order, ProviderType, ScreenWidths, TokenByAddress, TokenVisibility } from 'ts/types';
+import { BlockchainErrs, HashData, Order, ProviderType, ScreenWidths, TokenByAddress } from 'ts/types';
 import { constants } from 'ts/utils/constants';
 import { Translate } from 'ts/utils/translate';
 import { utils } from 'ts/utils/utils';
@@ -49,11 +48,10 @@ interface PortalState {
     prevPathname: string;
     isDisclaimerDialogOpen: boolean;
     isLedgerDialogOpen: boolean;
-    isAssetPickerDialogOpen: boolean;
 }
 
 const THROTTLE_TIMEOUT = 100;
-const TOP_BAR_HEIGHT = 60;
+const TOP_BAR_HEIGHT = TopBar.heightForDisplayType(TopBarDisplayType.Expanded);
 
 const styles: Styles = {
     root: {
@@ -65,7 +63,6 @@ const styles: Styles = {
         height: `calc(100vh - ${TOP_BAR_HEIGHT}px)`,
     },
     scrollContainer: {
-        overflowZ: 'hidden',
         height: `calc(100vh - ${TOP_BAR_HEIGHT}px)`,
         WebkitOverflowScrolling: 'touch',
         overflow: 'auto',
@@ -91,7 +88,6 @@ export class Portal extends React.Component<PortalProps, PortalState> {
             prevUserAddress: this.props.userAddress,
             prevPathname: this.props.location.pathname,
             isDisclaimerDialogOpen: !hasAcceptedDisclaimer,
-            isAssetPickerDialogOpen: false,
             isLedgerDialogOpen: false,
         };
     }
@@ -108,7 +104,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
         // We re-set the entire redux state when the portal is unmounted so that when it is re-rendered
         // the initialization process always occurs from the same base state. This helps avoid
         // initialization inconsistencies (i.e While the portal was unrendered, the user might have
-        // become disconnected from their backing Ethereum node, changed user accounts, etc...)
+        // become disconnected from their backing Ethereum node, changes user accounts, etc...)
         this.props.dispatcher.resetState();
     }
     public componentWillReceiveProps(nextProps: PortalProps) {
@@ -157,6 +153,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
                     location={this.props.location}
                     blockchain={this._blockchain}
                     translate={this.props.translate}
+                    displayType={TopBarDisplayType.Expanded}
                     style={{ backgroundColor: colors.lightestGrey }}
                 />
                 <div id="portal" style={styles.body}>
@@ -179,7 +176,6 @@ export class Portal extends React.Component<PortalProps, PortalState> {
                                 injectedProviderName={this.props.injectedProviderName}
                                 providerType={this.props.providerType}
                                 onToggleLedgerDialog={this._onToggleLedgerDialog.bind(this)}
-                                onAddToken={this._onAddToken.bind(this)}
                             />
                         </div>
                         <div className="flex-auto px3" style={styles.scrollContainer}>
@@ -212,42 +208,13 @@ export class Portal extends React.Component<PortalProps, PortalState> {
                             isOpen={this.state.isLedgerDialogOpen}
                         />
                     )}
-                    <AssetPicker
-                        userAddress={this.props.userAddress}
-                        networkId={this.props.networkId}
-                        blockchain={this._blockchain}
-                        dispatcher={this.props.dispatcher}
-                        isOpen={this.state.isAssetPickerDialogOpen}
-                        currentTokenAddress={''}
-                        onTokenChosen={this._onTokenChosen.bind(this)}
-                        tokenByAddress={this.props.tokenByAddress}
-                        tokenVisibility={TokenVisibility.UNTRACKED}
-                    />
                 </div>
             </div>
         );
     }
-    private _onTokenChosen(tokenAddress: string) {
-        if (_.isEmpty(tokenAddress)) {
-            this.setState({
-                isAssetPickerDialogOpen: false,
-            });
-            return;
-        }
-        const token = this.props.tokenByAddress[tokenAddress];
-        this.props.dispatcher.updateTokenByAddress([token]);
-        this.setState({
-            isAssetPickerDialogOpen: false,
-        });
-    }
     private _onToggleLedgerDialog() {
         this.setState({
             isLedgerDialogOpen: !this.state.isLedgerDialogOpen,
-        });
-    }
-    private _onAddToken() {
-        this.setState({
-            isAssetPickerDialogOpen: !this.state.isAssetPickerDialogOpen,
         });
     }
     private _onPortalDisclaimerAccepted() {
