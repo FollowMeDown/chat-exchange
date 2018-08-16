@@ -6,7 +6,6 @@ import {
     FSResolver,
     NameResolver,
     NPMResolver,
-    RelativeFSResolver,
     Resolver,
     URLResolver,
 } from '@0xproject/sol-resolver';
@@ -39,30 +38,11 @@ import {
     ContractNetworks,
     ContractSourceData,
     ContractSpecificSourceData,
-    ContractVersionData,
 } from './utils/types';
 import { utils } from './utils/utils';
 
-type TYPE_ALL_FILES_IDENTIFIER = '*';
 const ALL_CONTRACTS_IDENTIFIER = '*';
-const ALL_FILES_IDENTIFIER = '*';
 const SOLC_BIN_DIR = path.join(__dirname, '..', '..', 'solc_bin');
-const DEFAULT_CONTRACTS_DIR = path.resolve('contracts');
-const DEFAULT_ARTIFACTS_DIR = path.resolve('artifacts');
-// Solc compiler settings cannot be configured from the commandline.
-// If you need this configured, please create a `compiler.json` config file
-// with your desired configurations.
-const DEFAULT_COMPILER_SETTINGS: solc.CompilerSettings = {
-    optimizer: {
-        enabled: false,
-    },
-    outputSelection: {
-        [ALL_FILES_IDENTIFIER]: {
-            [ALL_CONTRACTS_IDENTIFIER]: ['abi', 'evm.bytecode.object'],
-        },
-    },
-};
-const CONFIG_FILE = 'compiler.json';
 
 /**
  * The Compiler facilitates compiling Solidity smart contracts and saves the results
@@ -72,28 +52,26 @@ export class Compiler {
     private _resolver: Resolver;
     private _nameResolver: NameResolver;
     private _contractsDir: string;
-    private _compilerSettings: solc.CompilerSettings;
+    private _networkId: number;
+    private _optimizerEnabled: boolean;
     private _artifactsDir: string;
-    private _specifiedContracts: string[] | TYPE_ALL_FILES_IDENTIFIER;
+    private _specifiedContracts: Set<string> = new Set();
     /**
      * Instantiates a new instance of the Compiler class.
+     * @param opts Options specifying directories, network, and optimization settings.
      * @return An instance of the Compiler class.
      */
     constructor(opts: CompilerOptions) {
-        // TODO: Look for config file in parent directories if not found in current directory
-        const config: CompilerOptions = fs.existsSync(CONFIG_FILE)
-            ? JSON.parse(fs.readFileSync(CONFIG_FILE).toString())
-            : {};
-        this._contractsDir = opts.contractsDir || config.contractsDir || DEFAULT_CONTRACTS_DIR;
-        this._compilerSettings = opts.compilerSettings || config.compilerSettings || DEFAULT_COMPILER_SETTINGS;
-        this._artifactsDir = opts.artifactsDir || config.artifactsDir || DEFAULT_ARTIFACTS_DIR;
-        this._specifiedContracts = opts.contracts || config.contracts || ALL_CONTRACTS_IDENTIFIER;
+        this._contractsDir = opts.contractsDir;
+        this._networkId = opts.networkId;
+        this._optimizerEnabled = opts.optimizerEnabled;
+        this._artifactsDir = opts.artifactsDir;
+        this._specifiedContracts = opts.specifiedContracts;
         this._nameResolver = new NameResolver(path.resolve(this._contractsDir));
         const resolver = new FallthroughResolver();
         resolver.appendResolver(new URLResolver());
         const packagePath = path.resolve('');
         resolver.appendResolver(new NPMResolver(packagePath));
-        resolver.appendResolver(new RelativeFSResolver(this._contractsDir));
         resolver.appendResolver(new FSResolver());
         resolver.appendResolver(this._nameResolver);
         this._resolver = resolver;
@@ -105,13 +83,13 @@ export class Compiler {
         await createDirIfDoesNotExistAsync(this._artifactsDir);
         await createDirIfDoesNotExistAsync(SOLC_BIN_DIR);
         let contractNamesToCompile: string[] = [];
-        if (this._specifiedContracts === ALL_CONTRACTS_IDENTIFIER) {
+        if (this._specifiedContracts.has(ALL_CONTRACTS_IDENTIFIER)) {
             const allContracts = this._nameResolver.getAll();
             contractNamesToCompile = _.map(allContracts, contractSource =>
                 path.basename(contractSource.path, constants.SOLIDITY_FILE_EXTENSION),
             );
         } else {
-            contractNamesToCompile = this._specifiedContracts;
+            contractNamesToCompile = Array.from(this._specifiedContracts.values());
         }
         for (const contractNameToCompile of contractNamesToCompile) {
             await this._compileContractAsync(contractNameToCompile);
@@ -123,18 +101,17 @@ export class Compiler {
      */
     private async _compileContractAsync(contractName: string): Promise<void> {
         const contractSource = this._resolver.resolve(contractName);
-        const absoluteContractPath = path.join(this._contractsDir, contractSource.path);
         const currentArtifactIfExists = await getContractArtifactIfExistsAsync(this._artifactsDir, contractName);
-        const sourceTreeHashHex = `0x${this._getSourceTreeHash(absoluteContractPath).toString('hex')}`;
+        const sourceTreeHashHex = `0x${this._getSourceTreeHash(contractSource.path).toString('hex')}`;
+
         let shouldCompile = false;
         if (_.isUndefined(currentArtifactIfExists)) {
             shouldCompile = true;
         } else {
             const currentArtifact = currentArtifactIfExists as ContractArtifact;
-            const isUserOnLatestVersion = currentArtifact.schemaVersion === constants.LATEST_ARTIFACT_VERSION;
-            const didCompilerSettingsChange = !_.isEqual(currentArtifact.compiler.settings, this._compilerSettings);
-            const didSourceChange = currentArtifact.sourceTreeHashHex !== sourceTreeHashHex;
-            shouldCompile = isUserOnLatestVersion || didCompilerSettingsChange || didSourceChange;
+            shouldCompile =
+                currentArtifact.networks[this._networkId].optimizer_enabled !== this._optimizerEnabled ||
+                currentArtifact.networks[this._networkId].source_tree_hash !== sourceTreeHashHex;
         }
         if (!shouldCompile) {
             return;
@@ -162,14 +139,30 @@ export class Compiler {
 
         logUtils.log(`Compiling ${contractName} with Solidity v${solcVersion}...`);
         const source = contractSource.source;
+        const absoluteFilePath = contractSource.path;
         const standardInput: solc.StandardInput = {
             language: 'Solidity',
             sources: {
-                [contractSource.path]: {
-                    content: contractSource.source,
+                [absoluteFilePath]: {
+                    urls: [`file://${absoluteFilePath}`],
                 },
             },
-            settings: this._compilerSettings,
+            settings: {
+                optimizer: {
+                    enabled: this._optimizerEnabled,
+                },
+                outputSelection: {
+                    '*': {
+                        '*': [
+                            'abi',
+                            'evm.bytecode.object',
+                            'evm.bytecode.sourceMap',
+                            'evm.deployedBytecode.object',
+                            'evm.deployedBytecode.sourceMap',
+                        ],
+                    },
+                },
+            },
         };
         const compiled: solc.StandardOutput = JSON.parse(
             solcInstance.compileStandardWrapper(JSON.stringify(standardInput), importPath => {
@@ -195,28 +188,34 @@ export class Compiler {
                 });
             }
         }
-        const compiledData = compiled.contracts[contractSource.path][contractName];
+        const compiledData = compiled.contracts[absoluteFilePath][contractName];
         if (_.isUndefined(compiledData)) {
             throw new Error(
-                `Contract ${contractName} not found in ${
-                    contractSource.path
-                }. Please make sure your contract has the same name as it's file name`,
+                `Contract ${contractName} not found in ${absoluteFilePath}. Please make sure your contract has the same name as it's file name`,
             );
         }
-        const sourceCodes = _.mapValues(
-            compiled.sources,
-            (_1, sourceFilePath) => this._resolver.resolve(sourceFilePath).source,
+        const abi: ContractAbi = compiledData.abi;
+        const bytecode = `0x${compiledData.evm.bytecode.object}`;
+        const runtimeBytecode = `0x${compiledData.evm.deployedBytecode.object}`;
+        const sourceMap = compiledData.evm.bytecode.sourceMap;
+        const sourceMapRuntime = compiledData.evm.deployedBytecode.sourceMap;
+        const unresolvedSourcePaths = _.keys(compiled.sources);
+        const sources = _.map(
+            unresolvedSourcePaths,
+            unresolvedSourcePath => this._resolver.resolve(unresolvedSourcePath).path,
         );
-        const contractVersion: ContractVersionData = {
-            compilerOutput: compiledData,
-            sources: compiled.sources,
-            sourceCodes,
-            sourceTreeHashHex,
-            compiler: {
-                name: 'solc',
-                version: solcVersion,
-                settings: this._compilerSettings,
-            },
+        const updated_at = Date.now();
+        const contractNetworkData: ContractNetworkData = {
+            solc_version: solcVersion,
+            source_tree_hash: sourceTreeHashHex,
+            optimizer_enabled: this._optimizerEnabled,
+            abi,
+            bytecode,
+            runtime_bytecode: runtimeBytecode,
+            updated_at,
+            source_map: sourceMap,
+            source_map_runtime: sourceMapRuntime,
+            sources,
         };
 
         let newArtifact: ContractArtifact;
@@ -224,14 +223,17 @@ export class Compiler {
             const currentArtifact = currentArtifactIfExists as ContractArtifact;
             newArtifact = {
                 ...currentArtifact,
-                ...contractVersion,
+                networks: {
+                    ...currentArtifact.networks,
+                    [this._networkId]: contractNetworkData,
+                },
             };
         } else {
             newArtifact = {
-                schemaVersion: constants.LATEST_ARTIFACT_VERSION,
-                contractName,
-                ...contractVersion,
-                networks: {},
+                contract_name: contractName,
+                networks: {
+                    [this._networkId]: contractNetworkData,
+                },
             };
         }
 

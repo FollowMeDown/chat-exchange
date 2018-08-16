@@ -1,10 +1,11 @@
+import { DoneCallback } from '@0xproject/types';
 import * as chai from 'chai';
 import 'mocha';
 
 import { Compiler } from '../src/compiler';
 import { Deployer } from '../src/deployer';
 import { fsWrapper } from '../src/utils/fs_wrapper';
-import { CompilerOptions, ContractArtifact, ContractNetworkData, DoneCallback } from '../src/utils/types';
+import { CompilerOptions, ContractArtifact, ContractNetworkData } from '../src/utils/types';
 
 import { constructor_args, exchange_binary } from './fixtures/exchange_bin';
 import { constants } from './util/constants';
@@ -19,7 +20,9 @@ describe('#Deployer', () => {
     const compilerOpts: CompilerOptions = {
         artifactsDir,
         contractsDir,
-        contracts: constants.contracts,
+        networkId: constants.networkId,
+        optimizerEnabled: constants.optimizerEnabled,
+        specifiedContracts: new Set(constants.specifiedContracts),
     };
     const compiler = new Compiler(compilerOpts);
     const deployerOpts = {
@@ -53,7 +56,8 @@ describe('#Deployer', () => {
             const exchangeContractData: ContractNetworkData = exchangeArtifact.networks[constants.networkId];
             const exchangeAddress = exchangeContractInstance.address;
             expect(exchangeAddress).to.not.equal(undefined);
-            expect(exchangeContractData).to.equal(undefined);
+            expect(exchangeContractData.address).to.equal(undefined);
+            expect(exchangeContractData.constructor_args).to.equal(undefined);
         });
     });
     describe('#deployAndSaveAsync', () => {
@@ -68,7 +72,7 @@ describe('#Deployer', () => {
             const exchangeContractData: ContractNetworkData = exchangeArtifact.networks[constants.networkId];
             const exchangeAddress = exchangeContractInstance.address;
             expect(exchangeAddress).to.be.equal(exchangeContractData.address);
-            expect(constructor_args).to.be.equal(exchangeContractData.constructorArgs);
+            expect(constructor_args).to.be.equal(exchangeContractData.constructor_args);
         });
     });
 });
