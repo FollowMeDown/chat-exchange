@@ -1,7 +1,6 @@
-import { Token } from '@0xproject/types';
 import * as _ from 'lodash';
 
-import { InternalZeroExError } from '../../src/types';
+import { InternalZeroExError, Token } from '../../src/types';
 
 const PROTOCOL_TOKEN_SYMBOL = 'ZRX';
 const WETH_TOKEN_SYMBOL = 'WETH';
