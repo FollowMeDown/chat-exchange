@@ -2,7 +2,6 @@ import { AbiType, ConstructorAbi, ContractAbi, Provider, TxData } from '@0xproje
 import { logUtils } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as _ from 'lodash';
-import * as solc from 'solc';
 import * as Web3 from 'web3';
 
 import { Contract } from './utils/contract';
@@ -29,20 +28,7 @@ export class Deployer {
     private _artifactsDir: string;
     private _networkId: number;
     private _defaults: Partial<TxData>;
-    /**
-     * Gets data for current version stored in artifact.
-     * @param contractArtifact The contract artifact.
-     * @return Version specific contract data.
-     */
-    private static _getContractCompilerOutputFromArtifactIfExists(
-        contractArtifact: ContractArtifact,
-    ): solc.StandardContractOutput {
-        const compilerOutputIfExists = contractArtifact.compilerOutput;
-        if (_.isUndefined(compilerOutputIfExists)) {
-            throw new Error(`Compiler output not found in artifact for contract: ${contractArtifact.contractName}`);
-        }
-        return compilerOutputIfExists;
-    }
+
     /**
      * Instantiate a new instance of the Deployer class.
      * @param opts Deployer options, including either an RPC url or Provider instance.
@@ -72,8 +58,10 @@ export class Deployer {
      */
     public async deployAsync(contractName: string, args: any[] = []): Promise<Web3.ContractInstance> {
         const contractArtifactIfExists: ContractArtifact = this._loadContractArtifactIfExists(contractName);
-        const compilerOutput = Deployer._getContractCompilerOutputFromArtifactIfExists(contractArtifactIfExists);
-        const data = compilerOutput.evm.bytecode.object;
+        const contractNetworkDataIfExists: ContractNetworkData = this._getContractNetworkDataFromArtifactIfExists(
+            contractArtifactIfExists,
+        );
+        const data = contractNetworkDataIfExists.bytecode;
         const from = await this._getFromAddressAsync();
         const gas = await this._getAllowableGasEstimateAsync(data);
         const txData = {
@@ -82,10 +70,7 @@ export class Deployer {
             data,
             gas,
         };
-        if (_.isUndefined(compilerOutput.abi)) {
-            throw new Error(`ABI not found in ${contractName} artifacts`);
-        }
-        const abi = compilerOutput.abi;
+        const abi = contractNetworkDataIfExists.abi;
         const constructorAbi = _.find(abi, { type: AbiType.Constructor }) as ConstructorAbi;
         const constructorArgs = _.isUndefined(constructorAbi) ? [] : constructorAbi.inputs;
         if (constructorArgs.length !== args.length) {
@@ -153,16 +138,15 @@ export class Deployer {
         args: any[],
     ): Promise<void> {
         const contractArtifactIfExists: ContractArtifact = this._loadContractArtifactIfExists(contractName);
-        const compilerOutput = Deployer._getContractCompilerOutputFromArtifactIfExists(contractArtifactIfExists);
-        if (_.isUndefined(compilerOutput.abi)) {
-            throw new Error(`ABI not found in ${contractName} artifacts`);
-        }
-        const abi = compilerOutput.abi;
+        const contractNetworkDataIfExists: ContractNetworkData = this._getContractNetworkDataFromArtifactIfExists(
+            contractArtifactIfExists,
+        );
+        const abi = contractNetworkDataIfExists.abi;
         const encodedConstructorArgs = encoder.encodeConstructorArgsFromAbi(args, abi);
-        const newContractData: ContractNetworkData = {
+        const newContractData = {
+            ...contractNetworkDataIfExists,
             address: contractAddress,
-            links: {},
-            constructorArgs: encodedConstructorArgs,
+            constructor_args: encodedConstructorArgs,
         };
         const newArtifact = {
             ...contractArtifactIfExists,
@@ -188,6 +172,18 @@ export class Deployer {
         } catch (err) {
             throw new Error(`Artifact not found for contract: ${contractName} at ${artifactPath}`);
         }
+    }
+    /**
+     * Gets data for current networkId stored in artifact.
+     * @param contractArtifact The contract artifact.
+     * @return Network specific contract data.
+     */
+    private _getContractNetworkDataFromArtifactIfExists(contractArtifact: ContractArtifact): ContractNetworkData {
+        const contractNetworkDataIfExists = contractArtifact.networks[this._networkId];
+        if (_.isUndefined(contractNetworkDataIfExists)) {
+            throw new Error(`Data not found in artifact for contract: ${contractArtifact.contract_name}`);
+        }
+        return contractNetworkDataIfExists;
     }
     /**
      * Gets the address to use for sending a transaction.
