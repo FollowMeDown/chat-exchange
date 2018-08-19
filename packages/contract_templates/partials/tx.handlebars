@@ -14,12 +14,11 @@ public {{this.tsName}} = {
         const encodedData = self._lookupEthersInterface('{{this.functionSignature}}').functions.{{this.name}}(
             {{> params inputs=inputs}}
         ).data;
-        const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+        const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
             {
                 ...txData,
                 data: encodedData,
             },
-            self._web3Wrapper.getContractDefaults(),
             self.{{this.tsName}}.estimateGasAsync.bind(
                 self,
                 {{> params inputs=inputs}}
@@ -34,16 +33,15 @@ public {{this.tsName}} = {
     ): Promise<number> {
         const self = this as any as {{contractName}}Contract;
         const inputAbi = self._lookupAbi('{{this.functionSignature}}').inputs;
-        [{{> params inputs=inputs}}] = BaseContract._formatABIDataItemList(inputAbi, [{{> params inputs=inputs}}], BaseContract._bigNumberToString);
+        [{{> params inputs=inputs}}] = BaseContract._formatABIDataItemList(inputAbi, [{{> params inputs=inputs}}], BaseContract._bigNumberToString.bind(this));
         const encodedData = self._lookupEthersInterface('{{this.functionSignature}}').functions.{{this.name}}(
             {{> params inputs=inputs}}
         ).data;
-        const txDataWithDefaults = await BaseContract._applyDefaultsToTxDataAsync(
+        const txDataWithDefaults = await self._applyDefaultsToTxDataAsync(
             {
                 ...txData,
                 data: encodedData,
-            },
-            self._web3Wrapper.getContractDefaults(),
+            }
         );
         const gas = await self._web3Wrapper.estimateGasAsync(txDataWithDefaults);
         return gas;
@@ -53,7 +51,7 @@ public {{this.tsName}} = {
     ): string {
         const self = this as any as {{contractName}}Contract;
         const inputAbi = self._lookupAbi('{{this.functionSignature}}').inputs;
-        [{{> params inputs=inputs}}] = BaseContract._formatABIDataItemList(inputAbi, [{{> params inputs=inputs}}], BaseContract._bigNumberToString);
+        [{{> params inputs=inputs}}] = BaseContract._formatABIDataItemList(inputAbi, [{{> params inputs=inputs}}], BaseContract._bigNumberToString.bind(self));
         const abiEncodedTransactionData = self._lookupEthersInterface('{{this.functionSignature}}').functions.{{this.name}}(
             {{> params inputs=inputs}}
         ).data;

@@ -1,7 +1,6 @@
 import {
     AbiDefinition,
     AbiType,
-    ConstructorAbi,
     ContractAbi,
     DataItem,
     MethodAbi,
@@ -25,8 +24,6 @@ export class BaseContract {
     protected _web3Wrapper: Web3Wrapper;
     public abi: ContractAbi;
     public address: string;
-    public contractName: string;
-    public constructorArgs: any[] = [];
     protected static _formatABIDataItemList(
         abis: DataItem[],
         values: any[],
@@ -40,31 +37,11 @@ export class BaseContract {
     protected static _bigNumberToString(type: string, value: any): any {
         return _.isObject(value) && value.isBigNumber ? value.toString() : value;
     }
-    protected static _lookupConstructorAbi(abi: ContractAbi): ConstructorAbi {
-        const constructorAbiIfExists = _.find(
-            abi,
-            (abiDefinition: AbiDefinition) => abiDefinition.type === AbiType.Constructor,
-        ) as ConstructorAbi | undefined;
-        if (!_.isUndefined(constructorAbiIfExists)) {
-            return constructorAbiIfExists;
-        } else {
-            // If the constructor is not explicitly defined, it won't be included in the ABI. It is
-            // still callable however, so we construct what the ABI would look like were it to exist.
-            const defaultConstructorAbi: ConstructorAbi = {
-                type: AbiType.Constructor,
-                stateMutability: 'nonpayable',
-                payable: false,
-                inputs: [],
-            };
-            return defaultConstructorAbi;
-        }
-    }
     protected static _bnToBigNumber(type: string, value: any): any {
         return _.isObject(value) && value._bn ? new BigNumber(value.toString()) : value;
     }
-    protected static async _applyDefaultsToTxDataAsync<T extends Partial<TxData | TxDataPayable>>(
+    protected async _applyDefaultsToTxDataAsync<T extends Partial<TxData | TxDataPayable>>(
         txData: T,
-        txDefaults: Partial<TxData>,
         estimateGasAsync?: (txData: T) => Promise<number>,
     ): Promise<TxData> {
         // Gas amount sourced with the following priorities:
@@ -72,12 +49,13 @@ export class BaseContract {
         // 2. Global config passed in at library instantiation
         // 3. Gas estimate calculation + safety margin
         const removeUndefinedProperties = _.pickBy;
-        const txDataWithDefaults: TxData = {
-            ...removeUndefinedProperties(txDefaults),
+        const txDataWithDefaults = ({
+            to: this.address,
+            ...removeUndefinedProperties(this._web3Wrapper.getContractDefaults()),
             ...removeUndefinedProperties(txData as any),
             // HACK: TS can't prove that T is spreadable.
             // Awaiting https://github.com/Microsoft/TypeScript/pull/13288 to be merged
-        } as any;
+        } as any) as TxData;
         if (_.isUndefined(txDataWithDefaults.gas) && !_.isUndefined(estimateGasAsync)) {
             const estimatedGas = await estimateGasAsync(txData);
             txDataWithDefaults.gas = estimatedGas;
@@ -104,15 +82,8 @@ export class BaseContract {
         }) as MethodAbi;
         return methodAbi;
     }
-    constructor(
-        contractName: string,
-        abi: ContractAbi,
-        address: string,
-        provider: Provider,
-        txDefaults?: Partial<TxData>,
-    ) {
-        this.contractName = contractName;
-        this._web3Wrapper = new Web3Wrapper(provider, txDefaults);
+    constructor(abi: ContractAbi, address: string, provider: Provider, defaults?: Partial<TxData>) {
+        this._web3Wrapper = new Web3Wrapper(provider, defaults);
         this.abi = abi;
         this.address = address;
         const methodAbis = this.abi.filter(
