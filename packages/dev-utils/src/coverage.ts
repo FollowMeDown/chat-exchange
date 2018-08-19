@@ -15,7 +15,8 @@ export const coverage = {
     _getCoverageSubprovider(): CoverageSubprovider {
         const artifactsPath = '../migrations/artifacts/1.0.0';
         const contractsPath = 'src/contracts';
+        const networkId = 50;
         const defaultFromAddress = constants.TESTRPC_FIRST_ADDRESS;
-        return new CoverageSubprovider(artifactsPath, contractsPath, defaultFromAddress);
+        return new CoverageSubprovider(artifactsPath, contractsPath, networkId, defaultFromAddress);
     },
 };

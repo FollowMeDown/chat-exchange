@@ -6,13 +6,12 @@ import * as Web3 from 'web3';
 
 import { DummyTokenContract } from '../../src/contract_wrappers/generated/dummy_token';
 import { TokenTransferProxyContract } from '../../src/contract_wrappers/generated/token_transfer_proxy';
-import { artifacts } from '../../util/artifacts';
 import { Balances } from '../../util/balances';
 import { constants } from '../../util/constants';
 import { ContractName } from '../../util/types';
 import { chaiSetup } from '../utils/chai_setup';
-
-import { txDefaults, provider, web3Wrapper } from '../utils/web3_wrapper';
+import { deployer } from '../utils/deployer';
+import { provider, web3Wrapper } from '../utils/web3_wrapper';
 
 chaiSetup.configure();
 const expect = chai.expect;
@@ -32,20 +31,15 @@ describe('TokenTransferProxy', () => {
     before(async () => {
         accounts = await web3Wrapper.getAvailableAddressesAsync();
         owner = notAuthorized = accounts[0];
-        tokenTransferProxy = await TokenTransferProxyContract.deployFrom0xArtifactAsync(
-            artifacts.TokenTransferProxy,
+        const tokenTransferProxyInstance = await deployer.deployAsync(ContractName.TokenTransferProxy);
+        tokenTransferProxy = new TokenTransferProxyContract(
+            tokenTransferProxyInstance.abi,
+            tokenTransferProxyInstance.address,
             provider,
-            txDefaults,
         );
-        rep = await DummyTokenContract.deployFrom0xArtifactAsync(
-            artifacts.DummyToken,
-            provider,
-            txDefaults,
-            constants.DUMMY_TOKEN_NAME,
-            constants.DUMMY_TOKEN_SYMBOL,
-            constants.DUMMY_TOKEN_DECIMALS,
-            constants.DUMMY_TOKEN_TOTAL_SUPPLY,
-        );
+        const repInstance = await deployer.deployAsync(ContractName.DummyToken, constants.DUMMY_TOKEN_ARGS);
+        rep = new DummyTokenContract(repInstance.abi, repInstance.address, provider);
+
         dmyBalances = new Balances([rep], [accounts[0], accounts[1]]);
         await Promise.all([
             rep.approve.sendTransactionAsync(tokenTransferProxy.address, INIT_ALLOW, {

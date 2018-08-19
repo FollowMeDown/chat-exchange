@@ -1,4 +1,3 @@
-import { addHexPrefix } from 'ethereumjs-util';
 import * as fs from 'fs';
 import { Collector } from 'istanbul';
 import * as _ from 'lodash';
@@ -37,18 +36,21 @@ export class CoverageManager {
     constructor(
         artifactsPath: string,
         sourcesPath: string,
+        networkId: number,
         getContractCodeAsync: (address: string) => Promise<string>,
     ) {
         this._getContractCodeAsync = getContractCodeAsync;
         this._sourcesPath = sourcesPath;
-        this._contractsData = collectContractsData(artifactsPath, this._sourcesPath);
+        this._contractsData = collectContractsData(artifactsPath, this._sourcesPath, networkId);
     }
     public appendTraceInfo(traceInfo: TraceInfo): void {
         this._traceInfos.push(traceInfo);
     }
     public async writeCoverageAsync(): Promise<void> {
         const finalCoverage = await this._computeCoverageAsync();
-        const stringifiedCoverage = JSON.stringify(finalCoverage, null, '\t');
+        const jsonReplacer: null = null;
+        const numberOfJsonSpaces = 4;
+        const stringifiedCoverage = JSON.stringify(finalCoverage, jsonReplacer, numberOfJsonSpaces);
         fs.writeFileSync('coverage/coverage.json', stringifiedCoverage);
     }
     private _getSingleFileCoverageForTrace(
@@ -132,7 +134,7 @@ export class CoverageManager {
             if (traceInfo.address !== constants.NEW_CONTRACT) {
                 // Runtime transaction
                 let runtimeBytecode = (traceInfo as TraceInfoExistingContract).runtimeBytecode;
-                runtimeBytecode = addHexPrefix(runtimeBytecode);
+                runtimeBytecode = utils.removeHexPrefix(runtimeBytecode);
                 const contractData = _.find(this._contractsData, { runtimeBytecode }) as ContractData;
                 if (_.isUndefined(contractData)) {
                     throw new Error(`Transaction to an unknown address: ${traceInfo.address}`);
@@ -157,7 +159,7 @@ export class CoverageManager {
             } else {
                 // Contract creation transaction
                 let bytecode = (traceInfo as TraceInfoNewContract).bytecode;
-                bytecode = addHexPrefix(bytecode);
+                bytecode = utils.removeHexPrefix(bytecode);
                 const contractData = _.find(this._contractsData, contractDataCandidate =>
                     bytecode.startsWith(contractDataCandidate.bytecode),
                 ) as ContractData;
@@ -183,6 +185,7 @@ export class CoverageManager {
                 }
             }
         }
-        return collector.getFinalCoverage();
+        // TODO: Remove any cast as soon as https://github.com/DefinitelyTyped/DefinitelyTyped/pull/24233 gets merged
+        return (collector as any).getFinalCoverage();
     }
 }

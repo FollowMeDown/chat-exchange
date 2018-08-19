@@ -14,8 +14,8 @@ import { MultiSigWrapper } from '../util/multi_sig_wrapper';
 import { ContractName, SubmissionContractEventArgs } from '../util/types';
 
 import { chaiSetup } from './utils/chai_setup';
-
-import { txDefaults, provider, web3Wrapper } from './utils/web3_wrapper';
+import { deployer } from './utils/deployer';
+import { provider, web3Wrapper } from './utils/web3_wrapper';
 
 const MULTI_SIG_ABI = artifacts.MultiSigWalletWithTimeLock.compilerOutput.abi;
 chaiSetup.configure();
@@ -47,13 +47,15 @@ describe('MultiSigWalletWithTimeLock', () => {
     describe('changeTimeLock', () => {
         describe('initially non-time-locked', async () => {
             before('deploy a wallet', async () => {
-                multiSig = await MultiSigWalletWithTimeLockContract.deployFrom0xArtifactAsync(
-                    artifacts.MultiSigWalletWithTimeLock,
-                    provider,
-                    txDefaults,
+                const multiSigInstance = await deployer.deployAsync(ContractName.MultiSigWalletWithTimeLock, [
                     owners,
                     SIGNATURES_REQUIRED,
-                    new BigNumber(0),
+                    0,
+                ]);
+                multiSig = new MultiSigWalletWithTimeLockContract(
+                    multiSigInstance.abi,
+                    multiSigInstance.address,
+                    provider,
                 );
                 multiSigWrapper = new MultiSigWrapper((multiSig as any) as MultiSigWalletContract);
 
@@ -142,13 +144,15 @@ describe('MultiSigWalletWithTimeLock', () => {
         });
         describe('initially time-locked', async () => {
             before('deploy a wallet', async () => {
-                multiSig = await MultiSigWalletWithTimeLockContract.deployFrom0xArtifactAsync(
-                    artifacts.MultiSigWalletWithTimeLock,
-                    provider,
-                    txDefaults,
+                const multiSigInstance = await deployer.deployAsync(ContractName.MultiSigWalletWithTimeLock, [
                     owners,
                     SIGNATURES_REQUIRED,
                     SECONDS_TIME_LOCKED,
+                ]);
+                multiSig = new MultiSigWalletWithTimeLockContract(
+                    multiSigInstance.abi,
+                    multiSigInstance.address,
+                    provider,
                 );
                 multiSigWrapper = new MultiSigWrapper((multiSig as any) as MultiSigWalletContract);
 

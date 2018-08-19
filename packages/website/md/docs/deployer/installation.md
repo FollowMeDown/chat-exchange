@@ -13,11 +13,12 @@ yarn add @0xproject/deployer
 **Import**
 
 ```typescript
-import { Compiler } from '@0xproject/deployer';
+import { Deployer, Compiler } from '@0xproject/deployer';
 ```
 
 or
 
 ```javascript
+var Deployer = require('@0xproject/deployer').Deployer;
 var Compiler = require('@0xproject/deployer').Compiler;
 ```
