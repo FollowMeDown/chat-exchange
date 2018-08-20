@@ -4,12 +4,11 @@ import * as chai from 'chai';
 import * as Web3 from 'web3';
 
 import { TokenTransferProxyContract } from '../../src/contract_wrappers/generated/token_transfer_proxy';
-import { artifacts } from '../../util/artifacts';
 import { constants } from '../../util/constants';
 import { ContractName } from '../../util/types';
 import { chaiSetup } from '../utils/chai_setup';
-
-import { provider, txDefaults, web3Wrapper } from '../utils/web3_wrapper';
+import { deployer } from '../utils/deployer';
+import { provider, web3Wrapper } from '../utils/web3_wrapper';
 
 chaiSetup.configure();
 const expect = chai.expect;
@@ -24,10 +23,11 @@ describe('TokenTransferProxy', () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         owner = address = accounts[0];
         notOwner = accounts[1];
-        tokenTransferProxy = await TokenTransferProxyContract.deployFrom0xArtifactAsync(
-            artifacts.TokenTransferProxy,
+        const tokenTransferProxyInstance = await deployer.deployAsync(ContractName.TokenTransferProxy);
+        tokenTransferProxy = new TokenTransferProxyContract(
+            tokenTransferProxyInstance.abi,
+            tokenTransferProxyInstance.address,
             provider,
-            txDefaults,
         );
     });
     beforeEach(async () => {

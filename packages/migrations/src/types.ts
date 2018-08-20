@@ -1,5 +1,3 @@
-import { BigNumber } from '@0xproject/utils';
-
 export interface MultiSigConfig {
     owners: string[];
     confirmationsRequired: number;
@@ -14,7 +12,7 @@ export interface Token {
     address?: string;
     name: string;
     symbol: string;
-    decimals: BigNumber;
+    decimals: number;
     ipfsHash: string;
     swarmHash: string;
 }
