@@ -12,7 +12,7 @@
     "main": "lib/src/index.js",
     "types": "lib/src/index.d.ts",
     "scripts": {
-        "build:watch": "tsc -w",
+        "watch": "tsc -w",
         "prebuild": "run-s clean generate_contract_wrappers",
         "build": "run-p build:umd:prod build:commonjs; exit 0;",
         "generate_contract_wrappers": "node ../abi-gen/lib/index.js --abis 'src/compact_artifacts/@(Exchange|Token|TokenTransferProxy|EtherToken|TokenRegistry|DummyToken).json' --template ../contract_templates/contract.handlebars --partials '../contract_templates/partials/**/*.handlebars' --output src/contract_wrappers/generated --backend ethers && prettier --write 'src/contract_wrappers/generated/**.ts'",
@@ -103,6 +103,7 @@
         "@0xproject/order-utils": "^0.0.4",
         "@0xproject/types": "^0.6.3",
         "@0xproject/typescript-typings": "^0.3.1",
+        "@0xproject/sol-compiler": "^0.4.3",
         "@0xproject/utils": "^0.6.1",
         "@0xproject/web3-wrapper": "^0.6.3",
         "ethers": "^3.0.15",
