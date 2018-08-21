@@ -28,16 +28,16 @@ export class TradeHistory extends React.Component<TradeHistoryProps, TradeHistor
             sortedFills,
         };
     }
-    public componentWillMount(): void {
+    public componentWillMount() {
         this._startPollingForFills();
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         this._stopPollingForFills();
     }
-    public componentDidMount(): void {
+    public componentDidMount() {
         window.scrollTo(0, 0);
     }
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div className="lg-px4 md-px4 sm-px2">
                 <h3>Trade history</h3>
@@ -48,7 +48,7 @@ export class TradeHistory extends React.Component<TradeHistoryProps, TradeHistor
             </div>
         );
     }
-    private _renderTrades(): React.ReactNode {
+    private _renderTrades() {
         const numNonCustomFills = this._numFillsWithoutCustomERC20Tokens();
         if (numNonCustomFills === 0) {
             return this._renderEmptyNotice();
@@ -66,14 +66,14 @@ export class TradeHistory extends React.Component<TradeHistoryProps, TradeHistor
             );
         });
     }
-    private _renderEmptyNotice(): React.ReactNode {
+    private _renderEmptyNotice() {
         return (
             <Paper className="mt1 p2 mx-auto center" style={{ width: '80%' }}>
                 No filled orders yet.
             </Paper>
         );
     }
-    private _numFillsWithoutCustomERC20Tokens(): number {
+    private _numFillsWithoutCustomERC20Tokens() {
         let numNonCustomFills = 0;
         const tokens = _.values(this.props.tokenByAddress);
         _.each(this.state.sortedFills, fill => {
@@ -93,7 +93,7 @@ export class TradeHistory extends React.Component<TradeHistoryProps, TradeHistor
         });
         return numNonCustomFills;
     }
-    private _startPollingForFills(): void {
+    private _startPollingForFills() {
         this._fillPollingIntervalId = window.setInterval(() => {
             const sortedFills = this._getSortedFills();
             if (!utils.deepEqual(sortedFills, this.state.sortedFills)) {
@@ -103,10 +103,10 @@ export class TradeHistory extends React.Component<TradeHistoryProps, TradeHistor
             }
         }, FILL_POLLING_INTERVAL);
     }
-    private _stopPollingForFills(): void {
+    private _stopPollingForFills() {
         clearInterval(this._fillPollingIntervalId);
     }
-    private _getSortedFills(): Fill[] {
+    private _getSortedFills() {
         const fillsByHash = tradeHistoryStorage.getUserFillsByHash(this.props.userAddress, this.props.networkId);
         const fills = _.values(fillsByHash);
         const sortedFills = _.sortBy(fills, [(fill: Fill) => fill.blockTimestamp * -1]);

@@ -47,14 +47,14 @@ export class EthWethConversionDialog extends React.Component<
             ethTokenBalance: new BigNumber(0),
         };
     }
-    public componentWillMount(): void {
+    public componentWillMount() {
         // tslint:disable-next-line:no-floating-promises
         this._fetchEthTokenBalanceAsync();
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         this._isUnmounted = true;
     }
-    public render(): React.ReactNode {
+    public render() {
         const convertDialogActions = [
             <FlatButton key="cancel" label="Cancel" onTouchTap={this._onCancel.bind(this)} />,
             <FlatButton key="convert" label="Convert" primary={true} onTouchTap={this._onConvertClick.bind(this)} />,
@@ -72,7 +72,7 @@ export class EthWethConversionDialog extends React.Component<
             </Dialog>
         );
     }
-    private _renderConversionDialogBody(): React.ReactNode {
+    private _renderConversionDialogBody() {
         const explanation =
             this.props.direction === Side.Deposit
                 ? 'Convert your Ether into a tokenized, tradable form.'
@@ -137,7 +137,7 @@ export class EthWethConversionDialog extends React.Component<
             </div>
         );
     }
-    private _renderCurrency(isWrappedVersion: boolean): React.ReactNode {
+    private _renderCurrency(isWrappedVersion: boolean) {
         const name = isWrappedVersion ? 'Wrapped Ether' : 'Ether';
         const iconUrl = isWrappedVersion ? '/images/token_icons/ether_erc20.png' : '/images/ether.png';
         const symbol = isWrappedVersion ? 'WETH' : 'ETH';
@@ -155,18 +155,18 @@ export class EthWethConversionDialog extends React.Component<
             </div>
         );
     }
-    private _onMaxClick(): void {
+    private _onMaxClick() {
         this.setState({
             value: this.state.ethTokenBalance,
         });
     }
-    private _onValueChange(isValid: boolean, amount?: BigNumber): void {
+    private _onValueChange(isValid: boolean, amount?: BigNumber) {
         this.setState({
             value: amount,
             hasErrors: !isValid,
         });
     }
-    private _onConvertClick(): void {
+    private _onConvertClick() {
         if (this.state.hasErrors) {
             this.setState({
                 shouldShowIncompleteErrs: true,
@@ -179,13 +179,13 @@ export class EthWethConversionDialog extends React.Component<
             this.props.onComplete(this.props.direction, value);
         }
     }
-    private _onCancel(): void {
+    private _onCancel() {
         this.setState({
             value: undefined,
         });
         this.props.onCancelled();
     }
-    private async _fetchEthTokenBalanceAsync(): Promise<void> {
+    private async _fetchEthTokenBalanceAsync() {
         const userAddressIfExists = _.isEmpty(this.props.userAddress) ? undefined : this.props.userAddress;
         const [balance] = await this.props.blockchain.getTokenBalanceAndAllowanceAsync(
             userAddressIfExists,

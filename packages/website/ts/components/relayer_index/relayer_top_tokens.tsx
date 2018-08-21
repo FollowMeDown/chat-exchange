@@ -41,6 +41,6 @@ export const TopTokens: React.StatelessComponent<TopTokensProps> = (props: TopTo
     );
 };
 
-function tokenLinkFromToken(tokenInfo: WebsiteBackendTokenInfo, networkId: number): string {
+function tokenLinkFromToken(tokenInfo: WebsiteBackendTokenInfo, networkId: number) {
     return sharedUtils.getEtherScanLinkIfExists(tokenInfo.address, networkId, EtherscanLinkSuffixes.Address);
 }

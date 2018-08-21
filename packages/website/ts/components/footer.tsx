@@ -50,7 +50,7 @@ export class Footer extends React.Component<FooterProps, FooterState> {
             selectedLanguage: props.translate.getLanguage(),
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const menuItemsBySection: MenuItemsBySection = {
             [Key.Documentation]: [
                 {
@@ -180,14 +180,14 @@ export class Footer extends React.Component<FooterProps, FooterState> {
             </div>
         );
     }
-    private _renderIcon(fileName: string): React.ReactNode {
+    private _renderIcon(fileName: string) {
         return (
             <div style={{ height: ICON_DIMENSION, width: ICON_DIMENSION }}>
                 <img src={`/images/social/${fileName}`} style={{ width: ICON_DIMENSION }} />
             </div>
         );
     }
-    private _renderMenuItem(item: FooterMenuItem): React.ReactNode {
+    private _renderMenuItem(item: FooterMenuItem) {
         const titleToIcon: { [title: string]: string } = {
             [this.props.translate.get(Key.RocketChat, Deco.Cap)]: 'rocketchat.png',
             [this.props.translate.get(Key.Blog, Deco.Cap)]: 'medium.png',
@@ -222,7 +222,7 @@ export class Footer extends React.Component<FooterProps, FooterState> {
             </div>
         );
     }
-    private _renderHeader(key: Key): React.ReactNode {
+    private _renderHeader(key: Key) {
         const headerStyle = {
             color: colors.grey400,
             letterSpacing: 2,
@@ -235,7 +235,7 @@ export class Footer extends React.Component<FooterProps, FooterState> {
             </div>
         );
     }
-    private _updateLanguage(e: any, index: number, value: Language): void {
+    private _updateLanguage(e: any, index: number, value: Language) {
         this.setState({
             selectedLanguage: value,
         });

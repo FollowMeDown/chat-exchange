@@ -63,10 +63,10 @@ export class GenerateOrderForm extends React.Component<GenerateOrderFormProps, G
             signingState: SigningState.UNSIGNED,
         };
     }
-    public componentDidMount(): void {
+    public componentDidMount() {
         window.scrollTo(0, 0);
     }
-    public render(): React.ReactNode {
+    public render() {
         const dispatcher = this.props.dispatcher;
         const depositTokenAddress = this.props.sideToAssetToken[Side.Deposit].address;
         const depositToken = this.props.tokenByAddress[depositTokenAddress];
@@ -214,13 +214,13 @@ export class GenerateOrderForm extends React.Component<GenerateOrderFormProps, G
             </div>
         );
     }
-    private _onTokenAmountChange(token: Token, side: Side, isValid: boolean, amount?: BigNumber): void {
+    private _onTokenAmountChange(token: Token, side: Side, isValid: boolean, amount?: BigNumber) {
         this.props.dispatcher.updateChosenAssetToken(side, {
             address: token.address,
             amount,
         });
     }
-    private _onCloseOrderJSONDialog(): void {
+    private _onCloseOrderJSONDialog() {
         // Upon closing the order JSON dialog, we update the orderSalt stored in the Redux store
         // with a new value so that if a user signs the identical order again, the newly signed
         // orderHash will not collide with the previously generated orderHash.

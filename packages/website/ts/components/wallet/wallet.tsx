@@ -162,15 +162,15 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             isHoveringSidebar: false,
         };
     }
-    public componentWillMount(): void {
+    public componentWillMount() {
         const trackedTokenAddresses = _.keys(this.state.trackedTokenStateByAddress);
         // tslint:disable-next-line:no-floating-promises
         this._fetchBalancesAndAllowancesAsync(trackedTokenAddresses);
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         this._isUnmounted = true;
     }
-    public componentWillReceiveProps(nextProps: WalletProps): void {
+    public componentWillReceiveProps(nextProps: WalletProps) {
         if (
             nextProps.userAddress !== this.props.userAddress ||
             nextProps.networkId !== this.props.networkId ||
@@ -196,11 +196,11 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             this._fetchBalancesAndAllowancesAsync(newTokenAddresses);
         }
     }
-    public render(): React.ReactNode {
+    public render() {
         const isReadyToRender = this.props.blockchainIsLoaded && this.props.blockchainErr === BlockchainErrs.NoError;
         return <div style={styles.root}>{isReadyToRender && this._renderRows()}</div>;
     }
-    private _renderRows(): React.ReactNode {
+    private _renderRows() {
         const isAddressAvailable = !_.isEmpty(this.props.userAddress);
         return (
             <List style={styles.list}>
@@ -210,7 +210,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             </List>
         );
     }
-    private _renderDisconnectedHeaderRows(): React.ReactElement<{}> {
+    private _renderDisconnectedHeaderRows() {
         const userAddress = this.props.userAddress;
         const primaryText = 'wallet';
         return (
@@ -223,7 +223,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             />
         );
     }
-    private _renderDisconnectedRows(): React.ReactElement<{}> {
+    private _renderDisconnectedRows() {
         return (
             <WalletDisconnectedItem
                 key={DISCONNECTED_ITEM_KEY}
@@ -233,7 +233,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             />
         );
     }
-    private _renderConnectedHeaderRows(): React.ReactElement<{}> {
+    private _renderConnectedHeaderRows() {
         const userAddress = this.props.userAddress;
         const primaryText = utils.getAddressBeginAndEnd(userAddress);
         return (
@@ -246,7 +246,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             />
         );
     }
-    private _renderBody(): React.ReactElement<{}> {
+    private _renderBody() {
         const bodyStyle: React.CSSProperties = {
             ...styles.bodyInnerDiv,
             overflow: this.state.isHoveringSidebar ? 'auto' : 'hidden',
@@ -263,17 +263,17 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             </ListItem>
         );
     }
-    private _onSidebarHover(event: React.FormEvent<HTMLInputElement>): void {
+    private _onSidebarHover(event: React.FormEvent<HTMLInputElement>) {
         this.setState({
             isHoveringSidebar: true,
         });
     }
-    private _onSidebarHoverOff(): void {
+    private _onSidebarHoverOff() {
         this.setState({
             isHoveringSidebar: false,
         });
     }
-    private _renderFooterRows(): React.ReactElement<{}> {
+    private _renderFooterRows() {
         return (
             <ListItem
                 key={FOOTER_ITEM_KEY}
@@ -302,7 +302,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             />
         );
     }
-    private _renderEthRows(): React.ReactNode {
+    private _renderEthRows() {
         const primaryText = this._renderAmount(
             this.props.userEtherBalanceInWei,
             constants.DECIMAL_PLACES_ETH,
@@ -352,7 +352,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             </div>
         );
     }
-    private _renderTokenRows(): React.ReactNode {
+    private _renderTokenRows() {
         const trackedTokens = this.props.trackedTokens;
         const trackedTokensStartingWithEtherToken = trackedTokens.sort(
             firstBy((t: Token) => t.symbol !== ETHER_TOKEN_SYMBOL)
@@ -361,7 +361,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         );
         return _.map(trackedTokensStartingWithEtherToken, this._renderTokenRow.bind(this));
     }
-    private _renderTokenRow(token: Token, index: number): React.ReactNode {
+    private _renderTokenRow(token: Token, index: number) {
         const tokenState = this.state.trackedTokenStateByAddress[token.address];
         const tokenLink = sharedUtils.getEtherScanLinkIfExists(
             token.address,
@@ -415,7 +415,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             </div>
         );
     }
-    private _renderAccessoryItems(config: AccessoryItemConfig): React.ReactElement<{}> {
+    private _renderAccessoryItems(config: AccessoryItemConfig) {
         const shouldShowWrappedEtherAction = !_.isUndefined(config.wrappedEtherDirection);
         const shouldShowToggle = !_.isUndefined(config.allowanceToggleConfig);
         return (
@@ -431,7 +431,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             </div>
         );
     }
-    private _renderAllowanceToggle(config: AllowanceToggleConfig): React.ReactNode {
+    private _renderAllowanceToggle(config: AllowanceToggleConfig) {
         return (
             <AllowanceToggle
                 networkId={this.props.networkId}
@@ -446,13 +446,13 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             />
         );
     }
-    private _renderAmount(amount: BigNumber, decimals: number, symbol: string): React.ReactNode {
+    private _renderAmount(amount: BigNumber, decimals: number, symbol: string) {
         const unitAmount = ZeroEx.toUnitAmount(amount, decimals);
         const formattedAmount = unitAmount.toPrecision(TOKEN_AMOUNT_DISPLAY_PRECISION);
         const result = `${formattedAmount} ${symbol}`;
         return <div style={styles.amountLabel}>{result}</div>;
     }
-    private _renderValue(amount: BigNumber, decimals: number, price?: BigNumber): React.ReactNode {
+    private _renderValue(amount: BigNumber, decimals: number, price?: BigNumber) {
         if (_.isUndefined(price)) {
             return null;
         }
@@ -462,7 +462,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const result = `$${formattedAmount}`;
         return result;
     }
-    private _renderTokenIcon(token: Token, tokenLink?: string): React.ReactElement<{}> {
+    private _renderTokenIcon(token: Token, tokenLink?: string) {
         const tooltipId = `tooltip-${token.address}`;
         const tokenIcon = <TokenIcon token={token} diameter={ICON_DIMENSION} />;
         if (_.isUndefined(tokenLink)) {
@@ -475,7 +475,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             );
         }
     }
-    private _renderWrappedEtherButton(wrappedEtherDirection: Side): React.ReactNode {
+    private _renderWrappedEtherButton(wrappedEtherDirection: Side) {
         const isWrappedEtherDirectionOpen = this.state.wrappedEtherDirection === wrappedEtherDirection;
         let buttonLabel;
         let buttonIcon;
@@ -510,7 +510,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             />
         );
     }
-    private _getInitialTrackedTokenStateByAddress(tokenAddresses: string[]): TokenStateByAddress {
+    private _getInitialTrackedTokenStateByAddress(tokenAddresses: string[]) {
         const trackedTokenStateByAddress: TokenStateByAddress = {};
         _.each(tokenAddresses, tokenAddress => {
             trackedTokenStateByAddress[tokenAddress] = {
@@ -521,7 +521,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         });
         return trackedTokenStateByAddress;
     }
-    private async _fetchBalancesAndAllowancesAsync(tokenAddresses: string[]): Promise<void> {
+    private async _fetchBalancesAndAllowancesAsync(tokenAddresses: string[]) {
         const balanceAndAllowanceTupleByAddress: ItemByAddress<BigNumber[]> = {};
         const userAddressIfExists = _.isEmpty(this.props.userAddress) ? undefined : this.props.userAddress;
         for (const tokenAddress of tokenAddresses) {
@@ -554,7 +554,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             });
         }
     }
-    private async _refetchTokenStateAsync(tokenAddress: string): Promise<void> {
+    private async _refetchTokenStateAsync(tokenAddress: string) {
         await this._fetchBalancesAndAllowancesAsync([tokenAddress]);
     }
     private async _getPriceByAddressAsync(tokenAddresses: string[]): Promise<ItemByAddress<BigNumber>> {
@@ -584,17 +584,17 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             return {};
         }
     }
-    private _openWrappedEtherActionRow(wrappedEtherDirection: Side): void {
+    private _openWrappedEtherActionRow(wrappedEtherDirection: Side) {
         this.setState({
             wrappedEtherDirection,
         });
     }
-    private _closeWrappedEtherActionRow(): void {
+    private _closeWrappedEtherActionRow() {
         this.setState({
             wrappedEtherDirection: undefined,
         });
     }
-    private _getEthToken(): Token {
+    private _getEthToken() {
         const tokens = _.values(this.props.tokenByAddress);
         const etherToken = _.find(tokens, { symbol: ETHER_TOKEN_SYMBOL });
         return etherToken;

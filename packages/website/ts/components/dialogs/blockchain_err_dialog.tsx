@@ -18,7 +18,7 @@ interface BlockchainErrDialogProps {
 }
 
 export class BlockchainErrDialog extends React.Component<BlockchainErrDialogProps, undefined> {
-    public render(): React.ReactNode {
+    public render() {
         const dialogActions = [
             <FlatButton
                 key="blockchainErrOk"
@@ -45,7 +45,7 @@ export class BlockchainErrDialog extends React.Component<BlockchainErrDialogProp
             </Dialog>
         );
     }
-    private _getTitle(hasWalletAddress: boolean): string {
+    private _getTitle(hasWalletAddress: boolean) {
         if (this.props.blockchainErr === BlockchainErrs.AContractNotDeployedOnNetwork) {
             return '0x smart contracts not found';
         } else if (!hasWalletAddress) {
@@ -58,7 +58,7 @@ export class BlockchainErrDialog extends React.Component<BlockchainErrDialogProp
             return 'Unexpected error';
         }
     }
-    private _renderExplanation(hasWalletAddress: boolean): React.ReactNode {
+    private _renderExplanation(hasWalletAddress: boolean) {
         if (this.props.blockchainErr === BlockchainErrs.AContractNotDeployedOnNetwork) {
             return this._renderContractsNotDeployedExplanation();
         } else if (!hasWalletAddress) {
@@ -71,7 +71,7 @@ export class BlockchainErrDialog extends React.Component<BlockchainErrDialogProp
             return this._renderUnexpectedErrorExplanation();
         }
     }
-    private _renderDisconnectedFromNode(): React.ReactNode {
+    private _renderDisconnectedFromNode() {
         return (
             <div>
                 You were disconnected from the backing Ethereum node. If using{' '}
@@ -86,7 +86,7 @@ export class BlockchainErrDialog extends React.Component<BlockchainErrDialogProp
             </div>
         );
     }
-    private _renderDefaultTokenNotInTokenRegistry(): React.ReactNode {
+    private _renderDefaultTokenNotInTokenRegistry() {
         return (
             <div>
                 The TokenRegistry deployed on your network does not contain the needed default tokens for 0x Portal to
@@ -96,10 +96,10 @@ export class BlockchainErrDialog extends React.Component<BlockchainErrDialogProp
             </div>
         );
     }
-    private _renderUnexpectedErrorExplanation(): React.ReactNode {
+    private _renderUnexpectedErrorExplanation() {
         return <div>We encountered an unexpected error. Please try refreshing the page.</div>;
     }
-    private _renderNoWalletFoundExplanation(): React.ReactNode {
+    private _renderNoWalletFoundExplanation() {
         return (
             <div>
                 <div>
@@ -137,7 +137,7 @@ export class BlockchainErrDialog extends React.Component<BlockchainErrDialogProp
             </div>
         );
     }
-    private _renderContractsNotDeployedExplanation(): React.ReactNode {
+    private _renderContractsNotDeployedExplanation() {
         return (
             <div>
                 <div>

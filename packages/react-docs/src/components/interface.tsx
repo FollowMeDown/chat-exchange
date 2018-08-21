@@ -13,7 +13,7 @@ export interface InterfaceProps {
     docsInfo: DocsInfo;
 }
 
-export const Interface = (props: InterfaceProps) => {
+export function Interface(props: InterfaceProps) {
     const type = props.type;
     const properties = _.map(type.children, property => {
         return (
@@ -63,4 +63,4 @@ export const Interface = (props: InterfaceProps) => {
             {`}`}
         </span>
     );
-};
+}

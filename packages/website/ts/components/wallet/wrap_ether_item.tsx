@@ -64,7 +64,7 @@ export class WrapEtherItem extends React.Component<WrapEtherItemProps, WrapEther
             isEthConversionHappening: false,
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const etherBalanceInEth = ZeroEx.toUnitAmount(this.props.userEtherBalanceInWei, constants.DECIMAL_PLACES_ETH);
         const isWrappingEth = this.props.direction === Side.Deposit;
         const topLabelText = isWrappingEth ? 'Convert ETH into WETH 1:1' : 'Convert WETH into ETH 1:1';
@@ -116,20 +116,20 @@ export class WrapEtherItem extends React.Component<WrapEtherItemProps, WrapEther
             />
         );
     }
-    private _onValueChange(isValid: boolean, amount?: BigNumber): void {
+    private _onValueChange(isValid: boolean, amount?: BigNumber) {
         this.setState({
             currentInputAmount: amount,
             currentInputHasErrors: !isValid,
         });
     }
-    private _renderIsEthConversionHappeningSpinner(): React.ReactElement<{}> {
+    private _renderIsEthConversionHappeningSpinner() {
         return this.state.isEthConversionHappening ? (
             <div className="pl1" style={{ paddingTop: 10 }}>
                 <i className="zmdi zmdi-spinner zmdi-hc-spin" />
             </div>
         ) : null;
     }
-    private _renderWrapEtherConfirmationButton(): React.ReactElement<{}> {
+    private _renderWrapEtherConfirmationButton() {
         const isWrappingEth = this.props.direction === Side.Deposit;
         const labelText = isWrappingEth ? 'wrap' : 'unwrap';
         return (
@@ -138,13 +138,13 @@ export class WrapEtherItem extends React.Component<WrapEtherItemProps, WrapEther
                     backgroundColor={colors.wrapEtherConfirmationButton}
                     label={labelText}
                     labelStyle={styles.wrapEtherConfirmationButtonLabel}
-                    onClick={this._wrapEtherConfirmationActionAsync.bind(this)}
+                    onClick={this._wrapEtherConfirmationAction.bind(this)}
                     disabled={this.state.isEthConversionHappening}
                 />
             </div>
         );
     }
-    private async _wrapEtherConfirmationActionAsync(): Promise<void> {
+    private async _wrapEtherConfirmationAction() {
         this.setState({
             isEthConversionHappening: true,
         });

@@ -83,7 +83,7 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
         style: {},
         isNightVersion: false,
     };
-    public static heightForDisplayType(displayType: TopBarDisplayType): number {
+    public static heightForDisplayType(displayType: TopBarDisplayType) {
         const result = displayType === TopBarDisplayType.Expanded ? EXPANDED_HEIGHT : DEFAULT_HEIGHT;
         return result + 1;
     }
@@ -93,7 +93,7 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
             isDrawerOpen: false,
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const isNightVersion = this.props.isNightVersion;
         const isExpandedDisplayType = this.props.displayType === TopBarDisplayType.Expanded;
         const parentClassNames = `flex mx-auto ${isExpandedDisplayType ? 'pl3 py1' : 'max-width-4'}`;
@@ -278,7 +278,7 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
             </div>
         );
     }
-    private _renderDrawer(): React.ReactNode {
+    private _renderDrawer() {
         return (
             <Drawer
                 open={this.state.isDrawerOpen}
@@ -447,51 +447,51 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
             </div>
         );
     }
-    private _onMenuButtonClick(): void {
+    private _onMenuButtonClick() {
         this.setState({
             isDrawerOpen: !this.state.isDrawerOpen,
         });
     }
-    private _isViewingPortal(): boolean {
+    private _isViewingPortal() {
         return _.includes(this.props.location.pathname, WebsitePaths.Portal);
     }
-    private _isViewingFAQ(): boolean {
+    private _isViewingFAQ() {
         return _.includes(this.props.location.pathname, WebsitePaths.FAQ);
     }
-    private _isViewing0xjsDocs(): boolean {
+    private _isViewing0xjsDocs() {
         return (
             _.includes(this.props.location.pathname, WebsitePaths.ZeroExJs) ||
             _.includes(this.props.location.pathname, WebsiteLegacyPaths.ZeroExJs)
         );
     }
-    private _isViewingConnectDocs(): boolean {
+    private _isViewingConnectDocs() {
         return _.includes(this.props.location.pathname, WebsitePaths.Connect);
     }
-    private _isViewingSmartContractsDocs(): boolean {
+    private _isViewingSmartContractsDocs() {
         return _.includes(this.props.location.pathname, WebsitePaths.SmartContracts);
     }
-    private _isViewingWeb3WrapperDocs(): boolean {
+    private _isViewingWeb3WrapperDocs() {
         return (
             _.includes(this.props.location.pathname, WebsitePaths.Web3Wrapper) ||
             _.includes(this.props.location.pathname, WebsiteLegacyPaths.Web3Wrapper)
         );
     }
-    private _isViewingSolCompilerDocs(): boolean {
+    private _isViewingSolCompilerDocs() {
         return _.includes(this.props.location.pathname, WebsitePaths.SolCompiler);
     }
-    private _isViewingJsonSchemasDocs(): boolean {
+    private _isViewingJsonSchemasDocs() {
         return _.includes(this.props.location.pathname, WebsitePaths.JSONSchemas);
     }
-    private _isViewingSolCovDocs(): boolean {
+    private _isViewingSolCovDocs() {
         return _.includes(this.props.location.pathname, WebsitePaths.SolCov);
     }
-    private _isViewingSubprovidersDocs(): boolean {
+    private _isViewingSubprovidersDocs() {
         return _.includes(this.props.location.pathname, WebsitePaths.Subproviders);
     }
-    private _isViewingWiki(): boolean {
+    private _isViewingWiki() {
         return _.includes(this.props.location.pathname, WebsitePaths.Wiki);
     }
-    private _shouldDisplayBottomBar(): boolean {
+    private _shouldDisplayBottomBar() {
         return (
             this._isViewingWiki() ||
             this._isViewing0xjsDocs() ||

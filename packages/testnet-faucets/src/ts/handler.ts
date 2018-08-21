@@ -1,5 +1,4 @@
 import { Order, SignedOrder, ZeroEx } from '0x.js';
-import { Provider } from '@0xproject/types';
 import { BigNumber, logUtils } from '@0xproject/utils';
 import * as express from 'express';
 import * as _ from 'lodash';
@@ -39,7 +38,7 @@ const FIVE_DAYS_IN_MS = 4.32e8; // TODO: make this configurable
 
 export class Handler {
     private _networkConfigByNetworkId: ItemByNetworkId<NetworkConfig> = {};
-    private static _createProviderEngine(rpcUrl: string): Provider {
+    private static _createProviderEngine(rpcUrl: string) {
         if (_.isUndefined(configs.DISPENSER_PRIVATE_KEY)) {
             throw new Error('Dispenser Private key not found');
         }
@@ -70,7 +69,7 @@ export class Handler {
             };
         });
     }
-    public getQueueInfo(req: express.Request, res: express.Response): void {
+    public getQueueInfo(req: express.Request, res: express.Response) {
         res.setHeader('Content-Type', 'application/json');
         const queueInfo = _.mapValues(rpcUrls, (rpcUrl: string, networkId: string) => {
             const dispatchQueue = this._networkConfigByNetworkId[networkId].dispatchQueue;
@@ -82,23 +81,19 @@ export class Handler {
         const payload = JSON.stringify(queueInfo);
         res.status(200).send(payload);
     }
-    public dispenseEther(req: express.Request, res: express.Response): void {
+    public dispenseEther(req: express.Request, res: express.Response) {
         this._dispenseAsset(req, res, RequestedAssetType.ETH);
     }
-    public dispenseZRX(req: express.Request, res: express.Response): void {
+    public dispenseZRX(req: express.Request, res: express.Response) {
         this._dispenseAsset(req, res, RequestedAssetType.ZRX);
     }
-    public async dispenseWETHOrderAsync(req: express.Request, res: express.Response): Promise<void> {
-        await this._dispenseOrderAsync(req, res, RequestedAssetType.WETH);
+    public async dispenseWETHOrder(req: express.Request, res: express.Response) {
+        await this._dispenseOrder(req, res, RequestedAssetType.WETH);
     }
-    public async dispenseZRXOrderAsync(
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction,
-    ): Promise<void> {
-        await this._dispenseOrderAsync(req, res, RequestedAssetType.ZRX);
+    public async dispenseZRXOrder(req: express.Request, res: express.Response, next: express.NextFunction) {
+        await this._dispenseOrder(req, res, RequestedAssetType.ZRX);
     }
-    private _dispenseAsset(req: express.Request, res: express.Response, requestedAssetType: RequestedAssetType): void {
+    private _dispenseAsset(req: express.Request, res: express.Response, requestedAssetType: RequestedAssetType) {
         const networkId = req.params.networkId;
         const recipient = req.params.recipient;
         const networkConfig = this._networkConfigByNetworkId[networkId];
@@ -126,11 +121,7 @@ export class Handler {
         logUtils.log(`Added ${recipient} to queue: ${requestedAssetType} networkId: ${networkId}`);
         res.status(200).end();
     }
-    private async _dispenseOrderAsync(
-        req: express.Request,
-        res: express.Response,
-        requestedAssetType: RequestedAssetType,
-    ): Promise<void> {
+    private async _dispenseOrder(req: express.Request, res: express.Response, requestedAssetType: RequestedAssetType) {
         const networkConfig = _.get(this._networkConfigByNetworkId, req.params.networkId);
         if (_.isUndefined(networkConfig)) {
             res.status(400).send('UNSUPPORTED_NETWORK_ID');

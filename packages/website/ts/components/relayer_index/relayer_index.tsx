@@ -48,14 +48,14 @@ export class RelayerIndex extends React.Component<RelayerIndexProps, RelayerInde
             error: undefined,
         };
     }
-    public componentWillMount(): void {
+    public componentWillMount() {
         // tslint:disable-next-line:no-floating-promises
         this._fetchRelayerInfosAsync();
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         this._isUnmounted = true;
     }
-    public render(): React.ReactNode {
+    public render() {
         const readyToRender = _.isUndefined(this.state.error) && !_.isUndefined(this.state.relayerInfos);
         if (!readyToRender) {
             return (

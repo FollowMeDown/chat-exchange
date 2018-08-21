@@ -22,7 +22,7 @@ interface ProfileProps {
     profileInfo: ProfileInfo;
 }
 
-export const Profile = (props: ProfileProps) => {
+export function Profile(props: ProfileProps) {
     return (
         <div className={`lg-col md-col lg-col-${props.colSize} md-col-6`}>
             <div style={{ maxWidth: 300 }} className="mx-auto lg-px3 md-px3 sm-px4 sm-pb3">
@@ -53,9 +53,9 @@ export const Profile = (props: ProfileProps) => {
             </div>
         </div>
     );
-};
+}
 
-function renderSocialMediaIcons(profileInfo: ProfileInfo): React.ReactNode {
+function renderSocialMediaIcons(profileInfo: ProfileInfo) {
     const icons = [
         renderSocialMediaIcon('zmdi-github-box', profileInfo.github),
         renderSocialMediaIcon('zmdi-linkedin-box', profileInfo.linkedIn),
@@ -64,7 +64,7 @@ function renderSocialMediaIcons(profileInfo: ProfileInfo): React.ReactNode {
     return icons;
 }
 
-function renderSocialMediaIcon(iconName: string, url: string): React.ReactNode {
+function renderSocialMediaIcon(iconName: string, url: string) {
     if (_.isEmpty(url)) {
         return null;
     }

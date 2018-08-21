@@ -71,19 +71,19 @@ export class Documentation extends React.Component<DocumentationProps, Documenta
             isHoveringSidebar: false,
         };
     }
-    public componentDidMount(): void {
+    public componentDidMount() {
         window.addEventListener('hashchange', this._onHashChanged.bind(this), false);
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         window.removeEventListener('hashchange', this._onHashChanged.bind(this), false);
     }
-    public componentDidUpdate(prevProps: DocumentationProps, prevState: DocumentationState): void {
+    public componentDidUpdate(prevProps: DocumentationProps, prevState: DocumentationState) {
         if (!_.isEqual(prevProps.docAgnosticFormat, this.props.docAgnosticFormat)) {
             const hash = window.location.hash.slice(1);
             sharedUtils.scrollToHash(hash, sharedConstants.SCROLL_CONTAINER_ID);
         }
     }
-    public render(): React.ReactNode {
+    public render() {
         const styles: Styles = {
             mainContainers: {
                 position: 'absolute',
@@ -157,7 +157,7 @@ export class Documentation extends React.Component<DocumentationProps, Documenta
             </div>
         );
     }
-    private _renderLoading(mainContainersStyles: React.CSSProperties): React.ReactNode {
+    private _renderLoading(mainContainersStyles: React.CSSProperties) {
         return (
             <div className="col col-12" style={mainContainersStyles}>
                 <div
@@ -289,7 +289,7 @@ export class Documentation extends React.Component<DocumentationProps, Documenta
             </div>
         );
     }
-    private _renderNetworkBadgesIfExists(sectionName: string): React.ReactNode {
+    private _renderNetworkBadgesIfExists(sectionName: string) {
         if (this.props.docsInfo.type !== SupportedDocJson.Doxity) {
             return null;
         }
@@ -368,17 +368,17 @@ export class Documentation extends React.Component<DocumentationProps, Documenta
             />
         );
     }
-    private _onSidebarHover(event: React.FormEvent<HTMLInputElement>): void {
+    private _onSidebarHover(event: React.FormEvent<HTMLInputElement>) {
         this.setState({
             isHoveringSidebar: true,
         });
     }
-    private _onSidebarHoverOff(): void {
+    private _onSidebarHoverOff() {
         this.setState({
             isHoveringSidebar: false,
         });
     }
-    private _onHashChanged(event: any): void {
+    private _onHashChanged(event: any) {
         const hash = window.location.hash.slice(1);
         sharedUtils.scrollToHash(hash, sharedConstants.SCROLL_CONTAINER_ID);
     }

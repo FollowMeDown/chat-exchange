@@ -15,7 +15,7 @@ export class LegacyPortalMenu extends React.Component<LegacyPortalMenuProps, Leg
     public static defaultProps: Partial<LegacyPortalMenuProps> = {
         onClick: _.noop,
     };
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div>
                 <MenuItem
@@ -61,7 +61,7 @@ export class LegacyPortalMenu extends React.Component<LegacyPortalMenuProps, Leg
             </div>
         );
     }
-    private _renderMenuItemWithIcon(title: string, iconName: string): React.ReactNode {
+    private _renderMenuItemWithIcon(title: string, iconName: string) {
         return (
             <div className="flex" style={{ fontWeight: 100 }}>
                 <div className="pr1 pl2">

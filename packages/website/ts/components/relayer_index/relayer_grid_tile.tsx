@@ -109,14 +109,14 @@ class ImgWithFallback extends React.Component<ImgWithFallbackProps, ImgWithFallb
             imageLoadFailed: false,
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         if (this.state.imageLoadFailed || _.isUndefined(this.props.src)) {
             return <img src={this.props.fallbackSrc} style={this.props.style} />;
         } else {
             return <img src={this.props.src} onError={this._onError.bind(this)} style={this.props.style} />;
         }
     }
-    private _onError(): void {
+    private _onError() {
         this.setState({
             imageLoadFailed: true,
         });

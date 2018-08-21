@@ -39,7 +39,7 @@ export class MarkdownSection extends React.Component<MarkdownSectionProps, Markd
             shouldShowAnchor: false,
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const { sectionName, markdownContent, headerSize, githubLink } = this.props as PropsWithDefaults;
 
         const id = utils.getIdFromName(sectionName);
@@ -87,7 +87,7 @@ export class MarkdownSection extends React.Component<MarkdownSectionProps, Markd
             </div>
         );
     }
-    private _setAnchorVisibility(shouldShowAnchor: boolean): void {
+    private _setAnchorVisibility(shouldShowAnchor: boolean) {
         this.setState({
             shouldShowAnchor,
         });

@@ -12,7 +12,7 @@ interface SidebarHeaderProps {
 interface SidebarHeaderState {}
 
 export class SidebarHeader extends React.Component<SidebarHeaderProps, SidebarHeaderState> {
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div className="pt2 md-px1 sm-px2" style={{ color: colors.black, paddingBottom: 18 }}>
                 <div className="flex" style={{ fontSize: 25 }}>

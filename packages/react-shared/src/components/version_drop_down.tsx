@@ -14,7 +14,7 @@ export interface VersionDropDownProps {
 export interface VersionDropDownState {}
 
 export class VersionDropDown extends React.Component<VersionDropDownProps, VersionDropDownState> {
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div className="mx-auto" style={{ width: 120 }}>
                 <DropDownMenu
@@ -27,13 +27,13 @@ export class VersionDropDown extends React.Component<VersionDropDownProps, Versi
             </div>
         );
     }
-    private _renderDropDownItems(): React.ReactNode[] {
+    private _renderDropDownItems() {
         const items = _.map(this.props.versions, version => {
             return <MenuItem key={version} value={version} primaryText={`v${version}`} />;
         });
         return items;
     }
-    private _updateSelectedVersion(e: any, index: number, semver: string): void {
+    private _updateSelectedVersion(e: any, index: number, semver: string) {
         this.props.onVersionSelected(semver);
     }
 }

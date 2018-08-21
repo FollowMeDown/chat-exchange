@@ -11,7 +11,6 @@ import {
     DoxityDocObj,
     SectionsMap,
     SupportedDocJson,
-    TypeDefinitionByName,
     TypeDocNode,
 } from './types';
 import { doxityUtils } from './utils/doxity_utils';
@@ -105,13 +104,13 @@ export class DocsInfo {
         });
         return menuSubsectionsBySection;
     }
-    public getTypeDefinitionsByName(docAgnosticFormat: DocAgnosticFormat): { [name: string]: TypeDefinitionByName } {
+    public getTypeDefinitionsByName(docAgnosticFormat: DocAgnosticFormat) {
         if (_.isUndefined(this.sections.types)) {
             return {};
         }
 
         const typeDocSection = docAgnosticFormat[this.sections.types];
-        const typeDefinitionByName = _.keyBy(typeDocSection.types, 'name') as any;
+        const typeDefinitionByName = _.keyBy(typeDocSection.types, 'name');
         return typeDefinitionByName;
     }
     public isVisibleConstructor(sectionName: string): boolean {

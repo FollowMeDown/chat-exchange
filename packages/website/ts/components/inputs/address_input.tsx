@@ -29,14 +29,14 @@ export class AddressInput extends React.Component<AddressInputProps, AddressInpu
             errMsg: '',
         };
     }
-    public componentWillReceiveProps(nextProps: AddressInputProps): void {
+    public componentWillReceiveProps(nextProps: AddressInputProps) {
         if (nextProps.shouldShowIncompleteErrs && this.props.isRequired && this.state.address === '') {
             this.setState({
                 errMsg: 'Address is required',
             });
         }
     }
-    public render(): React.ReactNode {
+    public render() {
         const label = this.props.isRequired ? <RequiredLabel label={this.props.label} /> : this.props.label;
         const labelDisplay = this.props.shouldHideLabel ? 'hidden' : 'block';
         const hintText = this.props.hintText ? this.props.hintText : '';
@@ -57,7 +57,7 @@ export class AddressInput extends React.Component<AddressInputProps, AddressInpu
             </div>
         );
     }
-    private _onOrderTakerAddressUpdated(e: any): void {
+    private _onOrderTakerAddressUpdated(e: any) {
         const address = e.target.value.toLowerCase();
         const isValidAddress = addressUtils.isAddress(address) || address === '';
         const errMsg = isValidAddress ? '' : 'Invalid ethereum address';

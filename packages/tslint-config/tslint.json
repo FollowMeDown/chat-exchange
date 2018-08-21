@@ -18,7 +18,6 @@
         ],
         "curly": true,
         "eofline": true,
-        "typedef": [true, "call-signature", "parameter", "property-declaration"],
         "encoding": true,
         "import-spacing": true,
         "indent": [true, "spaces", 4],

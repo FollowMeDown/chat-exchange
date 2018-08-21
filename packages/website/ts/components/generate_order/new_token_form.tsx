@@ -42,7 +42,7 @@ export class NewTokenForm extends React.Component<NewTokenFormProps, NewTokenFor
             decimalsErrText: '',
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div className="mx-auto pb2" style={{ width: 256 }}>
                 <div>
@@ -96,7 +96,7 @@ export class NewTokenForm extends React.Component<NewTokenFormProps, NewTokenFor
             </div>
         );
     }
-    private async _onAddNewTokenClickAsync(): Promise<void> {
+    private async _onAddNewTokenClickAsync() {
         // Trigger validation of name and symbol
         this._onTokenNameChanged(undefined, this.state.name);
         this._onTokenSymbolChanged(undefined, this.state.symbol);
@@ -152,7 +152,7 @@ export class NewTokenForm extends React.Component<NewTokenFormProps, NewTokenFor
         };
         this.props.onNewTokenSubmitted(newToken);
     }
-    private _onTokenNameChanged(e: any, name: string): void {
+    private _onTokenNameChanged(e: any, name: string) {
         let nameErrText = '';
         const maxLength = 30;
         const tokens = _.values(this.props.tokenByAddress);
@@ -173,7 +173,7 @@ export class NewTokenForm extends React.Component<NewTokenFormProps, NewTokenFor
             nameErrText,
         });
     }
-    private _onTokenSymbolChanged(e: any, symbol: string): void {
+    private _onTokenSymbolChanged(e: any, symbol: string) {
         let symbolErrText = '';
         const maxLength = 5;
         const tokens = _.values(this.props.tokenByAddress);
@@ -193,7 +193,7 @@ export class NewTokenForm extends React.Component<NewTokenFormProps, NewTokenFor
             symbolErrText,
         });
     }
-    private _onTokenDecimalsChanged(e: any, decimals: string): void {
+    private _onTokenDecimalsChanged(e: any, decimals: string) {
         let decimalsErrText = '';
         const maxLength = 2;
         if (decimals === '') {
@@ -209,20 +209,20 @@ export class NewTokenForm extends React.Component<NewTokenFormProps, NewTokenFor
             decimalsErrText,
         });
     }
-    private _onTokenAddressChanged(address?: string): void {
+    private _onTokenAddressChanged(address?: string) {
         if (!_.isUndefined(address)) {
             this.setState({
                 address,
             });
         }
     }
-    private _isValidName(input: string): boolean {
+    private _isValidName(input: string) {
         return /^[a-z0-9 ]+$/i.test(input);
     }
-    private _isInteger(input: string): boolean {
+    private _isInteger(input: string) {
         return /^[0-9]+$/i.test(input);
     }
-    private _isAlphanumeric(input: string): boolean {
+    private _isAlphanumeric(input: string) {
         return /^[a-zA-Z0-9]+$/i.test(input);
     }
 }

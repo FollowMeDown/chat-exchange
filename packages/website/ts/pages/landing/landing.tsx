@@ -177,14 +177,14 @@ export class Landing extends React.Component<LandingProps, LandingState> {
         };
         this._throttledScreenWidthUpdate = _.throttle(this._updateScreenWidth.bind(this), THROTTLE_TIMEOUT);
     }
-    public componentDidMount(): void {
+    public componentDidMount() {
         window.addEventListener('resize', this._throttledScreenWidthUpdate);
         window.scrollTo(0, 0);
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         window.removeEventListener('resize', this._throttledScreenWidthUpdate);
     }
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div id="landing" className="clearfix" style={{ color: colors.grey500 }}>
                 <DocumentTitle title="0x Protocol" />
@@ -218,7 +218,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderHero(): React.ReactNode {
+    private _renderHero() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         const buttonLabelStyle: React.CSSProperties = {
             textTransform: 'none',
@@ -305,7 +305,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderWhatsNew(): React.ReactNode {
+    private _renderWhatsNew() {
         return (
             <div className="sm-center sm-px1">
                 <a href={WHATS_NEW_URL} target="_blank" className="inline-block text-decoration-none">
@@ -327,12 +327,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderProjects(
-        projects: Project[],
-        title: string,
-        backgroundColor: string,
-        isTitleCenter: boolean,
-    ): React.ReactNode {
+    private _renderProjects(projects: Project[], title: string, backgroundColor: string, isTitleCenter: boolean) {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         const projectList = _.map(projects, (project: Project, i: number) => {
             const isRelayersOnly = projects.length === 12;
@@ -398,7 +393,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderTokenizationSection(): React.ReactNode {
+    private _renderTokenizationSection() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         return (
             <div className="clearfix lg-py4 md-py4 sm-pb4 sm-pt2" style={{ backgroundColor: colors.grey100 }}>
@@ -429,7 +424,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderProtocolSection(): React.ReactNode {
+    private _renderProtocolSection() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         return (
             <div className="clearfix pt4" style={{ backgroundColor: colors.heroGrey }}>
@@ -474,7 +469,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderBuildingBlocksSection(): React.ReactNode {
+    private _renderBuildingBlocksSection() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         const descriptionStyle: React.CSSProperties = {
             fontFamily: 'Roboto Mono',
@@ -531,7 +526,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderBlockChipImage(): React.ReactNode {
+    private _renderBlockChipImage() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         return (
             <div className="col lg-col-6 md-col-6 col-12 sm-center">
@@ -539,7 +534,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderTokenCloud(): React.ReactNode {
+    private _renderTokenCloud() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         return (
             <div className="col lg-col-6 md-col-6 col-12 center">
@@ -547,7 +542,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderAssetTypes(): React.ReactNode {
+    private _renderAssetTypes() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         const assetTypes: AssetType[] = [
             {
@@ -590,7 +585,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
         });
         return assets;
     }
-    private _renderInfoBoxes(): React.ReactNode {
+    private _renderInfoBoxes() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         const boxStyle: React.CSSProperties = {
             maxWidth: 253,
@@ -653,7 +648,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderUseCases(): React.ReactNode {
+    private _renderUseCases() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
 
         const useCases: UseCase[] = [
@@ -751,7 +746,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _renderCallToAction(): React.ReactNode {
+    private _renderCallToAction() {
         const isSmallScreen = this.state.screenWidth === ScreenWidths.Sm;
         const buttonLabelStyle: React.CSSProperties = {
             textTransform: 'none',
@@ -798,7 +793,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             </div>
         );
     }
-    private _updateScreenWidth(): void {
+    private _updateScreenWidth() {
         const newScreenWidth = utils.getScreenWidth();
         if (newScreenWidth !== this.state.screenWidth) {
             this.setState({
@@ -806,7 +801,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             });
         }
     }
-    private _onLanguageSelected(language: Language): void {
+    private _onLanguageSelected(language: Language) {
         this.props.dispatcher.updateSelectedLanguage(language);
     }
 } // tslint:disable:max-file-line-count

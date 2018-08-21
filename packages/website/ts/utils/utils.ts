@@ -25,15 +25,15 @@ const LG_MIN_EM = 64;
 const MD_MIN_EM = 52;
 
 export const utils = {
-    assert(condition: boolean, message: string): void {
+    assert(condition: boolean, message: string) {
         if (!condition) {
             throw new Error(message);
         }
     },
-    spawnSwitchErr(name: string, value: any): Error {
+    spawnSwitchErr(name: string, value: any) {
         return new Error(`Unexpected switch value: ${value} encountered for ${name}`);
     },
-    isNumeric(n: string): boolean {
+    isNumeric(n: string) {
         return !isNaN(parseFloat(n)) && isFinite(Number(n));
     },
     // This default unix timestamp is used for orders where the user does not specify an expiry date.
@@ -106,13 +106,13 @@ export const utils = {
         };
         return order;
     },
-    async sleepAsync(ms: number): Promise<NodeJS.Timer> {
-        return new Promise<NodeJS.Timer>(resolve => setTimeout(resolve, ms));
+    async sleepAsync(ms: number) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     },
-    deepEqual(actual: any, expected: any, opts?: { strict: boolean }): boolean {
+    deepEqual(actual: any, expected: any, opts?: { strict: boolean }) {
         return deepEqual(actual, expected, opts);
     },
-    getColSize(items: number): number {
+    getColSize(items: number) {
         const bassCssGridSize = 12; // Source: http://basscss.com/#basscss-grid
         const colSize = bassCssGridSize / items;
         if (!_.isInteger(colSize)) {
@@ -120,7 +120,7 @@ export const utils = {
         }
         return colSize;
     },
-    getScreenWidth(): ScreenWidths {
+    getScreenWidth() {
         const documentEl = document.documentElement;
         const body = document.getElementsByTagName('body')[0];
         const widthInPx = window.innerWidth || documentEl.clientWidth || body.clientWidth;
@@ -162,7 +162,7 @@ export const utils = {
     // This checks the error message returned from an injected Web3 instance on the page
     // after a user was prompted to sign a message or send a transaction and decided to
     // reject the request.
-    didUserDenyWeb3Request(errMsg: string): boolean {
+    didUserDenyWeb3Request(errMsg: string) {
         const metamaskDenialErrMsg = 'User denied';
         const paritySignerDenialErrMsg = 'Request has been rejected';
         const ledgerDenialErrMsg = 'Invalid status 6985';
@@ -172,7 +172,7 @@ export const utils = {
             _.includes(errMsg, ledgerDenialErrMsg);
         return isUserDeniedErrMsg;
     },
-    getCurrentEnvironment(): string {
+    getCurrentEnvironment() {
         switch (location.host) {
             case configs.DOMAIN_DEVELOPMENT:
                 return 'development';
@@ -188,7 +188,7 @@ export const utils = {
         const truncatedAddress = `${address.substring(0, 6)}...${address.substr(-4)}`; // 0x3d5a...b287
         return truncatedAddress;
     },
-    hasUniqueNameAndSymbol(tokens: Token[], token: Token): boolean {
+    hasUniqueNameAndSymbol(tokens: Token[], token: Token) {
         if (token.isRegistered) {
             return true; // Since it's registered, it is the canonical token
         }
@@ -269,7 +269,7 @@ export const utils = {
         );
         return isTestNetwork;
     },
-    getCurrentBaseUrl(): string {
+    getCurrentBaseUrl() {
         const port = window.location.port;
         const hasPort = !_.isUndefined(port);
         const baseUrl = `https://${window.location.hostname}${hasPort ? `:${port}` : ''}`;
@@ -302,10 +302,10 @@ export const utils = {
         }
         return parsedProviderName;
     },
-    isDevelopment(): boolean {
+    isDevelopment() {
         return configs.ENVIRONMENT === Environments.DEVELOPMENT;
     },
-    isStaging(): boolean {
+    isStaging() {
         return _.includes(window.location.href, configs.DOMAIN_STAGING);
     },
 };

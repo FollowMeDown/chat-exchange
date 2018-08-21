@@ -82,19 +82,19 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             tokensToTrack: [],
         };
     }
-    public componentWillMount(): void {
+    public componentWillMount() {
         if (!_.isEmpty(this.state.orderJSON)) {
             // tslint:disable-next-line:no-floating-promises
             this._validateFillOrderFireAndForgetAsync(this.state.orderJSON);
         }
     }
-    public componentDidMount(): void {
+    public componentDidMount() {
         window.scrollTo(0, 0);
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         this._isUnmounted = true;
     }
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div className="clearfix lg-px4 md-px4 sm-px2" style={{ minHeight: 600 }}>
                 <h3>Fill an order</h3>
@@ -159,7 +159,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             </div>
         );
     }
-    private _renderOrderJsonNotices(): React.ReactNode {
+    private _renderOrderJsonNotices() {
         return (
             <div>
                 {!_.isUndefined(this.props.initialOrder) &&
@@ -177,7 +177,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             </div>
         );
     }
-    private _renderVisualOrder(): React.ReactNode {
+    private _renderVisualOrder() {
         const takerTokenAddress = this.state.parsedOrder.signedOrder.takerTokenAddress;
         const takerToken = this.props.tokenByAddress[takerTokenAddress];
         const orderTakerAmount = new BigNumber(this.state.parsedOrder.signedOrder.takerTokenAmount);
@@ -306,7 +306,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             </div>
         );
     }
-    private _renderFillSuccessMsg(): React.ReactNode {
+    private _renderFillSuccessMsg() {
         return (
             <div>
                 Order successfully filled. See the trade details in your{' '}
@@ -316,10 +316,10 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             </div>
         );
     }
-    private _renderCancelSuccessMsg(): React.ReactNode {
+    private _renderCancelSuccessMsg() {
         return <div>Order successfully cancelled.</div>;
     }
-    private _onFillOrderClick(): void {
+    private _onFillOrderClick() {
         if (!this.state.isMakerTokenAddressInRegistry || !this.state.isTakerTokenAddressInRegistry) {
             this.setState({
                 isFillWarningDialogOpen: true,
@@ -329,7 +329,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             this._onFillOrderClickFireAndForgetAsync();
         }
     }
-    private _onFillWarningClosed(didUserCancel: boolean): void {
+    private _onFillWarningClosed(didUserCancel: boolean) {
         this.setState({
             isFillWarningDialogOpen: false,
         });
@@ -338,10 +338,10 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             this._onFillOrderClickFireAndForgetAsync();
         }
     }
-    private _onFillAmountChange(isValid: boolean, amount?: BigNumber): void {
+    private _onFillAmountChange(isValid: boolean, amount?: BigNumber) {
         this.props.dispatcher.updateOrderFillAmount(amount);
     }
-    private _onFillOrderJSONChanged(event: any): void {
+    private _onFillOrderJSONChanged(event: any) {
         const orderJSON = event.target.value;
         this.setState({
             didOrderValidationRun: _.isEmpty(orderJSON) && _.isEmpty(this.state.orderJSONErrMsg),
@@ -350,7 +350,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
         // tslint:disable-next-line:no-floating-promises
         this._validateFillOrderFireAndForgetAsync(orderJSON);
     }
-    private async _checkForUntrackedTokensAndAskToAddAsync(): Promise<void> {
+    private async _checkForUntrackedTokensAndAskToAdd() {
         if (!_.isEmpty(this.state.orderJSONErrMsg)) {
             return;
         }
@@ -396,7 +396,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             });
         }
     }
-    private async _validateFillOrderFireAndForgetAsync(orderJSON: string): Promise<void> {
+    private async _validateFillOrderFireAndForgetAsync(orderJSON: string) {
         let orderJSONErrMsg = '';
         let parsedOrder: Order;
         let orderHash: string;
@@ -491,7 +491,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
             unavailableTakerAmount,
         });
 
-        await this._checkForUntrackedTokensAndAskToAddAsync();
+        await this._checkForUntrackedTokensAndAskToAdd();
     }
     private async _onFillOrderClickFireAndForgetAsync(): Promise<void> {
         if (this.props.blockchainErr !== BlockchainErrs.NoError || _.isEmpty(this.props.userAddress)) {
@@ -650,7 +650,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
         const roundedUnitAmount = Math.round(unitAmount.toNumber() * 100000) / 100000;
         return roundedUnitAmount;
     }
-    private _onToggleTrackConfirmDialog(didConfirmTokenTracking: boolean): void {
+    private _onToggleTrackConfirmDialog(didConfirmTokenTracking: boolean) {
         if (!didConfirmTokenTracking) {
             this.setState({
                 orderJSON: '',

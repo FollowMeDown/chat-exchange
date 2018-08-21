@@ -94,7 +94,7 @@ export class Docs extends React.Component<DocsProps, DocsState> {
             docAgnosticFormat: docsInfo.convertToDocAgnosticFormat(v2TypeDocJson),
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const menuSubsectionsBySection = _.isUndefined(this.state.docAgnosticFormat)
             ? {}
             : docsInfo.getMenuSubsectionsBySection(this.state.docAgnosticFormat);
@@ -109,14 +109,14 @@ export class Docs extends React.Component<DocsProps, DocsState> {
             />
         );
     }
-    private _onVersionSelected(semver: string): void {
+    private _onVersionSelected(semver: string) {
         const selectedDocJSON = versionToDocJSON[semver];
         this.setState({
             selectedVersion: semver,
             docAgnosticFormat: docsInfo.convertToDocAgnosticFormat(selectedDocJSON as TypeDocNode),
         });
     }
-    private _getSourceUrl(): string {
+    private _getSourceUrl() {
         const sourceUrl = `${docsInfoConfig.packageUrl}/blob/@0xproject/web3-wrapper@${
             this.state.selectedVersion
         }/packages`;

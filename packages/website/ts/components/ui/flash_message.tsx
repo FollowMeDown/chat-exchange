@@ -19,7 +19,7 @@ export class FlashMessage extends React.Component<FlashMessageProps, FlashMessag
         showDurationMs: SHOW_DURATION_MS,
         bodyStyle: {},
     };
-    public render(): React.ReactNode {
+    public render() {
         if (!_.isUndefined(this.props.flashMessage)) {
             return (
                 <Snackbar
@@ -34,7 +34,7 @@ export class FlashMessage extends React.Component<FlashMessageProps, FlashMessag
             return null;
         }
     }
-    private _onClose(): void {
+    private _onClose() {
         this.props.dispatcher.hideFlashMessage();
     }
 }

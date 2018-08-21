@@ -3,12 +3,7 @@ import * as chaiAsPromised from 'chai-as-promised';
 import * as dirtyChai from 'dirty-chai';
 import * as _ from 'lodash';
 import 'mocha';
-import {
-    NewmanRunExecution,
-    NewmanRunExecutionAssertion,
-    NewmanRunExecutionAssertionError,
-    NewmanRunSummary,
-} from 'newman';
+import { NewmanRunExecution, NewmanRunExecutionAssertion, NewmanRunSummary } from 'newman';
 import * as nock from 'nock';
 
 import * as sraReportCollectionJSON from '../../postman_collections/sra_report.postman_collection.json';
@@ -38,7 +33,7 @@ export const testRunner = {
         nockInterceptor: nock.Interceptor,
         postmanCollectionFolderName: string,
         postmanCollectionRequestName: string,
-    ): void {
+    ) {
         const newmanRunOptions = {
             ...baseNewmanRunOptions,
             folder: postmanCollectionFolderName,
@@ -92,7 +87,7 @@ export const testRunner = {
         postmanCollectionRequestName: string,
         malformedJson: object,
         correctJson: object,
-    ): void {
+    ) {
         const newmanRunOptions = {
             ...baseNewmanRunOptions,
             folder: postmanCollectionFolderName,
@@ -121,7 +116,7 @@ function findAssertionErrorIfExists(
     summary: NewmanRunSummary,
     postmanCollectionRequestName: string,
     postmanCollectionAssertionName: string,
-): NewmanRunExecutionAssertionError | undefined {
+) {
     const matchingExecutionIfExists = _.find(summary.run.executions, (execution: NewmanRunExecution) => {
         return execution.item.name === postmanCollectionRequestName;
     });

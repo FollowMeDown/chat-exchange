@@ -14,7 +14,7 @@ export const tradeHistoryStorage = {
     // Clear all fill related localStorage if we've updated the config variable in an update
     // that introduced a backward incompatible change requiring the user to re-fetch the fills from
     // the blockchain
-    clearIfRequired(): void {
+    clearIfRequired() {
         const lastClearFillDate = localStorage.getItemIfExists(FILL_CLEAR_KEY);
         if (lastClearFillDate !== configs.LAST_LOCAL_STORAGE_FILL_CLEARANCE_DATE) {
             const localStorageKeys = localStorage.getAllKeys();
@@ -26,7 +26,7 @@ export const tradeHistoryStorage = {
         }
         localStorage.setItem(FILL_CLEAR_KEY, configs.LAST_LOCAL_STORAGE_FILL_CLEARANCE_DATE);
     },
-    addFillToUser(userAddress: string, networkId: number, fill: Fill): void {
+    addFillToUser(userAddress: string, networkId: number, fill: Fill) {
         const fillsByHash = this.getUserFillsByHash(userAddress, networkId);
         const fillHash = this._getFillHash(fill);
         const doesFillExist = !_.isUndefined(fillsByHash[fillHash]);
@@ -38,7 +38,7 @@ export const tradeHistoryStorage = {
         const userFillsKey = this._getUserFillsKey(userAddress, networkId);
         localStorage.setItem(userFillsKey, userFillsJSONString);
     },
-    removeFillFromUser(userAddress: string, networkId: number, fill: Fill): void {
+    removeFillFromUser(userAddress: string, networkId: number, fill: Fill) {
         const fillsByHash = this.getUserFillsByHash(userAddress, networkId);
         const fillHash = this._getFillHash(fill);
         const doesFillExist = !_.isUndefined(fillsByHash[fillHash]);
@@ -74,15 +74,15 @@ export const tradeHistoryStorage = {
         const blockNumber = _.parseInt(blockNumberStr);
         return blockNumber;
     },
-    setFillsLatestBlock(userAddress: string, networkId: number, blockNumber: number): void {
+    setFillsLatestBlock(userAddress: string, networkId: number, blockNumber: number) {
         const userFillsLatestBlockKey = this._getFillsLatestBlockKey(userAddress, networkId);
         localStorage.setItem(userFillsLatestBlockKey, `${blockNumber}`);
     },
-    _getUserFillsKey(userAddress: string, networkId: number): string {
+    _getUserFillsKey(userAddress: string, networkId: number) {
         const userFillsKey = `${FILLS_KEY}-${userAddress}-${networkId}`;
         return userFillsKey;
     },
-    _getFillsLatestBlockKey(userAddress: string, networkId: number): string {
+    _getFillsLatestBlockKey(userAddress: string, networkId: number) {
         const userFillsLatestBlockKey = `${FILLS_LATEST_BLOCK}-${userAddress}-${networkId}`;
         return userFillsLatestBlockKey;
     },

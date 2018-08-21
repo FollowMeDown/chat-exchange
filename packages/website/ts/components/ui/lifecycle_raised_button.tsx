@@ -42,11 +42,11 @@ export class LifeCycleRaisedButton extends React.Component<LifeCycleRaisedButton
             buttonState: ButtonState.READY,
         };
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         clearTimeout(this._buttonTimeoutId);
         this._didUnmount = true;
     }
-    public render(): React.ReactNode {
+    public render() {
         if (this.props.isHidden) {
             return <span />;
         }
@@ -77,7 +77,7 @@ export class LifeCycleRaisedButton extends React.Component<LifeCycleRaisedButton
             />
         );
     }
-    public async onClickAsync(): Promise<void> {
+    public async onClickAsync() {
         this.setState({
             buttonState: ButtonState.LOADING,
         });
