@@ -5,7 +5,7 @@
     "main": "lib/src/index.js",
     "types": "lib/src/index.d.ts",
     "scripts": {
-        "watch": "tsc -w",
+        "build:watch": "tsc -w",
         "clean": "shx rm -rf lib scripts",
         "build": "tsc && copyfiles -u 3 './lib/src/monorepo_scripts/**/*' ./scripts",
         "lint": "tslint --project .",
@@ -16,7 +16,7 @@
         "manual:postpublish": "yarn build; node ./scripts/postpublish.js"
     },
     "bin": {
-        "sra-report": "bin/sra-report.js"
+        "sra-report": "lib/src/index.js"
     },
     "repository": {
         "type": "git",
