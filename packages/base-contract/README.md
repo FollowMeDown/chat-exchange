@@ -44,16 +44,14 @@ yarn install
 
 ### Build
 
-To build this package and all other monorepo packages that it depends on, run the following from the monorepo root directory:
-
 ```bash
-PKG=@0xproject/base-contract yarn build
+yarn build
 ```
 
-Or continuously rebuild on change:
+or
 
 ```bash
-PKG=@0xproject/base-contract yarn watch
+yarn build:watch
 ```
 
 ### Lint
