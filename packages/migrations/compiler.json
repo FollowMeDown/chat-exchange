@@ -2,15 +2,20 @@
     "artifactsDir": "artifacts/1.0.0",
     "contractsDir": "../contracts/src/contracts",
     "contracts": [
-        "Exchange_v1",
-        "DummyERC20Token",
+        "Exchange",
+        "DummyToken",
         "ZRXToken",
+        "Token",
         "WETH9",
-        "TokenTransferProxy_v1",
+        "TokenTransferProxy",
         "MultiSigWallet",
         "MultiSigWalletWithTimeLock",
         "MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress",
-        "TokenRegistry"
+        "MaliciousToken",
+        "TokenRegistry",
+        "Arbitrage",
+        "EtherDelta",
+        "AccountLevels"
     ],
     "compilerSettings": {
         "outputSelection": {
