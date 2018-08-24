@@ -210,10 +210,10 @@ const styles: Styles = {
 };
 
 export class About extends React.Component<AboutProps, AboutState> {
-    public componentDidMount(): void {
+    public componentDidMount() {
         window.scrollTo(0, 0);
     }
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div style={{ backgroundColor: colors.lightestGrey }}>
                 <DocumentTitle title="0x About Us" />
@@ -284,7 +284,7 @@ export class About extends React.Component<AboutProps, AboutState> {
             </div>
         );
     }
-    private _renderProfiles(profiles: ProfileInfo[]): React.ReactNode {
+    private _renderProfiles(profiles: ProfileInfo[]) {
         const numIndiv = profiles.length;
         const colSize = utils.getColSize(numIndiv);
         return _.map(profiles, profile => {

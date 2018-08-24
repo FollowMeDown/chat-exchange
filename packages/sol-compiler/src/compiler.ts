@@ -152,8 +152,7 @@ export class Compiler {
             logUtils.log(`Downloading ${fullSolcVersion}...`);
             const url = `${constants.BASE_COMPILER_URL}${fullSolcVersion}`;
             const response = await fetch(url);
-            const SUCCESS_STATUS = 200;
-            if (response.status !== SUCCESS_STATUS) {
+            if (response.status !== 200) {
                 throw new Error(`Failed to load ${fullSolcVersion}`);
             }
             solcjs = await response.text();

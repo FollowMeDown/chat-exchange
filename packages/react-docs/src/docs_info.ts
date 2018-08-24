@@ -11,7 +11,6 @@ import {
     DoxityDocObj,
     SectionsMap,
     SupportedDocJson,
-    TypeDefinitionByName,
     TypeDocNode,
 } from './types';
 import { doxityUtils } from './utils/doxity_utils';
@@ -64,8 +63,8 @@ export class DocsInfo {
         finalMenu.contracts = _.filter(finalMenu.contracts, (contractName: string) => {
             const versionIntroducedIfExists = this._docsInfo.menuSubsectionToVersionWhenIntroduced[contractName];
             if (!_.isUndefined(versionIntroducedIfExists)) {
-                const doesExistInSelectedVersion = compareVersions(selectedVersion, versionIntroducedIfExists) >= 0;
-                return doesExistInSelectedVersion;
+                const existsInSelectedVersion = compareVersions(selectedVersion, versionIntroducedIfExists) >= 0;
+                return existsInSelectedVersion;
             } else {
                 return true;
             }
@@ -105,13 +104,13 @@ export class DocsInfo {
         });
         return menuSubsectionsBySection;
     }
-    public getTypeDefinitionsByName(docAgnosticFormat: DocAgnosticFormat): { [name: string]: TypeDefinitionByName } {
+    public getTypeDefinitionsByName(docAgnosticFormat: DocAgnosticFormat) {
         if (_.isUndefined(this.sections.types)) {
             return {};
         }
 
         const typeDocSection = docAgnosticFormat[this.sections.types];
-        const typeDefinitionByName = _.keyBy(typeDocSection.types, 'name') as any;
+        const typeDefinitionByName = _.keyBy(typeDocSection.types, 'name');
         return typeDefinitionByName;
     }
     public isVisibleConstructor(sectionName: string): boolean {

@@ -21,7 +21,7 @@ const styles: Styles = {
 };
 
 export class NotFound extends React.Component<NotFoundProps, NotFoundState> {
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div>
                 <TopBar blockchainIsLoaded={false} location={this.props.location} translate={this.props.translate} />

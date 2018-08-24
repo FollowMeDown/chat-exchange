@@ -506,7 +506,7 @@ export interface TokenState {
 
 export interface WebsiteBackendRelayerInfo {
     name: string;
-    weeklyTxnVolume: string;
+    dailyTxnVolume: string;
     url: string;
     appUrl?: string;
     headerImgUrl?: string;

@@ -4,7 +4,7 @@
     "description": "Lint rules related to 0xProject for TSLint",
     "main": "tslint.json",
     "scripts": {
-        "watch": "tsc -w",
+        "build:watch": "tsc -w",
         "build": "tsc && copyfiles -u 2 './lib/monorepo_scripts/**/*' ./scripts",
         "clean": "shx rm -rf lib scripts",
         "lint": "tslint --project .",
@@ -41,8 +41,7 @@
         "lodash": "^4.17.4",
         "tslint": "5.8.0",
         "tslint-eslint-rules": "^4.1.1",
-        "tslint-react": "^3.2.0",
-        "tsutils": "^2.12.1"
+        "tslint-react": "^3.2.0"
     },
     "publishConfig": {
         "access": "public"

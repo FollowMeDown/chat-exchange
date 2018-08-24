@@ -1,23 +1,19 @@
 import * as _ from 'lodash';
 
 export const intervalUtils = {
-    setAsyncExcludingInterval(
-        fn: () => Promise<void>,
-        intervalMs: number,
-        onError: (err: Error) => void,
-    ): NodeJS.Timer {
-        let isLocked = false;
+    setAsyncExcludingInterval(fn: () => Promise<void>, intervalMs: number, onError: (err: Error) => void) {
+        let locked = false;
         const intervalId = setInterval(async () => {
-            if (isLocked) {
+            if (locked) {
                 return;
             } else {
-                isLocked = true;
+                locked = true;
                 try {
                     await fn();
                 } catch (err) {
                     onError(err);
                 }
-                isLocked = false;
+                locked = false;
             }
         }, intervalMs);
         return intervalId;
@@ -25,7 +21,7 @@ export const intervalUtils = {
     clearAsyncExcludingInterval(intervalId: NodeJS.Timer): void {
         clearInterval(intervalId);
     },
-    setInterval(fn: () => void, intervalMs: number, onError: (err: Error) => void): NodeJS.Timer {
+    setInterval(fn: () => void, intervalMs: number, onError: (err: Error) => void) {
         const intervalId = setInterval(() => {
             try {
                 fn();

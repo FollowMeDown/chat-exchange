@@ -74,7 +74,7 @@ export class LedgerSubprovider extends BaseWalletSubprovider {
      * Set a desired derivation path when computing the available user addresses
      * @param basDerivationPath The desired derivation path (e.g `44'/60'/0'`)
      */
-    public setPath(basDerivationPath: string): void {
+    public setPath(basDerivationPath: string) {
         this._baseDerivationPath = basDerivationPath;
     }
     /**
@@ -113,12 +113,9 @@ export class LedgerSubprovider extends BaseWalletSubprovider {
         const tx = new EthereumTx(txParams);
 
         // Set the EIP155 bits
-        const vIndex = 6;
-        tx.raw[vIndex] = Buffer.from([this._networkId]); // v
-        const rIndex = 7;
-        tx.raw[rIndex] = Buffer.from([]); // r
-        const sIndex = 8;
-        tx.raw[sIndex] = Buffer.from([]); // s
+        tx.raw[6] = Buffer.from([this._networkId]); // v
+        tx.raw[7] = Buffer.from([]); // r
+        tx.raw[8] = Buffer.from([]); // s
 
         const txHex = tx.serialize().toString('hex');
         try {
@@ -130,8 +127,7 @@ export class LedgerSubprovider extends BaseWalletSubprovider {
             tx.v = Buffer.from(result.v, 'hex');
 
             // EIP155: v should be chain_id * 2 + {35, 36}
-            const eip55Constant = 35;
-            const signedChainId = Math.floor((tx.v[0] - eip55Constant) / 2);
+            const signedChainId = Math.floor((tx.v[0] - 35) / 2);
             if (signedChainId !== this._networkId) {
                 await this._destroyLedgerClientAsync();
                 const err = new Error(LedgerSubproviderErrors.TooOldLedgerFirmware);
@@ -173,10 +169,8 @@ export class LedgerSubprovider extends BaseWalletSubprovider {
                 fullDerivationPath,
                 ethUtil.stripHexPrefix(data),
             );
-            const lowestValidV = 27;
-            const v = result.v - lowestValidV;
-            const hexBase = 16;
-            let vHex = v.toString(hexBase);
+            const v = result.v - 27;
+            let vHex = v.toString(16);
             if (vHex.length < 2) {
                 vHex = `0${v}`;
             }
@@ -198,7 +192,7 @@ export class LedgerSubprovider extends BaseWalletSubprovider {
         this._connectionLock.release();
         return ledgerEthereumClient;
     }
-    private async _destroyLedgerClientAsync(): Promise<void> {
+    private async _destroyLedgerClientAsync() {
         await this._connectionLock.acquire();
         if (_.isUndefined(this._ledgerClientIfExists)) {
             this._connectionLock.release();

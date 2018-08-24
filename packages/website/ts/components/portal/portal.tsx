@@ -102,14 +102,14 @@ export class Portal extends React.Component<PortalProps, PortalState> {
             isLedgerDialogOpen: false,
         };
     }
-    public componentDidMount(): void {
+    public componentDidMount() {
         window.addEventListener('resize', this._throttledScreenWidthUpdate);
         window.scrollTo(0, 0);
     }
-    public componentWillMount(): void {
+    public componentWillMount() {
         this._blockchain = new Blockchain(this.props.dispatcher);
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         this._blockchain.destroy();
         window.removeEventListener('resize', this._throttledScreenWidthUpdate);
         // We re-set the entire redux state when the portal is unmounted so that when it is re-rendered
@@ -118,7 +118,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
         // become disconnected from their backing Ethereum node, changed user accounts, etc...)
         this.props.dispatcher.resetState();
     }
-    public componentWillReceiveProps(nextProps: PortalProps): void {
+    public componentWillReceiveProps(nextProps: PortalProps) {
         if (nextProps.networkId !== this.state.prevNetworkId) {
             // tslint:disable-next-line:no-floating-promises
             this._blockchain.networkIdUpdatedFireAndForgetAsync(nextProps.networkId);
@@ -144,7 +144,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
             });
         }
     }
-    public render(): React.ReactNode {
+    public render() {
         const updateShouldBlockchainErrDialogBeOpen = this.props.dispatcher.updateShouldBlockchainErrDialogBeOpen.bind(
             this.props.dispatcher,
         );
@@ -241,7 +241,7 @@ export class Portal extends React.Component<PortalProps, PortalState> {
             </div>
         );
     }
-    private _onTokenChosen(tokenAddress: string): void {
+    private _onTokenChosen(tokenAddress: string) {
         if (_.isEmpty(tokenAddress)) {
             this.setState({
                 tokenManagementState: TokenManagementState.None,
@@ -269,28 +269,28 @@ export class Portal extends React.Component<PortalProps, PortalState> {
             tokenManagementState: TokenManagementState.None,
         });
     }
-    private _onToggleLedgerDialog(): void {
+    private _onToggleLedgerDialog() {
         this.setState({
             isLedgerDialogOpen: !this.state.isLedgerDialogOpen,
         });
     }
-    private _onAddToken(): void {
+    private _onAddToken() {
         this.setState({
             tokenManagementState: TokenManagementState.Add,
         });
     }
-    private _onRemoveToken(): void {
+    private _onRemoveToken() {
         this.setState({
             tokenManagementState: TokenManagementState.Remove,
         });
     }
-    private _onPortalDisclaimerAccepted(): void {
+    private _onPortalDisclaimerAccepted() {
         localStorage.setItem(constants.LOCAL_STORAGE_KEY_ACCEPT_DISCLAIMER, 'set');
         this.setState({
             isDisclaimerDialogOpen: false,
         });
     }
-    private _updateScreenWidth(): void {
+    private _updateScreenWidth() {
         const newScreenWidth = utils.getScreenWidth();
         this.props.dispatcher.updateScreenWidth(newScreenWidth);
     }

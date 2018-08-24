@@ -1,7 +1,6 @@
 import * as bodyParser from 'body-parser';
 import * as express from 'express';
 
-import { constants } from './constants';
 import { errorReporter } from './error_reporter';
 import { Handler } from './handler';
 import { parameterTransformer } from './parameter_transformer';
@@ -19,16 +18,15 @@ app.use((req, res, next) => {
 
 const handler = new Handler();
 app.get('/ping', (req: express.Request, res: express.Response) => {
-    res.status(constants.SUCCESS_STATUS).send('pong');
+    res.status(200).send('pong');
 });
 app.get('/info', handler.getQueueInfo.bind(handler));
 app.get('/ether/:recipient', parameterTransformer.transform, handler.dispenseEther.bind(handler));
 app.get('/zrx/:recipient', parameterTransformer.transform, handler.dispenseZRX.bind(handler));
-app.get('/order/weth/:recipient', parameterTransformer.transform, handler.dispenseWETHOrderAsync.bind(handler));
-app.get('/order/zrx/:recipient', parameterTransformer.transform, handler.dispenseZRXOrderAsync.bind(handler));
+app.get('/order/weth/:recipient', parameterTransformer.transform, handler.dispenseWETHOrder.bind(handler));
+app.get('/order/zrx/:recipient', parameterTransformer.transform, handler.dispenseZRXOrder.bind(handler));
 
 // Log to rollbar any errors unhandled by handlers
 app.use(errorReporter.errorHandler());
-const DEFAULT_PORT = 3000;
-const port = process.env.PORT || DEFAULT_PORT;
+const port = process.env.PORT || 3000;
 app.listen(port);

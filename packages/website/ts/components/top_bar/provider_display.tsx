@@ -35,13 +35,15 @@ const styles: Styles = {
 };
 
 export class ProviderDisplay extends React.Component<ProviderDisplayProps, ProviderDisplayState> {
-    public render(): React.ReactNode {
+    public render() {
         const isAddressAvailable = !_.isEmpty(this.props.userAddress);
         const isExternallyInjectedProvider =
             this.props.providerType === ProviderType.Injected && this.props.injectedProviderName !== '0x Public';
         const displayAddress = isAddressAvailable
             ? utils.getAddressBeginAndEnd(this.props.userAddress)
-            : isExternallyInjectedProvider ? 'Account locked' : '0x0000...0000';
+            : isExternallyInjectedProvider
+                ? 'Account locked'
+                : '0x0000...0000';
         // If the "injected" provider is our fallback public node, then we want to
         // show the "connect a wallet" message instead of the providerName
         const injectedProviderName = isExternallyInjectedProvider
@@ -81,7 +83,7 @@ export class ProviderDisplay extends React.Component<ProviderDisplayProps, Provi
             </div>
         );
     }
-    public renderPopoverContent(hasInjectedProvider: boolean, hasLedgerProvider: boolean): React.ReactNode {
+    public renderPopoverContent(hasInjectedProvider: boolean, hasLedgerProvider: boolean) {
         if (hasInjectedProvider || hasLedgerProvider) {
             return (
                 <ProviderPicker

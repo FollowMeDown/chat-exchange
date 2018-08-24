@@ -9,7 +9,7 @@ interface U2fNotSupportedDialogProps {
     onToggleDialog: () => void;
 }
 
-export const U2fNotSupportedDialog = (props: U2fNotSupportedDialogProps) => {
+export function U2fNotSupportedDialog(props: U2fNotSupportedDialogProps) {
     return (
         <Dialog
             title="U2F Not Supported"
@@ -43,4 +43,4 @@ export const U2fNotSupportedDialog = (props: U2fNotSupportedDialogProps) => {
             </div>
         </Dialog>
     );
-};
+}

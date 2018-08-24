@@ -23,8 +23,8 @@ export class BlockchainWatcher {
         this._shouldPollUserAddress = shouldPollUserAddress;
         this._web3Wrapper = web3Wrapper;
     }
-    public destroy(): void {
-        this._stopEmittingNetworkConnectionAndUserBalanceState();
+    public destroy() {
+        this._stopEmittingNetworkConnectionAndUserBalanceStateAsync();
         // HACK: stop() is only available on providerEngine instances
         const provider = this._web3Wrapper.getProvider();
         if (!_.isUndefined((provider as any).stop)) {
@@ -32,10 +32,10 @@ export class BlockchainWatcher {
         }
     }
     // This should only be called from the LedgerConfigDialog
-    public updatePrevUserAddress(userAddress: string): void {
+    public updatePrevUserAddress(userAddress: string) {
         this._prevUserAddressIfExists = userAddress;
     }
-    public startEmittingNetworkConnectionAndUserBalanceState(): void {
+    public startEmittingNetworkConnectionAndUserBalanceState() {
         if (!_.isUndefined(this._watchNetworkAndBalanceIntervalId)) {
             return; // we are already emitting the state
         }
@@ -88,18 +88,18 @@ export class BlockchainWatcher {
             5000,
             (err: Error) => {
                 logUtils.log(`Watching network and balances failed: ${err.stack}`);
-                this._stopEmittingNetworkConnectionAndUserBalanceState();
+                this._stopEmittingNetworkConnectionAndUserBalanceStateAsync();
             },
         );
     }
-    private async _updateUserWeiBalanceAsync(userAddress: string): Promise<void> {
+    private async _updateUserWeiBalanceAsync(userAddress: string) {
         const balanceInWei = await this._web3Wrapper.getBalanceInWeiAsync(userAddress);
         if (!balanceInWei.eq(this._prevUserEtherBalanceInWei)) {
             this._prevUserEtherBalanceInWei = balanceInWei;
             this._dispatcher.updateUserWeiBalance(balanceInWei);
         }
     }
-    private _stopEmittingNetworkConnectionAndUserBalanceState(): void {
+    private _stopEmittingNetworkConnectionAndUserBalanceStateAsync() {
         if (!_.isUndefined(this._watchNetworkAndBalanceIntervalId)) {
             intervalUtils.clearAsyncExcludingInterval(this._watchNetworkAndBalanceIntervalId);
         }

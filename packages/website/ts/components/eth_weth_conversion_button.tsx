@@ -46,7 +46,7 @@ export class EthWethConversionButton extends React.Component<
             isEthConversionHappening: false,
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const labelStyle = this.state.isEthConversionHappening ? { fontSize: 10 } : {};
         let callToActionLabel;
         let inProgressLabel;
@@ -81,12 +81,12 @@ export class EthWethConversionButton extends React.Component<
             </div>
         );
     }
-    private _toggleConversionDialog(): void {
+    private _toggleConversionDialog() {
         this.setState({
             isEthConversionDialogVisible: !this.state.isEthConversionDialogVisible,
         });
     }
-    private async _onConversionAmountSelectedAsync(direction: Side, value: BigNumber): Promise<void> {
+    private async _onConversionAmountSelectedAsync(direction: Side, value: BigNumber) {
         this.setState({
             isEthConversionHappening: true,
         });

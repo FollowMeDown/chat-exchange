@@ -5,11 +5,10 @@ import * as path from 'path';
 import { constants } from './utils/constants';
 import { provider } from './utils/web3_wrapper';
 
-before('migrate contracts', async function(): Promise<void> {
+before('migrate contracts', async function() {
     // HACK: Since the migrations take longer then our global mocha timeout limit
     // we manually increase it for this before hook.
-    const mochaTestTimeoutMs = 20000;
-    this.timeout(mochaTestTimeoutMs);
+    this.timeout(20000);
     const txDefaults = {
         gas: devConstants.GAS_ESTIMATE,
         from: devConstants.TESTRPC_FIRST_ADDRESS,

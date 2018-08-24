@@ -79,7 +79,7 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
     private _blockchain: Blockchain;
     private _sharedOrderIfExists: Order;
     private _throttledScreenWidthUpdate: () => void;
-    public static hasAlreadyDismissedWethNotice(): boolean {
+    public static hasAlreadyDismissedWethNotice() {
         const didDismissWethNotice = localStorage.getItemIfExists(constants.LOCAL_STORAGE_KEY_DISMISS_WETH_NOTICE);
         const hasAlreadyDismissedWethNotice = !_.isUndefined(didDismissWethNotice) && !_.isEmpty(didDismissWethNotice);
         return hasAlreadyDismissedWethNotice;
@@ -105,14 +105,14 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
             isLedgerDialogOpen: false,
         };
     }
-    public componentDidMount(): void {
+    public componentDidMount() {
         window.addEventListener('resize', this._throttledScreenWidthUpdate);
         window.scrollTo(0, 0);
     }
-    public componentWillMount(): void {
+    public componentWillMount() {
         this._blockchain = new Blockchain(this.props.dispatcher);
     }
-    public componentWillUnmount(): void {
+    public componentWillUnmount() {
         this._blockchain.destroy();
         window.removeEventListener('resize', this._throttledScreenWidthUpdate);
         // We re-set the entire redux state when the portal is unmounted so that when it is re-rendered
@@ -121,7 +121,7 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
         // become disconnected from their backing Ethereum node, changes user accounts, etc...)
         this.props.dispatcher.resetState();
     }
-    public componentWillReceiveProps(nextProps: LegacyPortalProps): void {
+    public componentWillReceiveProps(nextProps: LegacyPortalProps) {
         if (nextProps.networkId !== this.state.prevNetworkId) {
             // tslint:disable-next-line:no-floating-promises
             this._blockchain.networkIdUpdatedFireAndForgetAsync(nextProps.networkId);
@@ -150,7 +150,7 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
             });
         }
     }
-    public render(): React.ReactNode {
+    public render() {
         const updateShouldBlockchainErrDialogBeOpen = this.props.dispatcher.updateShouldBlockchainErrDialogBeOpen.bind(
             this.props.dispatcher,
         );
@@ -276,12 +276,12 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
             </div>
         );
     }
-    public onToggleLedgerDialog(): void {
+    public onToggleLedgerDialog() {
         this.setState({
             isLedgerDialogOpen: !this.state.isLedgerDialogOpen,
         });
     }
-    private _renderEthWrapper(): React.ReactNode {
+    private _renderEthWrapper() {
         return (
             <EthWrappers
                 networkId={this.props.networkId}
@@ -294,7 +294,7 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
             />
         );
     }
-    private _renderTradeHistory(): React.ReactNode {
+    private _renderTradeHistory() {
         return (
             <TradeHistory
                 tokenByAddress={this.props.tokenByAddress}
@@ -303,7 +303,7 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
             />
         );
     }
-    private _renderTokenBalances(): React.ReactNode {
+    private _renderTokenBalances() {
         const allTokens = _.values(this.props.tokenByAddress);
         const trackedTokens = _.filter(allTokens, t => t.isTracked);
         return (
@@ -322,7 +322,7 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
             />
         );
     }
-    private _renderFillOrder(match: any, location: Location, history: History): React.ReactNode {
+    private _renderFillOrder(match: any, location: Location, history: History) {
         const initialFillOrder = !_.isUndefined(this.props.userSuppliedOrderCache)
             ? this.props.userSuppliedOrderCache
             : this._sharedOrderIfExists;
@@ -341,7 +341,7 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
             />
         );
     }
-    private _renderGenerateOrderForm(match: any, location: Location, history: History): React.ReactNode {
+    private _renderGenerateOrderForm(match: any, location: Location, history: History) {
         return (
             <GenerateOrderForm
                 blockchain={this._blockchain}
@@ -350,13 +350,13 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
             />
         );
     }
-    private _onPortalDisclaimerAccepted(): void {
+    private _onPortalDisclaimerAccepted() {
         localStorage.setItem(constants.LOCAL_STORAGE_KEY_ACCEPT_DISCLAIMER, 'set');
         this.setState({
             isDisclaimerDialogOpen: false,
         });
     }
-    private _onWethNoticeAccepted(): void {
+    private _onWethNoticeAccepted() {
         localStorage.setItem(constants.LOCAL_STORAGE_KEY_DISMISS_WETH_NOTICE, 'set');
         this.setState({
             isWethNoticeDialogOpen: false,
@@ -388,7 +388,7 @@ export class LegacyPortal extends React.Component<LegacyPortalProps, LegacyPorta
         }
         return order;
     }
-    private _updateScreenWidth(): void {
+    private _updateScreenWidth() {
         const newScreenWidth = utils.getScreenWidth();
         this.props.dispatcher.updateScreenWidth(newScreenWidth);
     }

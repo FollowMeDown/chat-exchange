@@ -8,7 +8,7 @@ interface PortalDisclaimerDialogProps {
     onToggleDialog: () => void;
 }
 
-export const PortalDisclaimerDialog = (props: PortalDisclaimerDialogProps) => {
+export function PortalDisclaimerDialog(props: PortalDisclaimerDialogProps) {
     return (
         <Dialog
             title="0x Portal Disclaimer"
@@ -33,4 +33,4 @@ export const PortalDisclaimerDialog = (props: PortalDisclaimerDialogProps) => {
             </div>
         </Dialog>
     );
-};
+}

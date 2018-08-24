@@ -72,10 +72,10 @@ const packageNameToWebsitePath: { [name: string]: string } = {
     process.exit(1);
 });
 
-async function confirmDocPagesRenderAsync(packages: LernaPackage[]): Promise<void> {
+async function confirmDocPagesRenderAsync(packages: LernaPackage[]) {
     // push docs to staging
     utils.log("Upload all docJson's to S3 staging...");
-    await execAsync(`yarn stage_docs`, { cwd: constants.monorepoRootPath });
+    await execAsync(`yarn lerna:stage_docs`, { cwd: constants.monorepoRootPath });
 
     // deploy website to staging
     utils.log('Deploy website to staging...');
@@ -162,7 +162,7 @@ async function checkPublishRequiredSetupAsync(): Promise<boolean> {
     return true;
 }
 
-async function pushChangelogsToGithubAsync(): Promise<void> {
+async function pushChangelogsToGithubAsync() {
     await execAsync(`git add . --all`, { cwd: constants.monorepoRootPath });
     await execAsync(`git commit -m "Updated CHANGELOGS"`, { cwd: constants.monorepoRootPath });
     await execAsync(`git push`, { cwd: constants.monorepoRootPath });
@@ -228,7 +228,7 @@ async function updateChangeLogsAsync(updatedPublicLernaPackages: LernaPackage[])
     return packageToVersionChange;
 }
 
-async function lernaPublishAsync(packageToVersionChange: { [name: string]: string }): Promise<void> {
+async function lernaPublishAsync(packageToVersionChange: { [name: string]: string }) {
     // HACK: Lerna publish does not provide a way to specify multiple package versions via
     // flags so instead we need to interact with their interactive prompt interface.
     const child = spawn('lerna', ['publish', '--registry=https://registry.npmjs.org/'], {
@@ -269,7 +269,7 @@ async function lernaPublishAsync(packageToVersionChange: { [name: string]: strin
     });
 }
 
-function updateVersionNumberIfNeeded(currentVersion: string, proposedNextVersion: string): string {
+function updateVersionNumberIfNeeded(currentVersion: string, proposedNextVersion: string) {
     if (proposedNextVersion === currentVersion) {
         return utils.getNextPatchVersion(currentVersion);
     }
@@ -285,8 +285,8 @@ function shouldAddNewChangelogEntry(currentVersion: string, changelogs: Changelo
         return true;
     }
     const lastEntry = changelogs[0];
-    const isLastEntryCurrentVersion = lastEntry.version === currentVersion;
-    return isLastEntryCurrentVersion;
+    const lastEntryCurrentVersion = lastEntry.version === currentVersion;
+    return lastEntryCurrentVersion;
 }
 
 function generateChangelogMd(changelogs: Changelog[]): string {

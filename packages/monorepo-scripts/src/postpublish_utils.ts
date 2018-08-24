@@ -74,7 +74,7 @@ export const postpublishUtils = {
             utils.log(`POSTPUBLISH: No S3Bucket config found for ${packageJSON.name}. Skipping doc JSON generation.`);
         }
     },
-    async publishDocsToStagingAsync(packageJSON: any, tsConfigJSON: any, cwd: string): Promise<void> {
+    async publishDocsToStagingAsync(packageJSON: any, tsConfigJSON: any, cwd: string) {
         const configs = this.generateConfig(packageJSON, tsConfigJSON, cwd);
         if (_.isUndefined(configs.docPublishConfigs.s3StagingBucketPath)) {
             utils.log('config.postpublish.docPublishConfigs.s3StagingBucketPath entry in package.json not found!');
@@ -109,7 +109,7 @@ export const postpublishUtils = {
             assets,
         });
     },
-    getReleaseNotes(packageName: string, version: string): string {
+    getReleaseNotes(packageName: string, version: string) {
         const packageNameWithNamespace = packageName.replace('@0xproject/', '');
         const changelogJSONPath = path.join(
             constants.monorepoRootPath,
@@ -135,14 +135,14 @@ export const postpublishUtils = {
         });
         return notes;
     },
-    getTag(packageName: string, version: string): string {
+    getTag(packageName: string, version: string) {
         return `${packageName}@${version}`;
     },
     getReleaseName(subPackageName: string, version: string): string {
         const releaseName = `${subPackageName} v${version}`;
         return releaseName;
     },
-    adjustAssetPaths(cwd: string, assets: string[]): string[] {
+    adjustAssetPaths(cwd: string, assets: string[]) {
         const finalAssets: string[] = [];
         _.each(assets, (asset: string) => {
             finalAssets.push(`${cwd}/${asset}`);
@@ -158,19 +158,13 @@ export const postpublishUtils = {
             // HACK: tsconfig.json needs wildcard directory endings as `/**/*`
             // but TypeDoc needs it as `/**` in order to pick up files at the root
             if (_.endsWith(includePath, '/**/*')) {
-                // tslint:disable-next-line:custom-no-magic-numbers
                 includePath = includePath.slice(0, -2);
             }
             return includePath;
         });
         return fileIncludesAdjusted;
     },
-    async generateAndUploadDocsAsync(
-        cwd: string,
-        fileIncludes: string[],
-        version: string,
-        S3BucketPath: string,
-    ): Promise<void> {
+    async generateAndUploadDocsAsync(cwd: string, fileIncludes: string[], version: string, S3BucketPath: string) {
         const fileIncludesAdjusted = this.adjustFileIncludePaths(fileIncludes, cwd);
         const projectFiles = fileIncludesAdjusted.join(' ');
         const jsonFilePath = `${cwd}/${generatedDocsDirectoryName}/index.json`;

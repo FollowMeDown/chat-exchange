@@ -8,7 +8,7 @@ interface WrappedEthSectionNoticeDialogProps {
     onToggleDialog: () => void;
 }
 
-export const WrappedEthSectionNoticeDialog = (props: WrappedEthSectionNoticeDialogProps) => {
+export function WrappedEthSectionNoticeDialog(props: WrappedEthSectionNoticeDialogProps) {
     return (
         <Dialog
             title="Dedicated Wrapped Ether Section"
@@ -30,4 +30,4 @@ export const WrappedEthSectionNoticeDialog = (props: WrappedEthSectionNoticeDial
             </div>
         </Dialog>
     );
-};
+}

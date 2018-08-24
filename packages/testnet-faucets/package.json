@@ -5,19 +5,18 @@
     "description": "A faucet micro-service that dispenses test ERC20 tokens or Ether",
     "main": "server.js",
     "scripts": {
-        "watch": "tsc -w",
+        "build:watch": "tsc -w",
         "build": "node ../../node_modules/gulp/bin/gulp.js build",
         "dev": "node ../../node_modules/gulp/bin/gulp.js run",
-        "start": "node ./server/server.js",
+        "start": "node ./bin/server.js",
         "lint": "tslint --project .",
-        "clean": "shx rm -rf server"
+        "clean": "shx rm -rf bin"
     },
     "author": "Fabio Berger",
     "license": "Apache-2.0",
     "dependencies": {
         "0x.js": "^0.37.2",
         "@0xproject/subproviders": "^0.10.1",
-        "@0xproject/types": "^0.6.3",
         "@0xproject/typescript-typings": "^0.3.1",
         "@0xproject/utils": "^0.6.1",
         "body-parser": "^1.17.1",

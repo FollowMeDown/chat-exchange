@@ -11,7 +11,7 @@ import { constants } from './util/constants';
 
 const expect = chai.expect;
 
-describe('#Compiler', function(): void {
+describe('#Compiler', function() {
     this.timeout(constants.timeoutMs);
     const artifactsDir = `${__dirname}/fixtures/artifacts`;
     const contractsDir = `${__dirname}/fixtures/contracts`;
@@ -38,12 +38,8 @@ describe('#Compiler', function(): void {
         const exchangeArtifactString = await fsWrapper.readFileAsync(exchangeArtifactPath, opts);
         const exchangeArtifact: ContractArtifact = JSON.parse(exchangeArtifactString);
         // The last 43 bytes of the binaries are metadata which may not be equivalent
-        const last43BytesIndex = -86;
-        const unlinkedBinaryWithoutMetadata = exchangeArtifact.compilerOutput.evm.bytecode.object.slice(
-            2,
-            last43BytesIndex,
-        );
-        const exchangeBinaryWithoutMetadata = exchange_binary.slice(0, last43BytesIndex);
+        const unlinkedBinaryWithoutMetadata = exchangeArtifact.compilerOutput.evm.bytecode.object.slice(2, -86);
+        const exchangeBinaryWithoutMetadata = exchange_binary.slice(0, -86);
         expect(unlinkedBinaryWithoutMetadata).to.equal(exchangeBinaryWithoutMetadata);
     });
 });

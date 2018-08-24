@@ -38,7 +38,7 @@ export class TokenInput extends React.Component<TokenInputProps, TokenInputState
             isPickerOpen: false,
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const token = this.props.tokenByAddress[this.props.assetToken.address];
         const iconStyles = {
             cursor: 'pointer',
@@ -76,7 +76,7 @@ export class TokenInput extends React.Component<TokenInputProps, TokenInputState
             </div>
         );
     }
-    private _onTokenChosen(tokenAddress: string): void {
+    private _onTokenChosen(tokenAddress: string) {
         const assetToken: AssetToken = {
             address: tokenAddress,
             amount: this.props.assetToken.amount,
@@ -86,12 +86,12 @@ export class TokenInput extends React.Component<TokenInputProps, TokenInputState
             isPickerOpen: false,
         });
     }
-    private _onToggleHover(isHoveringIcon: boolean): void {
+    private _onToggleHover(isHoveringIcon: boolean) {
         this.setState({
             isHoveringIcon,
         });
     }
-    private _onAssetClicked(): void {
+    private _onAssetClicked() {
         if (this.props.blockchainErr !== BlockchainErrs.NoError) {
             this.props.dispatcher.updateShouldBlockchainErrDialogBeOpen(true);
             return;

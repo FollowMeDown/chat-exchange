@@ -9,7 +9,7 @@ const config = {
     target: 'node',
     entry: [path.join(__dirname, '/src/ts/server.ts')],
     output: {
-        path: path.join(__dirname, '/server'),
+        path: path.join(__dirname, '/bin'),
         filename: 'server.js',
     },
     devtool: 'source-map',
@@ -47,7 +47,7 @@ const config = {
         modulesDir: path.join(__dirname, '../../node_modules')
     }),
     watchOptions: {
-        ignored: /server|node_modules|transpiled/
+        ignored: /bin|node_modules|transpiled/
     },
 };
 
@@ -67,7 +67,7 @@ gulp.task('run', ['watch'], function() {
         execMap: {
             js: 'node',
         },
-        script: path.join(__dirname, 'server/server'),
+        script: path.join(__dirname, 'bin/server'),
         ignore: ['*'],
         watch: ['foo/'],
         ext: 'noop',

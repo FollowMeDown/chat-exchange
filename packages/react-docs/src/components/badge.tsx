@@ -31,7 +31,7 @@ export class Badge extends React.Component<BadgeProps, BadgeState> {
             isHovering: false,
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const badgeStyle = {
             ...styles.badge,
             backgroundColor: this.props.backgroundColor,
@@ -48,7 +48,7 @@ export class Badge extends React.Component<BadgeProps, BadgeState> {
             </div>
         );
     }
-    private _setHoverState(isHovering: boolean): void {
+    private _setHoverState(isHovering: boolean) {
         this.setState({
             isHovering,
         });

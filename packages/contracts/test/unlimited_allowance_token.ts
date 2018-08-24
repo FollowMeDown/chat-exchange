@@ -5,13 +5,11 @@ import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
 import * as Web3 from 'web3';
 
-import { DummyTokenContract } from '../src/contract_wrappers/generated/dummy_token';
-import { artifacts } from '../util/artifacts';
-import { constants } from '../util/constants';
-import { ContractName } from '../util/types';
-
-import { chaiSetup } from './utils/chai_setup';
-import { provider, txDefaults, web3Wrapper } from './utils/web3_wrapper';
+import { DummyERC20TokenContract } from '../src/contract_wrappers/generated/dummy_e_r_c20_token';
+import { artifacts } from '../src/utils/artifacts';
+import { chaiSetup } from '../src/utils/chai_setup';
+import { constants } from '../src/utils/constants';
+import { provider, txDefaults, web3Wrapper } from '../src/utils/web3_wrapper';
 
 chaiSetup.configure();
 const expect = chai.expect;
@@ -20,21 +18,20 @@ const blockchainLifecycle = new BlockchainLifecycle(web3Wrapper);
 describe('UnlimitedAllowanceToken', () => {
     let owner: string;
     let spender: string;
-    const config = {
+    const zeroEx = new ZeroEx(provider, {
         networkId: constants.TESTRPC_NETWORK_ID,
-    };
-    const zeroEx = new ZeroEx(provider, config);
+    });
 
     const MAX_MINT_VALUE = new BigNumber(100000000000000000000);
     let tokenAddress: string;
-    let token: DummyTokenContract;
+    let token: DummyERC20TokenContract;
 
     before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         owner = accounts[0];
         spender = accounts[1];
-        token = await DummyTokenContract.deployFrom0xArtifactAsync(
-            artifacts.DummyToken,
+        token = await DummyERC20TokenContract.deployFrom0xArtifactAsync(
+            artifacts.DummyERC20Token,
             provider,
             txDefaults,
             constants.DUMMY_TOKEN_NAME,
@@ -99,8 +96,8 @@ describe('UnlimitedAllowanceToken', () => {
             const amountToTransfer = ownerBalance;
 
             const spenderAllowance = await zeroEx.token.getAllowanceAsync(tokenAddress, owner, spender);
-            const isSpenderAllowanceInsufficient = spenderAllowance.cmp(amountToTransfer) < 0;
-            expect(isSpenderAllowanceInsufficient).to.be.true();
+            const spenderAllowanceIsInsufficient = spenderAllowance.cmp(amountToTransfer) < 0;
+            expect(spenderAllowanceIsInsufficient).to.be.true();
 
             return expect(
                 token.transferFrom.callAsync(owner, spender, amountToTransfer, {

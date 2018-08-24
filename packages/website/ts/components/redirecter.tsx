@@ -5,6 +5,6 @@ interface RedirecterProps {
     location: string;
 }
 
-export function Redirecter(props: RedirecterProps): void {
+export function Redirecter(props: RedirecterProps) {
     window.location.href = constants.URL_ANGELLIST;
 }

@@ -23,14 +23,14 @@ export class CopyIcon extends React.Component<CopyIconProps, CopyIconState> {
             isHovering: false,
         };
     }
-    public componentDidUpdate(): void {
+    public componentDidUpdate() {
         // Remove tooltip if hover away
         if (!this.state.isHovering && this._copyTooltipTimeoutId) {
             clearInterval(this._copyTooltipTimeoutId);
             this._hideTooltip();
         }
     }
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div className="inline-block">
                 <CopyToClipboard text={this.props.data} onCopy={this._onCopy.bind(this)}>
@@ -55,15 +55,15 @@ export class CopyIcon extends React.Component<CopyIconProps, CopyIconState> {
             </div>
         );
     }
-    private _setRefToProperty(el: HTMLInputElement): void {
+    private _setRefToProperty(el: HTMLInputElement) {
         this._copyable = el;
     }
-    private _setHoverState(isHovering: boolean): void {
+    private _setHoverState(isHovering: boolean) {
         this.setState({
             isHovering,
         });
     }
-    private _onCopy(): void {
+    private _onCopy() {
         if (this._copyTooltipTimeoutId) {
             clearInterval(this._copyTooltipTimeoutId);
         }
@@ -73,7 +73,7 @@ export class CopyIcon extends React.Component<CopyIconProps, CopyIconState> {
             this._hideTooltip();
         }, tooltipLifespanMs);
     }
-    private _hideTooltip(): void {
+    private _hideTooltip() {
         ReactTooltip.hide(ReactDOM.findDOMNode(this._copyable));
     }
 }

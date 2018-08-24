@@ -6,10 +6,7 @@ import { DoneCallback } from '@0xproject/types';
 const expect = chai.expect;
 
 export const callbackErrorReporter = {
-    reportNoErrorCallbackErrors(
-        done: DoneCallback,
-        expectToBeCalledOnce: boolean = true,
-    ): <T>(f?: ((value: T) => void) | undefined) => (value: T) => void {
+    reportNoErrorCallbackErrors(done: DoneCallback, expectToBeCalledOnce = true) {
         const callback = <T>(f?: (value: T) => void) => {
             const wrapped = (value: T) => {
                 if (_.isUndefined(f)) {
@@ -29,10 +26,7 @@ export const callbackErrorReporter = {
         };
         return callback;
     },
-    reportNodeCallbackErrors(
-        done: DoneCallback,
-        expectToBeCalledOnce: boolean = true,
-    ): <T>(f?: ((value: T) => void) | undefined) => (error: Error | null, value: T | undefined) => void {
+    reportNodeCallbackErrors(done: DoneCallback, expectToBeCalledOnce = true) {
         const callback = <T>(f?: (value: T) => void) => {
             const wrapped = (error: Error | null, value: T | undefined) => {
                 if (!_.isNull(error)) {
@@ -56,10 +50,7 @@ export const callbackErrorReporter = {
         };
         return callback;
     },
-    assertNodeCallbackError(
-        done: DoneCallback,
-        errMsg: string,
-    ): <T>(error: Error | null, value: T | undefined) => void {
+    assertNodeCallbackError(done: DoneCallback, errMsg: string) {
         const wrapped = <T>(error: Error | null, value: T | undefined) => {
             if (_.isNull(error)) {
                 done(new Error('Expected callback to receive an error'));

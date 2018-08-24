@@ -35,6 +35,6 @@ export const EtherScanIcon = (props: EtherScanIconProps) => {
     );
 };
 
-function renderIcon(): React.ReactNode {
+function renderIcon() {
     return <i style={{ color: colors.amber600 }} className="zmdi zmdi-open-in-new" />;
 }

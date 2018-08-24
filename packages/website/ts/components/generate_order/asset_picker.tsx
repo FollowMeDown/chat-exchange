@@ -79,7 +79,7 @@ export class AssetPicker extends React.Component<AssetPickerProps, AssetPickerSt
             },
         };
     }
-    public render(): React.ReactNode {
+    public render() {
         const dialogConfigs: DialogConfigs = this._dialogConfigsByAssetView[this.state.assetView];
         return (
             <Dialog
@@ -102,7 +102,7 @@ export class AssetPicker extends React.Component<AssetPickerProps, AssetPickerSt
             </Dialog>
         );
     }
-    private _renderConfirmTrackToken(): React.ReactNode {
+    private _renderConfirmTrackToken() {
         const token = this.props.tokenByAddress[this.state.chosenTrackTokenAddress];
         return (
             <TrackTokenConfirmation
@@ -113,7 +113,7 @@ export class AssetPicker extends React.Component<AssetPickerProps, AssetPickerSt
             />
         );
     }
-    private _renderAssetPicker(): React.ReactNode {
+    private _renderAssetPicker() {
         return (
             <div
                 className="clearfix flex flex-wrap"
@@ -128,7 +128,7 @@ export class AssetPicker extends React.Component<AssetPickerProps, AssetPickerSt
             </div>
         );
     }
-    private _renderGridTiles(): React.ReactNode {
+    private _renderGridTiles() {
         let isHovered;
         let tileStyles;
         const gridTiles = _.map(this.props.tokenByAddress, (token: Token, address: string) => {
@@ -195,19 +195,19 @@ export class AssetPicker extends React.Component<AssetPickerProps, AssetPickerSt
         }
         return gridTiles;
     }
-    private _onToggleHover(address: string, isHovered: boolean): void {
+    private _onToggleHover(address: string, isHovered: boolean) {
         const hoveredAddress = isHovered ? address : undefined;
         this.setState({
             hoveredAddress,
         });
     }
-    private _onCloseDialog(): void {
+    private _onCloseDialog() {
         this.setState({
             assetView: AssetViews.ASSET_PICKER,
         });
         this.props.onTokenChosen(this.props.currentTokenAddress);
     }
-    private _onChooseToken(tokenAddress: string): void {
+    private _onChooseToken(tokenAddress: string) {
         const token = this.props.tokenByAddress[tokenAddress];
         if (token.isTracked) {
             this.props.onTokenChosen(tokenAddress);
@@ -218,12 +218,12 @@ export class AssetPicker extends React.Component<AssetPickerProps, AssetPickerSt
             });
         }
     }
-    private _onCustomAssetChosen(): void {
+    private _onCustomAssetChosen() {
         this.setState({
             assetView: AssetViews.NEW_TOKEN_FORM,
         });
     }
-    private _onNewTokenSubmitted(newToken: Token): void {
+    private _onNewTokenSubmitted(newToken: Token) {
         trackedTokenStorage.addTrackedTokenToUser(this.props.userAddress, this.props.networkId, newToken);
         this.props.dispatcher.addTokenToTokenByAddress(newToken);
         this.setState({
@@ -231,7 +231,7 @@ export class AssetPicker extends React.Component<AssetPickerProps, AssetPickerSt
         });
         this.props.onTokenChosen(newToken.address);
     }
-    private async _onTrackConfirmationRespondedAsync(didUserAcceptTracking: boolean): Promise<void> {
+    private async _onTrackConfirmationRespondedAsync(didUserAcceptTracking: boolean) {
         if (!didUserAcceptTracking) {
             this.setState({
                 isAddingTokenToTracked: false,

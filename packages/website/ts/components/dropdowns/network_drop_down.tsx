@@ -13,7 +13,7 @@ interface NetworkDropDownProps {
 interface NetworkDropDownState {}
 
 export class NetworkDropDown extends React.Component<NetworkDropDownProps, NetworkDropDownState> {
-    public render(): React.ReactNode {
+    public render() {
         return (
             <div className="mx-auto" style={{ width: 120 }}>
                 <DropDownMenu value={this.props.selectedNetworkId} onChange={this.props.updateSelectedNetwork}>
@@ -22,7 +22,7 @@ export class NetworkDropDown extends React.Component<NetworkDropDownProps, Netwo
             </div>
         );
     }
-    private _renderDropDownItems(): React.ReactNode {
+    private _renderDropDownItems() {
         const items = _.map(this.props.avialableNetworkIds, networkId => {
             const networkName = sharedConstants.NETWORK_NAME_BY_ID[networkId];
             const primaryText = (

@@ -38,7 +38,7 @@ export class OrderJSON extends React.Component<OrderJSONProps, OrderJSONState> {
         // tslint:disable-next-line:no-floating-promises
         this._setShareLinkAsync();
     }
-    public render(): React.ReactNode {
+    public render() {
         const order = utils.generateOrder(
             this.props.exchangeContractIfExists,
             this.props.sideToAssetToken,
@@ -116,11 +116,11 @@ export class OrderJSON extends React.Component<OrderJSONProps, OrderJSONState> {
             </div>
         );
     }
-    private _shareViaTwitterAsync(): void {
+    private async _shareViaTwitterAsync() {
         const tweetText = encodeURIComponent(`Fill my order using the 0x protocol: ${this.state.shareLink}`);
         window.open(`https://twitter.com/intent/tweet?text=${tweetText}`, 'Share your order', 'width=500,height=400');
     }
-    private _shareViaFacebook(): void {
+    private async _shareViaFacebook() {
         (window as any).FB.ui(
             {
                 display: 'popup',
@@ -130,14 +130,14 @@ export class OrderJSON extends React.Component<OrderJSONProps, OrderJSONState> {
             _.noop,
         );
     }
-    private _shareViaEmailAsync(): void {
+    private async _shareViaEmailAsync() {
         const encodedSubject = encodeURIComponent("Let's trade using the 0x protocol");
         const encodedBody = encodeURIComponent(`I generated an order with the 0x protocol.
 You can see and fill it here: ${this.state.shareLink}`);
         const mailToLink = `mailto:mail@example.org?subject=${encodedSubject}&body=${encodedBody}`;
         window.open(mailToLink, '_blank');
     }
-    private async _setShareLinkAsync(): Promise<void> {
+    private async _setShareLinkAsync() {
         const shareLink = await this._generateShareLinkAsync();
         this.setState({
             shareLink,
@@ -159,7 +159,7 @@ You can see and fill it here: ${this.state.shareLink}`);
         }
         return bodyObj.data.url;
     }
-    private _getOrderUrl(): string {
+    private _getOrderUrl() {
         const order = utils.generateOrder(
             this.props.exchangeContractIfExists,
             this.props.sideToAssetToken,

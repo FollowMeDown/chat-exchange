@@ -3,7 +3,7 @@ import chaiAsPromised = require('chai-as-promised');
 import * as dirtyChai from 'dirty-chai';
 
 export const chaiSetup = {
-    configure(): void {
+    configure() {
         chai.config.includeStack = true;
         chai.use(dirtyChai);
         chai.use(chaiAsPromised);

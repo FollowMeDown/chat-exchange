@@ -18,8 +18,7 @@ export const assetProxyUtils = {
     encodeUint256(value: BigNumber): Buffer {
         const formattedValue = new BN(value.toString(10));
         const encodedValue = ethUtil.toBuffer(formattedValue);
-        const paddedValue = ethUtil.setLengthLeft(encodedValue, 32);
-        return paddedValue;
+        return encodedValue;
     },
     encodeERC20ProxyData(tokenAddress: string): string {
         const encodedAssetProxyId = assetProxyUtils.encodeAssetProxyId(AssetProxyId.ERC20);

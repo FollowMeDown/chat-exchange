@@ -5,14 +5,14 @@
     "main": "lib/index.js",
     "types": "lib/index.d.ts",
     "scripts": {
-        "watch": "tsc -w",
+        "build:watch": "tsc -w",
         "lint": "tslint --project .",
         "clean": "shx rm -rf lib scripts",
         "build": "tsc && copyfiles -u 2 './lib/monorepo_scripts/**/*' ./scripts",
         "manual:postpublish": "yarn build; node ./scripts/postpublish.js"
     },
     "bin": {
-        "abi-gen": "bin/abi-gen.js"
+        "abi-gen": "lib/index.js"
     },
     "repository": {
         "type": "git",

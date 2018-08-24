@@ -1,5 +1,4 @@
 import { Order, SignedOrder, ZeroEx } from '0x.js';
-import { Provider } from '@0xproject/types';
 import { BigNumber, logUtils } from '@0xproject/utils';
 import * as express from 'express';
 import * as _ from 'lodash';
@@ -15,7 +14,6 @@ import ProviderEngine = require('web3-provider-engine');
 import RpcSubprovider = require('web3-provider-engine/subproviders/rpc');
 
 import { configs } from './configs';
-import { constants } from './constants';
 import { DispatchQueue } from './dispatch_queue';
 import { dispenseAssetTasks } from './dispense_asset_tasks';
 import { rpcUrls } from './rpc_urls';
@@ -40,7 +38,7 @@ const FIVE_DAYS_IN_MS = 4.32e8; // TODO: make this configurable
 
 export class Handler {
     private _networkConfigByNetworkId: ItemByNetworkId<NetworkConfig> = {};
-    private static _createProviderEngine(rpcUrl: string): Provider {
+    private static _createProviderEngine(rpcUrl: string) {
         if (_.isUndefined(configs.DISPENSER_PRIVATE_KEY)) {
             throw new Error('Dispenser Private key not found');
         }
@@ -71,7 +69,7 @@ export class Handler {
             };
         });
     }
-    public getQueueInfo(req: express.Request, res: express.Response): void {
+    public getQueueInfo(req: express.Request, res: express.Response) {
         res.setHeader('Content-Type', 'application/json');
         const queueInfo = _.mapValues(rpcUrls, (rpcUrl: string, networkId: string) => {
             const dispatchQueue = this._networkConfigByNetworkId[networkId].dispatchQueue;
@@ -81,25 +79,21 @@ export class Handler {
             };
         });
         const payload = JSON.stringify(queueInfo);
-        res.status(constants.SUCCESS_STATUS).send(payload);
+        res.status(200).send(payload);
     }
-    public dispenseEther(req: express.Request, res: express.Response): void {
+    public dispenseEther(req: express.Request, res: express.Response) {
         this._dispenseAsset(req, res, RequestedAssetType.ETH);
     }
-    public dispenseZRX(req: express.Request, res: express.Response): void {
+    public dispenseZRX(req: express.Request, res: express.Response) {
         this._dispenseAsset(req, res, RequestedAssetType.ZRX);
     }
-    public async dispenseWETHOrderAsync(req: express.Request, res: express.Response): Promise<void> {
-        await this._dispenseOrderAsync(req, res, RequestedAssetType.WETH);
+    public async dispenseWETHOrder(req: express.Request, res: express.Response) {
+        await this._dispenseOrder(req, res, RequestedAssetType.WETH);
     }
-    public async dispenseZRXOrderAsync(
-        req: express.Request,
-        res: express.Response,
-        next: express.NextFunction,
-    ): Promise<void> {
-        await this._dispenseOrderAsync(req, res, RequestedAssetType.ZRX);
+    public async dispenseZRXOrder(req: express.Request, res: express.Response, next: express.NextFunction) {
+        await this._dispenseOrder(req, res, RequestedAssetType.ZRX);
     }
-    private _dispenseAsset(req: express.Request, res: express.Response, requestedAssetType: RequestedAssetType): void {
+    private _dispenseAsset(req: express.Request, res: express.Response, requestedAssetType: RequestedAssetType) {
         const networkId = req.params.networkId;
         const recipient = req.params.recipient;
         const networkConfig = this._networkConfigByNetworkId[networkId];
@@ -121,20 +115,16 @@ export class Handler {
         }
         const didAddToQueue = networkConfig.dispatchQueue.add(dispenserTask);
         if (!didAddToQueue) {
-            res.status(constants.SERVICE_UNAVAILABLE_STATUS).send('QUEUE_IS_FULL');
+            res.status(503).send('QUEUE_IS_FULL');
             return;
         }
         logUtils.log(`Added ${recipient} to queue: ${requestedAssetType} networkId: ${networkId}`);
-        res.status(constants.SUCCESS_STATUS).end();
+        res.status(200).end();
     }
-    private async _dispenseOrderAsync(
-        req: express.Request,
-        res: express.Response,
-        requestedAssetType: RequestedAssetType,
-    ): Promise<void> {
+    private async _dispenseOrder(req: express.Request, res: express.Response, requestedAssetType: RequestedAssetType) {
         const networkConfig = _.get(this._networkConfigByNetworkId, req.params.networkId);
         if (_.isUndefined(networkConfig)) {
-            res.status(constants.BAD_REQUEST_STATUS).send('UNSUPPORTED_NETWORK_ID');
+            res.status(400).send('UNSUPPORTED_NETWORK_ID');
             return;
         }
         const zeroEx = networkConfig.zeroEx;
@@ -174,6 +164,6 @@ export class Handler {
         const signedOrderHash = ZeroEx.getOrderHashHex(signedOrder);
         const payload = JSON.stringify(signedOrder);
         logUtils.log(`Dispensed signed order: ${payload}`);
-        res.status(constants.SUCCESS_STATUS).send(payload);
+        res.status(200).send(payload);
     }
 }
