@@ -105,6 +105,7 @@ describe('OrderValidation', () => {
         });
         it('should succeed if the order is asymmetric and fillable', async () => {
             const makerFillableAmount = fillableAmount;
+            // tslint:disable-next-line:custom-no-magic-numbers
             const takerFillableAmount = fillableAmount.minus(4);
             const signedOrder = await fillScenarios.createAsymmetricFillableSignedOrderAsync(
                 makerTokenAddress,
@@ -171,6 +172,7 @@ describe('OrderValidation', () => {
                 fillableAmount,
             );
             // 27 <--> 28
+            // tslint:disable-next-line:custom-no-magic-numbers
             signedOrder.ecSignature.v = 28 - signedOrder.ecSignature.v + 27;
             return expect(
                 contractWrappers.exchange.validateFillOrderThrowIfInvalidAsync(
@@ -205,6 +207,7 @@ describe('OrderValidation', () => {
                 takerAddress,
                 fillableAmount,
             );
+            // tslint:disable-next-line:custom-no-magic-numbers
             const nonTakerAddress = userAddresses[6];
             return expect(
                 contractWrappers.exchange.validateFillOrderThrowIfInvalidAsync(
@@ -352,6 +355,7 @@ describe('OrderValidation', () => {
                 takerAddress,
                 zrxTokenAddress,
             );
+            // tslint:disable-next-line:custom-no-magic-numbers
             expect(transferFromAsync.callCount).to.be.equal(4);
             expect(
                 transferFromAsync
@@ -422,6 +426,7 @@ describe('OrderValidation', () => {
                 takerAddress,
                 zrxTokenAddress,
             );
+            // tslint:disable-next-line:custom-no-magic-numbers
             expect(transferFromAsync.callCount).to.be.equal(4);
             expect(
                 transferFromAsync
@@ -490,6 +495,7 @@ describe('OrderValidation', () => {
                 takerAddress,
                 zrxTokenAddress,
             );
+            // tslint:disable-next-line:custom-no-magic-numbers
             expect(transferFromAsync.callCount).to.be.equal(4);
             const makerFillAmount = transferFromAsync.getCall(0).args[3];
             expect(makerFillAmount).to.be.bignumber.equal(makerTokenAmount);
@@ -517,6 +523,7 @@ describe('OrderValidation', () => {
             );
             const makerPartialFee = makerFee.div(2);
             const takerPartialFee = takerFee.div(2);
+            // tslint:disable-next-line:custom-no-magic-numbers
             expect(transferFromAsync.callCount).to.be.equal(4);
             const partialMakerFee = transferFromAsync.getCall(2).args[3];
             expect(partialMakerFee).to.be.bignumber.equal(makerPartialFee);
