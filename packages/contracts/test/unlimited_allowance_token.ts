@@ -3,13 +3,16 @@ import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-u
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
+import 'make-promises-safe';
 import * as Web3 from 'web3';
 
-import { DummyERC20TokenContract } from '../src/contract_wrappers/generated/dummy_e_r_c20_token';
-import { artifacts } from '../src/utils/artifacts';
-import { chaiSetup } from '../src/utils/chai_setup';
-import { constants } from '../src/utils/constants';
-import { provider, txDefaults, web3Wrapper } from '../src/utils/web3_wrapper';
+import { DummyTokenContract } from '../src/contract_wrappers/generated/dummy_token';
+import { artifacts } from '../util/artifacts';
+import { constants } from '../util/constants';
+import { ContractName } from '../util/types';
+
+import { chaiSetup } from './utils/chai_setup';
+import { provider, txDefaults, web3Wrapper } from './utils/web3_wrapper';
 
 chaiSetup.configure();
 const expect = chai.expect;
@@ -18,20 +21,21 @@ const blockchainLifecycle = new BlockchainLifecycle(web3Wrapper);
 describe('UnlimitedAllowanceToken', () => {
     let owner: string;
     let spender: string;
-    const zeroEx = new ZeroEx(provider, {
+    const config = {
         networkId: constants.TESTRPC_NETWORK_ID,
-    });
+    };
+    const zeroEx = new ZeroEx(provider, config);
 
     const MAX_MINT_VALUE = new BigNumber(100000000000000000000);
     let tokenAddress: string;
-    let token: DummyERC20TokenContract;
+    let token: DummyTokenContract;
 
     before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         owner = accounts[0];
         spender = accounts[1];
-        token = await DummyERC20TokenContract.deployFrom0xArtifactAsync(
-            artifacts.DummyERC20Token,
+        token = await DummyTokenContract.deployFrom0xArtifactAsync(
+            artifacts.DummyToken,
             provider,
             txDefaults,
             constants.DUMMY_TOKEN_NAME,
