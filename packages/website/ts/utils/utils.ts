@@ -24,8 +24,6 @@ import * as u2f from 'ts/vendor/u2f_api';
 const LG_MIN_EM = 64;
 const MD_MIN_EM = 52;
 
-const isDogfood = (): boolean => _.includes(window.location.href, configs.DOMAIN_DOGFOOD);
-
 export const utils = {
     assert(condition: boolean, message: string): void {
         if (!condition) {
@@ -304,14 +302,10 @@ export const utils = {
         }
         return parsedProviderName;
     },
-    getBackendBaseUrl(): string {
-        return isDogfood() ? configs.BACKEND_BASE_STAGING_URL : configs.BACKEND_BASE_PROD_URL;
-    },
     isDevelopment(): boolean {
         return configs.ENVIRONMENT === Environments.DEVELOPMENT;
     },
     isStaging(): boolean {
         return _.includes(window.location.href, configs.DOMAIN_STAGING);
     },
-    isDogfood,
 };
