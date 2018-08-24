@@ -46,13 +46,12 @@ describe('Signature utils', () => {
     });
     describe('#generateSalt', () => {
         it('generates different salts', () => {
-            const isEqual = generatePseudoRandomSalt().eq(generatePseudoRandomSalt());
-            expect(isEqual).to.be.false();
+            const equal = generatePseudoRandomSalt().eq(generatePseudoRandomSalt());
+            expect(equal).to.be.false();
         });
         it('generates salt in range [0..2^256)', () => {
             const salt = generatePseudoRandomSalt();
             expect(salt.greaterThanOrEqualTo(0)).to.be.true();
-            // tslint:disable-next-line:custom-no-magic-numbers
             const twoPow256 = new BigNumber(2).pow(256);
             expect(salt.lessThan(twoPow256)).to.be.true();
         });
@@ -67,8 +66,7 @@ describe('Signature utils', () => {
             expect(isValid).to.be.false();
         });
         it('returns true if order hash is correct', () => {
-            const orderHashLength = 65;
-            const isValid = isValidOrderHash('0x' + Array(orderHashLength).join('0'));
+            const isValid = isValidOrderHash('0x' + Array(65).join('0'));
             expect(isValid).to.be.true();
         });
     });
@@ -112,12 +110,10 @@ describe('Signature utils', () => {
                     if (payload.method === 'eth_sign') {
                         const [address, message] = payload.params;
                         const signature = await web3Wrapper.signMessageAsync(address, message);
-                        // tslint:disable-next-line:custom-no-magic-numbers
-                        const rsvHex = `0x${signature.substr(130)}${signature.substr(2, 128)}`;
                         callback(null, {
                             id: 42,
                             jsonrpc: '2.0',
-                            result: rsvHex,
+                            result: `0x${signature.substr(130)}${signature.substr(2, 128)}`,
                         });
                     } else {
                         callback(null, { id: 42, jsonrpc: '2.0', result: [makerAddress] });

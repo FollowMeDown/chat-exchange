@@ -73,14 +73,14 @@ export const filterUtils = {
             return false;
         }
         if (!_.isUndefined(filter.topics)) {
-            return filterUtils.doesMatchTopics(log.topics, filter.topics);
+            return filterUtils.matchesTopics(log.topics, filter.topics);
         }
         return true;
     },
-    doesMatchTopics(logTopics: string[], filterTopics: Array<string[] | string | null>): boolean {
+    matchesTopics(logTopics: string[], filterTopics: Array<string[] | string | null>): boolean {
         const matchesTopic = _.zipWith(logTopics, filterTopics, filterUtils.matchesTopic.bind(filterUtils));
-        const doesMatchTopics = _.every(matchesTopic);
-        return doesMatchTopics;
+        const matchesTopics = _.every(matchesTopic);
+        return matchesTopics;
     },
     matchesTopic(logTopic: string, filterTopic: string[] | string | null): boolean {
         if (_.isArray(filterTopic)) {
