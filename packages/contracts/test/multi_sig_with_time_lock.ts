@@ -3,19 +3,18 @@ import { BlockchainLifecycle, web3Factory } from '@0xproject/dev-utils';
 import { AbiDecoder, BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
+import 'make-promises-safe';
 import * as Web3 from 'web3';
 
 import * as multiSigWalletJSON from '../../build/contracts/MultiSigWalletWithTimeLock.json';
 import { MultiSigWalletContract } from '../src/contract_wrappers/generated/multi_sig_wallet';
 import { MultiSigWalletWithTimeLockContract } from '../src/contract_wrappers/generated/multi_sig_wallet_with_time_lock';
-import { artifacts } from '../util/artifacts';
-import { constants } from '../util/constants';
-import { MultiSigWrapper } from '../util/multi_sig_wrapper';
-import { ContractName, SubmissionContractEventArgs } from '../util/types';
-
-import { chaiSetup } from './utils/chai_setup';
-
-import { provider, txDefaults, web3Wrapper } from './utils/web3_wrapper';
+import { artifacts } from '../src/utils/artifacts';
+import { chaiSetup } from '../src/utils/chai_setup';
+import { constants } from '../src/utils/constants';
+import { MultiSigWrapper } from '../src/utils/multi_sig_wrapper';
+import { SubmissionContractEventArgs } from '../src/utils/types';
+import { provider, txDefaults, web3Wrapper } from '../src/utils/web3_wrapper';
 
 const MULTI_SIG_ABI = artifacts.MultiSigWalletWithTimeLock.compilerOutput.abi;
 chaiSetup.configure();

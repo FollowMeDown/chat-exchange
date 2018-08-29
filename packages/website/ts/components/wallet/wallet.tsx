@@ -1,6 +1,5 @@
 import { ZeroEx } from '0x.js';
 import {
-    colors,
     constants as sharedConstants,
     EtherscanLinkSuffixes,
     Styles,
@@ -10,7 +9,7 @@ import { BigNumber } from '@0xproject/utils';
 import * as _ from 'lodash';
 import FlatButton from 'material-ui/FlatButton';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
-import { List, ListItem } from 'material-ui/List';
+import { ListItem } from 'material-ui/List';
 import ActionAccountBalanceWallet from 'material-ui/svg-icons/action/account-balance-wallet';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import ContentRemove from 'material-ui/svg-icons/content/remove';
@@ -18,11 +17,13 @@ import NavigationArrowDownward from 'material-ui/svg-icons/navigation/arrow-down
 import NavigationArrowUpward from 'material-ui/svg-icons/navigation/arrow-upward';
 import Close from 'material-ui/svg-icons/navigation/close';
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import ReactTooltip = require('react-tooltip');
 import firstBy = require('thenby');
 
 import { Blockchain } from 'ts/blockchain';
 import { AllowanceToggle } from 'ts/components/inputs/allowance_toggle';
+import { IconButton } from 'ts/components/ui/icon_button';
 import { Identicon } from 'ts/components/ui/identicon';
 import { TokenIcon } from 'ts/components/ui/token_icon';
 import { WalletDisconnectedItem } from 'ts/components/wallet/wallet_disconnected_item';
@@ -38,8 +39,10 @@ import {
     TokenByAddress,
     TokenState,
     TokenStateByAddress,
+    WebsitePaths,
 } from 'ts/types';
 import { backendClient } from 'ts/utils/backend_client';
+import { colors } from 'ts/utils/colors';
 import { constants } from 'ts/utils/constants';
 import { utils } from 'ts/utils/utils';
 import { styles as walletItemStyles } from 'ts/utils/wallet_item_styles';
@@ -80,7 +83,7 @@ interface AccessoryItemConfig {
 
 const styles: Styles = {
     root: {
-        width: 346,
+        width: '100%',
         backgroundColor: colors.white,
         borderBottomRightRadius: 10,
         borderBottomLeftRadius: 10,
@@ -88,12 +91,6 @@ const styles: Styles = {
         borderTopLeftRadius: 10,
         boxShadow: `0px 4px 6px ${colors.walletBoxShadow}`,
         overflow: 'hidden',
-    },
-    list: {
-        padding: 0,
-    },
-    tokenItemInnerDiv: {
-        paddingLeft: 60,
     },
     headerItemInnerDiv: {
         paddingLeft: 65,
@@ -112,27 +109,27 @@ const styles: Styles = {
     tokenItem: {
         backgroundColor: colors.walletDefaultItemBackground,
     },
-    wrappedEtherOpenButtonLabel: {
-        fontSize: 10,
-    },
     amountLabel: {
         fontWeight: 'bold',
         color: colors.black,
+    },
+    valueLabel: {
+        color: colors.grey,
+        fontSize: 14,
     },
     paddedItem: {
         paddingTop: 8,
         paddingBottom: 8,
     },
-    accessoryItemsContainer: {
-        width: 150,
-        right: 8,
-    },
     bodyInnerDiv: {
-        padding: 0,
         // TODO: make this completely responsive
         maxHeight: 475,
         overflow: 'auto',
         WebkitOverflowScrolling: 'touch',
+    },
+    manageYourWalletText: {
+        color: colors.mediumBlue,
+        fontWeight: 'bold',
     },
 };
 
@@ -148,6 +145,7 @@ const FOOTER_ITEM_KEY = 'FOOTER';
 const DISCONNECTED_ITEM_KEY = 'DISCONNECTED';
 const ETHER_ITEM_KEY = 'ETHER';
 const USD_DECIMAL_PLACES = 2;
+const NO_ALLOWANCE_TOGGLE_SPACE_WIDTH = 56;
 
 export class Wallet extends React.Component<WalletProps, WalletState> {
     private _isUnmounted: boolean;
@@ -198,16 +196,13 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
     }
     public render(): React.ReactNode {
         const isReadyToRender = this.props.blockchainIsLoaded && this.props.blockchainErr === BlockchainErrs.NoError;
-        return <div style={styles.root}>{isReadyToRender && this._renderRows()}</div>;
-    }
-    private _renderRows(): React.ReactNode {
         const isAddressAvailable = !_.isEmpty(this.props.userAddress);
         return (
-            <List style={styles.list}>
-                {isAddressAvailable
+            <div className="flex flex-column" style={styles.root}>
+                {isReadyToRender && isAddressAvailable
                     ? _.concat(this._renderConnectedHeaderRows(), this._renderBody(), this._renderFooterRows())
                     : _.concat(this._renderDisconnectedHeaderRows(), this._renderDisconnectedRows())}
-            </List>
+            </div>
         );
     }
     private _renderDisconnectedHeaderRows(): React.ReactElement<{}> {
@@ -237,13 +232,14 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const userAddress = this.props.userAddress;
         const primaryText = utils.getAddressBeginAndEnd(userAddress);
         return (
-            <ListItem
-                key={HEADER_ITEM_KEY}
-                primaryText={primaryText}
-                leftIcon={<Identicon address={userAddress} diameter={ICON_DIMENSION} />}
-                style={{ ...styles.paddedItem, ...styles.borderedItem }}
-                innerDivStyle={styles.headerItemInnerDiv}
-            />
+            <Link key={HEADER_ITEM_KEY} to={`${WebsitePaths.Portal}/account`} style={{ textDecoration: 'none' }}>
+                <ListItem
+                    primaryText={primaryText}
+                    leftIcon={<Identicon address={userAddress} diameter={ICON_DIMENSION} />}
+                    style={{ ...styles.paddedItem, ...styles.borderedItem }}
+                    innerDivStyle={styles.headerItemInnerDiv}
+                />
+            </Link>
         );
     }
     private _renderBody(): React.ReactElement<{}> {
@@ -252,15 +248,15 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             overflow: this.state.isHoveringSidebar ? 'auto' : 'hidden',
         };
         return (
-            <ListItem
+            <div
+                style={bodyStyle}
                 key={BODY_ITEM_KEY}
-                innerDivStyle={bodyStyle}
                 onMouseEnter={this._onSidebarHover.bind(this)}
                 onMouseLeave={this._onSidebarHoverOff.bind(this)}
             >
                 {this._renderEthRows()}
                 {this._renderTokenRows()}
-            </ListItem>
+            </div>
         );
     }
     private _onSidebarHover(event: React.FormEvent<HTMLInputElement>): void {
@@ -275,34 +271,54 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
     }
     private _renderFooterRows(): React.ReactElement<{}> {
         return (
-            <ListItem
-                key={FOOTER_ITEM_KEY}
-                primaryText={
-                    <div className="flex">
-                        <FloatingActionButton mini={true} zDepth={0} onClick={this.props.onAddToken}>
-                            <ContentAdd />
-                        </FloatingActionButton>
-                        <FloatingActionButton mini={true} zDepth={0} className="px1" onClick={this.props.onRemoveToken}>
-                            <ContentRemove />
-                        </FloatingActionButton>
-                        <div
-                            style={{
-                                paddingLeft: 10,
-                                position: 'relative',
-                                top: '50%',
-                                transform: 'translateY(33%)',
-                            }}
-                        >
-                            add/remove tokens
+            <div key={FOOTER_ITEM_KEY}>
+                <ListItem
+                    primaryText={
+                        <div className="flex">
+                            <FloatingActionButton mini={true} zDepth={0} onClick={this.props.onAddToken}>
+                                <ContentAdd />
+                            </FloatingActionButton>
+                            <FloatingActionButton
+                                mini={true}
+                                zDepth={0}
+                                className="px1"
+                                onClick={this.props.onRemoveToken}
+                            >
+                                <ContentRemove />
+                            </FloatingActionButton>
+                            <div
+                                style={{
+                                    paddingLeft: 10,
+                                    position: 'relative',
+                                    top: '50%',
+                                    transform: 'translateY(33%)',
+                                }}
+                            >
+                                add/remove tokens
+                            </div>
                         </div>
-                    </div>
-                }
-                disabled={true}
-                innerDivStyle={styles.footerItemInnerDiv}
-            />
+                    }
+                    disabled={true}
+                    innerDivStyle={styles.footerItemInnerDiv}
+                    style={styles.borderedItem}
+                />
+                <Link to={`${WebsitePaths.Portal}/account`} style={{ textDecoration: 'none' }}>
+                    <ListItem
+                        primaryText={
+                            <div className="flex right" style={styles.manageYourWalletText}>
+                                {'manage your wallet'}
+                            </div>
+                            // https://github.com/palantir/tslint-react/issues/140
+                            // tslint:disable-next-line:jsx-curly-spacing
+                        }
+                        style={{ ...styles.paddedItem, ...styles.borderedItem }}
+                    />
+                </Link>
+            </div>
         );
     }
     private _renderEthRows(): React.ReactNode {
+        const icon = <img style={{ width: ICON_DIMENSION, height: ICON_DIMENSION }} src={ETHER_ICON_PATH} />;
         const primaryText = this._renderAmount(
             this.props.userEtherBalanceInWei,
             constants.DECIMAL_PLACES_ETH,
@@ -324,33 +340,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const style = isInWrappedEtherState
             ? { ...walletItemStyles.focusedItem, ...styles.paddedItem }
             : { ...styles.tokenItem, ...styles.borderedItem, ...styles.paddedItem };
-        return (
-            <div key={ETHER_ITEM_KEY}>
-                <ListItem
-                    primaryText={primaryText}
-                    secondaryText={secondaryText}
-                    leftIcon={<img style={{ width: ICON_DIMENSION, height: ICON_DIMENSION }} src={ETHER_ICON_PATH} />}
-                    rightAvatar={this._renderAccessoryItems(accessoryItemConfig)}
-                    disableTouchRipple={true}
-                    style={style}
-                    innerDivStyle={styles.tokenItemInnerDiv}
-                />
-                {isInWrappedEtherState && (
-                    <WrapEtherItem
-                        userAddress={this.props.userAddress}
-                        networkId={this.props.networkId}
-                        blockchain={this.props.blockchain}
-                        dispatcher={this.props.dispatcher}
-                        userEtherBalanceInWei={this.props.userEtherBalanceInWei}
-                        direction={accessoryItemConfig.wrappedEtherDirection}
-                        etherToken={etherToken}
-                        lastForceTokenStateRefetch={this.props.lastForceTokenStateRefetch}
-                        onConversionSuccessful={this._closeWrappedEtherActionRow.bind(this)}
-                        refetchEthTokenStateAsync={this._refetchTokenStateAsync.bind(this, etherToken.address)}
-                    />
-                )}
-            </div>
-        );
+        return this._renderBalanceRow(icon, primaryText, secondaryText, accessoryItemConfig);
     }
     private _renderTokenRows(): React.ReactNode {
         const trackedTokens = this.props.trackedTokens;
@@ -368,6 +358,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             this.props.networkId,
             EtherscanLinkSuffixes.Address,
         );
+        const icon = <TokenIcon token={token} diameter={ICON_DIMENSION} link={tokenLink} />;
         const primaryText = this._renderAmount(tokenState.balance, token.decimals, token.symbol);
         const secondaryText = this._renderValue(tokenState.balance, token.decimals, tokenState.price);
         const wrappedEtherDirection = token.symbol === ETHER_TOKEN_SYMBOL ? Side.Receive : undefined;
@@ -378,56 +369,48 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
                 tokenState,
             },
         };
-        // if this is the last item in the list, do not render the border, it is rendered by the footer
-        const borderedStyle = index !== this.props.trackedTokens.length - 1 ? styles.borderedItem : {};
+        return this._renderBalanceRow(icon, primaryText, secondaryText, accessoryItemConfig);
+    }
+    private _renderBalanceRow(
+        icon: React.ReactNode,
+        primaryText: React.ReactNode,
+        secondaryText: React.ReactNode,
+        accessoryItemConfig: AccessoryItemConfig,
+    ): React.ReactNode {
         const shouldShowWrapEtherItem =
             !_.isUndefined(this.state.wrappedEtherDirection) &&
             this.state.wrappedEtherDirection === accessoryItemConfig.wrappedEtherDirection;
         const style = shouldShowWrapEtherItem
             ? { ...walletItemStyles.focusedItem, ...styles.paddedItem }
-            : { ...styles.tokenItem, ...borderedStyle, ...styles.paddedItem };
-        const etherToken = this._getEthToken();
+            : { ...styles.tokenItem, ...styles.borderedItem, ...styles.paddedItem };
         return (
-            <div key={token.address}>
-                <ListItem
-                    primaryText={primaryText}
-                    secondaryText={secondaryText}
-                    leftIcon={this._renderTokenIcon(token, tokenLink)}
-                    rightAvatar={this._renderAccessoryItems(accessoryItemConfig)}
-                    disableTouchRipple={true}
-                    style={style}
-                    innerDivStyle={styles.tokenItemInnerDiv}
-                />
-                {shouldShowWrapEtherItem && (
-                    <WrapEtherItem
-                        userAddress={this.props.userAddress}
-                        networkId={this.props.networkId}
-                        blockchain={this.props.blockchain}
-                        dispatcher={this.props.dispatcher}
-                        userEtherBalanceInWei={this.props.userEtherBalanceInWei}
-                        direction={accessoryItemConfig.wrappedEtherDirection}
-                        etherToken={etherToken}
-                        lastForceTokenStateRefetch={this.props.lastForceTokenStateRefetch}
-                        onConversionSuccessful={this._closeWrappedEtherActionRow.bind(this)}
-                        refetchEthTokenStateAsync={this._refetchTokenStateAsync.bind(this, etherToken.address)}
-                    />
-                )}
+            <div className="flex items-center" style={style}>
+                <div className="px2">{icon}</div>
+                <div className="flex-none pr2 pt2 pb2">
+                    {primaryText}
+                    {secondaryText}
+                </div>
+                <div className="flex-auto" />
+                <div>{this._renderAccessoryItems(accessoryItemConfig)}</div>
             </div>
         );
     }
     private _renderAccessoryItems(config: AccessoryItemConfig): React.ReactElement<{}> {
         const shouldShowWrappedEtherAction = !_.isUndefined(config.wrappedEtherDirection);
         const shouldShowToggle = !_.isUndefined(config.allowanceToggleConfig);
+        // if we don't have a toggle, we still want some space to the right of the "wrap" button so that it aligns with
+        // the "unwrap" button in the row below
+        const toggle = shouldShowToggle ? (
+            this._renderAllowanceToggle(config.allowanceToggleConfig)
+        ) : (
+            <div style={{ width: NO_ALLOWANCE_TOGGLE_SPACE_WIDTH }} />
+        );
         return (
-            <div style={styles.accessoryItemsContainer}>
-                <div className="flex">
-                    <div className="flex-auto">
-                        {shouldShowWrappedEtherAction && this._renderWrappedEtherButton(config.wrappedEtherDirection)}
-                    </div>
-                    <div className="flex-last py1">
-                        {shouldShowToggle && this._renderAllowanceToggle(config.allowanceToggleConfig)}
-                    </div>
+            <div className="flex items-center">
+                <div className="flex-auto">
+                    {shouldShowWrappedEtherAction && this._renderWrappedEtherButton(config.wrappedEtherDirection)}
                 </div>
+                <div className="flex-last pl2">{toggle}</div>
             </div>
         );
     }
@@ -460,37 +443,24 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const value = unitAmount.mul(price);
         const formattedAmount = value.toFixed(USD_DECIMAL_PLACES);
         const result = `$${formattedAmount}`;
-        return result;
-    }
-    private _renderTokenIcon(token: Token, tokenLink?: string): React.ReactElement<{}> {
-        const tooltipId = `tooltip-${token.address}`;
-        const tokenIcon = <TokenIcon token={token} diameter={ICON_DIMENSION} />;
-        if (_.isUndefined(tokenLink)) {
-            return tokenIcon;
-        } else {
-            return (
-                <a href={tokenLink} target="_blank" style={{ textDecoration: 'none' }}>
-                    {tokenIcon}
-                </a>
-            );
-        }
+        return <div style={styles.valueLabel}>{result}</div>;
     }
     private _renderWrappedEtherButton(wrappedEtherDirection: Side): React.ReactNode {
         const isWrappedEtherDirectionOpen = this.state.wrappedEtherDirection === wrappedEtherDirection;
         let buttonLabel;
-        let buttonIcon;
+        let buttonIconName;
         if (isWrappedEtherDirectionOpen) {
             buttonLabel = 'cancel';
-            buttonIcon = <Close />;
+            buttonIconName = 'zmdi-close';
         } else {
             switch (wrappedEtherDirection) {
                 case Side.Deposit:
                     buttonLabel = 'wrap';
-                    buttonIcon = <NavigationArrowDownward />;
+                    buttonIconName = 'zmdi-long-arrow-down';
                     break;
                 case Side.Receive:
                     buttonLabel = 'unwrap';
-                    buttonIcon = <NavigationArrowUpward />;
+                    buttonIconName = 'zmdi-long-arrow-up';
                     break;
                 default:
                     throw utils.spawnSwitchErr('wrappedEtherDirection', wrappedEtherDirection);
@@ -500,14 +470,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             ? this._closeWrappedEtherActionRow.bind(this)
             : this._openWrappedEtherActionRow.bind(this, wrappedEtherDirection);
         return (
-            <FlatButton
-                label={buttonLabel}
-                labelPosition="after"
-                primary={true}
-                icon={buttonIcon}
-                labelStyle={styles.wrappedEtherOpenButtonLabel}
-                onClick={onClick}
-            />
+            <IconButton iconName={buttonIconName} labelText={buttonLabel} onClick={onClick} color={colors.mediumBlue} />
         );
     }
     private _getInitialTrackedTokenStateByAddress(tokenAddresses: string[]): TokenStateByAddress {

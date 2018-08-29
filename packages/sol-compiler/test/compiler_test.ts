@@ -1,5 +1,6 @@
 import { DoneCallback } from '@0xproject/types';
 import * as chai from 'chai';
+import 'make-promises-safe';
 import 'mocha';
 
 import { Compiler } from '../src/compiler';
@@ -38,13 +39,8 @@ describe('#Compiler', function(): void {
         const exchangeArtifactString = await fsWrapper.readFileAsync(exchangeArtifactPath, opts);
         const exchangeArtifact: ContractArtifact = JSON.parse(exchangeArtifactString);
         // The last 43 bytes of the binaries are metadata which may not be equivalent
-        const metadataByteLength = 43;
-        const metadataHexLength = metadataByteLength * 2;
-        const unlinkedBinaryWithoutMetadata = exchangeArtifact.compilerOutput.evm.bytecode.object.slice(
-            2,
-            -metadataHexLength,
-        );
-        const exchangeBinaryWithoutMetadata = exchange_binary.slice(0, -metadataHexLength);
+        const unlinkedBinaryWithoutMetadata = exchangeArtifact.compilerOutput.evm.bytecode.object.slice(2, -86);
+        const exchangeBinaryWithoutMetadata = exchange_binary.slice(0, -86);
         expect(unlinkedBinaryWithoutMetadata).to.equal(exchangeBinaryWithoutMetadata);
     });
 });

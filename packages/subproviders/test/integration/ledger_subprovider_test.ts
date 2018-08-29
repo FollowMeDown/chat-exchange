@@ -7,6 +7,7 @@ import TransportNodeHid from '@ledgerhq/hw-transport-node-hid';
 import * as chai from 'chai';
 import * as ethUtils from 'ethereumjs-util';
 import * as _ from 'lodash';
+import 'make-promises-safe';
 import Web3 = require('web3');
 import Web3ProviderEngine = require('web3-provider-engine');
 import RpcSubprovider = require('web3-provider-engine/subproviders/rpc');
@@ -19,8 +20,6 @@ import { reportCallbackErrors } from '../utils/report_callback_errors';
 
 chaiSetup.configure();
 const expect = chai.expect;
-const DEFAULT_NUM_ACCOUNTS = 10;
-const EXPECTED_SIGNATURE_LENGTH = 132;
 
 async function ledgerEthereumNodeJsClientFactoryAsync(): Promise<LedgerEthereumClient> {
     const ledgerConnection = await TransportNodeHid.create();
@@ -42,7 +41,7 @@ describe('LedgerSubprovider', () => {
         it('returns default number of accounts', async () => {
             const accounts = await ledgerSubprovider.getAccountsAsync();
             expect(accounts[0]).to.not.be.an('undefined');
-            expect(accounts.length).to.be.equal(DEFAULT_NUM_ACCOUNTS);
+            expect(accounts.length).to.be.equal(10);
         });
         it('returns the expected accounts from a ledger set up with the test mnemonic', async () => {
             const accounts = await ledgerSubprovider.getAccountsAsync();
@@ -106,7 +105,7 @@ describe('LedgerSubprovider', () => {
             };
             const callback = reportCallbackErrors(done)((err: Error, response: JSONRPCResponsePayload) => {
                 expect(err).to.be.a('null');
-                expect(response.result.length).to.be.equal(DEFAULT_NUM_ACCOUNTS);
+                expect(response.result.length).to.be.equal(10);
                 done();
             });
             ledgerProvider.sendAsync(payload, callback);
@@ -124,7 +123,7 @@ describe('LedgerSubprovider', () => {
                 };
                 const callback = reportCallbackErrors(done)((err: Error, response: JSONRPCResponsePayload) => {
                     expect(err).to.be.a('null');
-                    expect(response.result.length).to.be.equal(EXPECTED_SIGNATURE_LENGTH);
+                    expect(response.result.length).to.be.equal(132);
                     expect(response.result.substr(0, 2)).to.be.equal('0x');
                     done();
                 });
@@ -144,7 +143,7 @@ describe('LedgerSubprovider', () => {
                 };
                 const callback = reportCallbackErrors(done)((err: Error, response: JSONRPCResponsePayload) => {
                     expect(err).to.be.a('null');
-                    expect(response.result.length).to.be.equal(EXPECTED_SIGNATURE_LENGTH);
+                    expect(response.result.length).to.be.equal(132);
                     expect(response.result.substr(0, 2)).to.be.equal('0x');
                     done();
                 });
@@ -198,8 +197,7 @@ describe('LedgerSubprovider', () => {
                 const callback = reportCallbackErrors(done)((err: Error, response: JSONRPCResponsePayload) => {
                     expect(err).to.be.a('null');
                     const result = response.result;
-                    const signedTxLength = 66;
-                    expect(result.length).to.be.equal(signedTxLength);
+                    expect(result.length).to.be.equal(66);
                     expect(result.substr(0, 2)).to.be.equal('0x');
                     done();
                 });

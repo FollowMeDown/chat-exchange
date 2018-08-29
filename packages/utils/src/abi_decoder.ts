@@ -23,8 +23,7 @@ export class AbiDecoder {
             formatted = formatted.slice(2);
         }
 
-        const addressLength = 40;
-        formatted = _.padStart(formatted, addressLength, '0');
+        formatted = _.padStart(formatted, 40, '0');
         return `0x${formatted}`;
     }
     constructor(abiArrays: AbiDefinition[][]) {
@@ -46,17 +45,16 @@ export class AbiDecoder {
         const dataTypes = _.map(nonIndexedInputs, input => input.type);
         const decodedData = ethersInterface.events[event.name].parse(log.data);
 
-        let didFailToDecode = false;
+        let failedToDecode = false;
         _.forEach(event.inputs, (param: EventParameter, i: number) => {
             // Indexed parameters are stored in topics. Non-indexed ones in decodedData
             let value: BigNumber | string | number = param.indexed ? log.topics[topicsIndex++] : decodedData[i];
             if (_.isUndefined(value)) {
-                didFailToDecode = true;
+                failedToDecode = true;
                 return;
             }
             if (param.type === SolidityTypes.Address) {
-                const baseHex = 16;
-                value = AbiDecoder._padZeros(new BigNumber(value).toString(baseHex));
+                value = AbiDecoder._padZeros(new BigNumber(value).toString(16));
             } else if (param.type === SolidityTypes.Uint256 || param.type === SolidityTypes.Uint) {
                 value = new BigNumber(value);
             } else if (param.type === SolidityTypes.Uint8) {
@@ -65,7 +63,7 @@ export class AbiDecoder {
             decodedParams[param.name] = value;
         });
 
-        if (didFailToDecode) {
+        if (failedToDecode) {
             return log;
         } else {
             return {

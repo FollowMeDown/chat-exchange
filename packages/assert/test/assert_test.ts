@@ -2,6 +2,7 @@ import { schemas } from '@0xproject/json-schemas';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
 import * as dirtyChai from 'dirty-chai';
+import 'make-promises-safe';
 import 'mocha';
 
 import { assert } from '../src/index';
@@ -10,7 +11,6 @@ chai.config.includeStack = true;
 chai.use(dirtyChai);
 const expect = chai.expect;
 
-// tslint:disable:custom-no-magic-numbers
 describe('Assertions', () => {
     const variableName = 'variable';
     describe('#isBigNumber', () => {
@@ -252,4 +252,3 @@ describe('Assertions', () => {
         });
     });
 });
-// tslint:enable:custom-no-magic-numbers

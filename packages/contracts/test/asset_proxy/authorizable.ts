@@ -20,12 +20,6 @@ describe('Authorizable', () => {
     let address: string;
     let authorizable: MixinAuthorizableContract;
     before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
-    before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         owner = address = accounts[0];
         notOwner = accounts[1];
@@ -48,18 +42,12 @@ describe('Authorizable', () => {
             ).to.be.rejectedWith(constants.REVERT);
         });
         it('should allow owner to add an authorized address', async () => {
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner });
             const isAuthorized = await authorizable.authorized.callAsync(address);
             expect(isAuthorized).to.be.true();
         });
         it('should throw if owner attempts to authorize a duplicate address', async () => {
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner });
             return expect(
                 authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner }),
             ).to.be.rejectedWith(constants.REVERT);
@@ -68,10 +56,7 @@ describe('Authorizable', () => {
 
     describe('removeAuthorizedAddress', () => {
         it('should throw if not called by owner', async () => {
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner });
             return expect(
                 authorizable.removeAuthorizedAddress.sendTransactionAsync(address, {
                     from: notOwner,
@@ -80,16 +65,10 @@ describe('Authorizable', () => {
         });
 
         it('should allow owner to remove an authorized address', async () => {
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await authorizable.removeAuthorizedAddress.sendTransactionAsync(address, {
-                    from: owner,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await authorizable.addAuthorizedAddress.sendTransactionAsync(address, { from: owner });
+            await authorizable.removeAuthorizedAddress.sendTransactionAsync(address, {
+                from: owner,
+            });
             const isAuthorized = await authorizable.authorized.callAsync(address);
             expect(isAuthorized).to.be.false();
         });
@@ -107,22 +86,16 @@ describe('Authorizable', () => {
         it('should return all authorized addresses', async () => {
             const initial = await authorizable.getAuthorizedAddresses.callAsync();
             expect(initial).to.have.length(0);
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await authorizable.addAuthorizedAddress.sendTransactionAsync(address, {
-                    from: owner,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await authorizable.addAuthorizedAddress.sendTransactionAsync(address, {
+                from: owner,
+            });
             const afterAdd = await authorizable.getAuthorizedAddresses.callAsync();
             expect(afterAdd).to.have.length(1);
             expect(afterAdd).to.include(address);
 
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await authorizable.removeAuthorizedAddress.sendTransactionAsync(address, {
-                    from: owner,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await authorizable.removeAuthorizedAddress.sendTransactionAsync(address, {
+                from: owner,
+            });
             const afterRemove = await authorizable.getAuthorizedAddresses.callAsync();
             expect(afterRemove).to.have.length(0);
         });
