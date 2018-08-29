@@ -3,6 +3,7 @@ import { BlockchainLifecycle, web3Factory } from '@0xproject/dev-utils';
 import { AbiDecoder, BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
+import 'make-promises-safe';
 import * as Web3 from 'web3';
 
 import * as multiSigWalletJSON from '../../build/contracts/MultiSigWalletWithTimeLock.json';
@@ -44,6 +45,12 @@ describe('MultiSigWalletWithTimeLock', () => {
 
     describe('changeTimeLock', () => {
         describe('initially non-time-locked', async () => {
+            before(async () => {
+                await blockchainLifecycle.startAsync();
+            });
+            after(async () => {
+                await blockchainLifecycle.revertAsync();
+            });
             before('deploy a wallet', async () => {
                 multiSig = await MultiSigWalletWithTimeLockContract.deployFrom0xArtifactAsync(
                     artifacts.MultiSigWalletWithTimeLock,
@@ -139,6 +146,12 @@ describe('MultiSigWalletWithTimeLock', () => {
             });
         });
         describe('initially time-locked', async () => {
+            before(async () => {
+                await blockchainLifecycle.startAsync();
+            });
+            after(async () => {
+                await blockchainLifecycle.revertAsync();
+            });
             before('deploy a wallet', async () => {
                 multiSig = await MultiSigWalletWithTimeLockContract.deployFrom0xArtifactAsync(
                     artifacts.MultiSigWalletWithTimeLock,
