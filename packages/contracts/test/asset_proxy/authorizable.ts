@@ -1,7 +1,6 @@
 import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
-import 'make-promises-safe';
 import * as Web3 from 'web3';
 
 import { MixinAuthorizableContract } from '../../src/contract_wrappers/generated/mixin_authorizable';
