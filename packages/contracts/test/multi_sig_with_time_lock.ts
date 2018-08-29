@@ -3,18 +3,19 @@ import { BlockchainLifecycle, web3Factory } from '@0xproject/dev-utils';
 import { AbiDecoder, BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
-import 'make-promises-safe';
 import * as Web3 from 'web3';
 
 import * as multiSigWalletJSON from '../../build/contracts/MultiSigWalletWithTimeLock.json';
 import { MultiSigWalletContract } from '../src/contract_wrappers/generated/multi_sig_wallet';
 import { MultiSigWalletWithTimeLockContract } from '../src/contract_wrappers/generated/multi_sig_wallet_with_time_lock';
-import { artifacts } from '../src/utils/artifacts';
-import { chaiSetup } from '../src/utils/chai_setup';
-import { constants } from '../src/utils/constants';
-import { MultiSigWrapper } from '../src/utils/multi_sig_wrapper';
-import { SubmissionContractEventArgs } from '../src/utils/types';
-import { provider, txDefaults, web3Wrapper } from '../src/utils/web3_wrapper';
+import { artifacts } from '../util/artifacts';
+import { constants } from '../util/constants';
+import { MultiSigWrapper } from '../util/multi_sig_wrapper';
+import { ContractName, SubmissionContractEventArgs } from '../util/types';
+
+import { chaiSetup } from './utils/chai_setup';
+
+import { provider, txDefaults, web3Wrapper } from './utils/web3_wrapper';
 
 const MULTI_SIG_ABI = artifacts.MultiSigWalletWithTimeLock.compilerOutput.abi;
 chaiSetup.configure();
@@ -45,12 +46,6 @@ describe('MultiSigWalletWithTimeLock', () => {
 
     describe('changeTimeLock', () => {
         describe('initially non-time-locked', async () => {
-            before(async () => {
-                await blockchainLifecycle.startAsync();
-            });
-            after(async () => {
-                await blockchainLifecycle.revertAsync();
-            });
             before('deploy a wallet', async () => {
                 multiSig = await MultiSigWalletWithTimeLockContract.deployFrom0xArtifactAsync(
                     artifacts.MultiSigWalletWithTimeLock,
@@ -107,7 +102,7 @@ describe('MultiSigWalletWithTimeLock', () => {
 
                 txId = log.args.transactionId;
                 txHash = await multiSig.confirmTransaction.sendTransactionAsync(txId, { from: owners[1] });
-                const res = await zeroEx.awaitTransactionMinedAsync(txHash, constants.AWAIT_TRANSACTION_MINED_MS);
+                const res = await zeroEx.awaitTransactionMinedAsync(txHash);
                 expect(res.logs).to.have.length(2);
 
                 const blockNum = await web3Wrapper.getBlockNumberAsync();
@@ -134,12 +129,10 @@ describe('MultiSigWalletWithTimeLock', () => {
 
                 txId = log.args.transactionId;
                 txHash = await multiSig.confirmTransaction.sendTransactionAsync(txId, { from: owners[1] });
-                await web3Wrapper.awaitTransactionMinedAsync(txHash, constants.AWAIT_TRANSACTION_MINED_MS);
 
                 expect(initialSecondsTimeLocked).to.be.equal(0);
 
                 txHash = await multiSig.executeTransaction.sendTransactionAsync(txId, { from: owners[0] });
-                await web3Wrapper.awaitTransactionMinedAsync(txHash, constants.AWAIT_TRANSACTION_MINED_MS);
                 const res = await zeroEx.awaitTransactionMinedAsync(txHash);
                 expect(res.logs).to.have.length(2);
 
@@ -148,12 +141,6 @@ describe('MultiSigWalletWithTimeLock', () => {
             });
         });
         describe('initially time-locked', async () => {
-            before(async () => {
-                await blockchainLifecycle.startAsync();
-            });
-            after(async () => {
-                await blockchainLifecycle.revertAsync();
-            });
             before('deploy a wallet', async () => {
                 multiSig = await MultiSigWalletWithTimeLockContract.deployFrom0xArtifactAsync(
                     artifacts.MultiSigWalletWithTimeLock,
@@ -183,8 +170,7 @@ describe('MultiSigWalletWithTimeLock', () => {
                 txHash = await multiSig.confirmTransaction.sendTransactionAsync(txId, {
                     from: owners[1],
                 });
-                await web3Wrapper.awaitTransactionMinedAsync(txHash, constants.AWAIT_TRANSACTION_MINED_MS);
-                const confRes = await zeroEx.awaitTransactionMinedAsync(txHash, constants.AWAIT_TRANSACTION_MINED_MS);
+                const confRes = await zeroEx.awaitTransactionMinedAsync(txHash);
                 expect(confRes.logs).to.have.length(2);
             });
             const newSecondsTimeLocked = 0;
@@ -196,10 +182,7 @@ describe('MultiSigWalletWithTimeLock', () => {
 
             it('should execute if it has enough confirmations and is past the time lock', async () => {
                 await web3Wrapper.increaseTimeAsync(SECONDS_TIME_LOCKED.toNumber());
-                await web3Wrapper.awaitTransactionMinedAsync(
-                    await multiSig.executeTransaction.sendTransactionAsync(txId, { from: owners[0] }),
-                    constants.AWAIT_TRANSACTION_MINED_MS,
-                );
+                await multiSig.executeTransaction.sendTransactionAsync(txId, { from: owners[0] });
 
                 const secondsTimeLocked = new BigNumber(await multiSig.secondsTimeLocked.callAsync());
                 expect(secondsTimeLocked).to.be.bignumber.equal(newSecondsTimeLocked);

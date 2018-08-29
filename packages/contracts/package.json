@@ -3,7 +3,7 @@
     "name": "contracts",
     "version": "2.1.28",
     "engines": {
-        "node": ">=6.12"
+        "node" : ">=6.12"
     },
     "description": "Smart contract components of 0x protocol",
     "main": "index.js",
@@ -12,12 +12,13 @@
     },
     "scripts": {
         "watch": "tsc -w",
-        "prebuild": "run-s clean compile copy_artifacts generate_contract_wrappers",
-        "copy_artifacts": "copyfiles -u 4 '../migrations/artifacts/2.0.0/**/*' ./lib/src/artifacts;",
+        "prebuild": "run-s clean copy_artifacts generate_contract_wrappers",
+        "copy_artifacts": "copyfiles -u 4 '../migrations/artifacts/1.0.0/**/*' ./lib/src/artifacts;",
         "build": "tsc",
         "test": "run-s build run_mocha",
         "test:coverage": "SOLIDITY_COVERAGE=true run-s build run_mocha coverage:report:text coverage:report:lcov",
         "run_mocha": "mocha 'lib/test/**/*.js' --timeout 100000 --bail --exit",
+        "compile:comment": "Yarn workspaces do not link binaries correctly so we need to reference them directly https://github.com/yarnpkg/yarn/issues/3846",
         "compile": "sol-compiler",
         "clean": "shx rm -rf lib src/contract_wrappers/generated",
         "generate_contract_wrappers": "abi-gen --abis  ${npm_package_config_abis} --template ../contract_templates/contract.handlebars --partials '../contract_templates/partials/**/*.handlebars' --output src/contract_wrappers/generated --backend ethers && prettier --write 'src/contract_wrappers/generated/**.ts'",
@@ -28,8 +29,7 @@
         "test:circleci": "yarn test:coverage"
     },
     "config": {
-        "abis":
-            "../migrations/artifacts/2.0.0/@(DummyERC20Token|DummyERC721Token|ERC20Proxy|ERC721Proxy|Exchange|MixinAuthorizable|MultiSigWallet|MultiSigWalletWithTimeLock|MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress|TestAssetProxyDispatcher|TestLibBytes|TestLibs|TestSignatureValidator|TokenRegistry|WETH9|ZRXToken).json"
+        "abis": "../migrations/artifacts/1.0.0/@(DummyToken|TokenTransferProxy|Exchange|TokenRegistry|MultiSigWallet|MultiSigWalletWithTimeLock|MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress|TokenRegistry|ZRXToken|Arbitrage|EtherDelta|AccountLevels|WETH9|MaliciousToken).json"
     },
     "repository": {
         "type": "git",
@@ -53,12 +53,11 @@
         "chai-bignumber": "^2.0.1",
         "copyfiles": "^1.2.0",
         "dirty-chai": "^2.0.1",
-        "make-promises-safe": "^1.1.0",
         "mocha": "^4.0.1",
         "npm-run-all": "^4.1.2",
         "prettier": "^1.11.1",
         "shx": "^0.2.2",
-        "solc": "^0.4.24",
+        "solc": "^0.4.23",
         "tslint": "5.8.0",
         "typescript": "2.7.1",
         "yargs": "^10.0.3"

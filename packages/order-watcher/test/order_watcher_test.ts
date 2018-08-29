@@ -15,7 +15,6 @@ import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
 import * as _ from 'lodash';
-import 'make-promises-safe';
 import 'mocha';
 
 import { OrderWatcher } from '../src/order_watcher/order_watcher';
@@ -269,8 +268,8 @@ describe('OrderWatcher', () => {
         });
         it('should trigger the callback when orders backing ZRX allowance changes', (done: DoneCallback) => {
             (async () => {
-                const makerFee = Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18);
-                const takerFee = Web3Wrapper.toBaseUnitAmount(new BigNumber(0), 18);
+                const makerFee = Web3Wrapper.toBaseUnitAmount(new BigNumber(2), decimals);
+                const takerFee = Web3Wrapper.toBaseUnitAmount(new BigNumber(0), decimals);
                 signedOrder = await fillScenarios.createFillableSignedOrderWithFeesAsync(
                     makerToken.address,
                     takerToken.address,
