@@ -3,7 +3,7 @@ import { BlockchainLifecycle } from '@0xproject/dev-utils';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
 import ethUtil = require('ethereumjs-util');
-import * as _ from 'lodash';
+import 'make-promises-safe';
 
 import { DummyERC20TokenContract } from '../../src/contract_wrappers/generated/dummy_e_r_c20_token';
 import { DummyERC721TokenContract } from '../../src/contract_wrappers/generated/dummy_e_r_c721_token';
@@ -12,7 +12,7 @@ import { ERC721ProxyContract } from '../../src/contract_wrappers/generated/e_r_c
 import {
     CancelContractEventArgs,
     ExchangeContract,
-    ExchangeStatusContractEventArgs,
+    ExchangeErrorContractEventArgs,
     FillContractEventArgs,
 } from '../../src/contract_wrappers/generated/exchange';
 import { artifacts } from '../../src/utils/artifacts';
@@ -25,7 +25,7 @@ import { ERC721Wrapper } from '../../src/utils/erc721_wrapper';
 import { ExchangeWrapper } from '../../src/utils/exchange_wrapper';
 import { OrderFactory } from '../../src/utils/order_factory';
 import { orderUtils } from '../../src/utils/order_utils';
-import { AssetProxyId, ContractName, ERC20BalancesByOwner, ExchangeStatus, SignedOrder } from '../../src/utils/types';
+import { AssetProxyId, ERC20BalancesByOwner, ExchangeContractErrs, SignedOrder } from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
 
 chaiSetup.configure();
@@ -556,9 +556,9 @@ describe('Exchange core', () => {
 
             const res = await exchangeWrapper.fillOrderAsync(signedOrder, takerAddress);
             expect(res.logs).to.have.length(1);
-            const log = res.logs[0] as LogWithDecodedArgs<ExchangeStatusContractEventArgs>;
-            const statusCode = log.args.statusId;
-            expect(statusCode).to.be.equal(ExchangeStatus.ORDER_EXPIRED);
+            const log = res.logs[0] as LogWithDecodedArgs<ExchangeErrorContractEventArgs>;
+            const errCode = log.args.errorId;
+            expect(errCode).to.be.equal(ExchangeContractErrs.ERROR_ORDER_EXPIRED);
         });
 
         it('should log an error event if no value is filled', async () => {
@@ -567,9 +567,9 @@ describe('Exchange core', () => {
 
             const res = await exchangeWrapper.fillOrderAsync(signedOrder, takerAddress);
             expect(res.logs).to.have.length(1);
-            const log = res.logs[0] as LogWithDecodedArgs<ExchangeStatusContractEventArgs>;
-            const statusCode = log.args.statusId;
-            expect(statusCode).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
+            const log = res.logs[0] as LogWithDecodedArgs<ExchangeErrorContractEventArgs>;
+            const errCode = log.args.errorId;
+            expect(errCode).to.be.equal(ExchangeContractErrs.ERROR_ORDER_FULLY_FILLED);
         });
     });
 
@@ -635,9 +635,9 @@ describe('Exchange core', () => {
 
             const res = await exchangeWrapper.cancelOrderAsync(signedOrder, makerAddress);
             expect(res.logs).to.have.length(1);
-            const log = res.logs[0] as LogWithDecodedArgs<ExchangeStatusContractEventArgs>;
-            const statusCode = log.args.statusId;
-            expect(statusCode).to.be.equal(ExchangeStatus.ORDER_CANCELLED);
+            const log = res.logs[0] as LogWithDecodedArgs<ExchangeErrorContractEventArgs>;
+            const errCode = log.args.errorId;
+            expect(errCode).to.be.equal(ExchangeContractErrs.ERROR_ORDER_CANCELLED);
         });
 
         it('should log error if order is expired', async () => {
@@ -647,9 +647,9 @@ describe('Exchange core', () => {
 
             const res = await exchangeWrapper.cancelOrderAsync(signedOrder, makerAddress);
             expect(res.logs).to.have.length(1);
-            const log = res.logs[0] as LogWithDecodedArgs<ExchangeStatusContractEventArgs>;
-            const statusCode = log.args.statusId;
-            expect(statusCode).to.be.equal(ExchangeStatus.ORDER_EXPIRED);
+            const log = res.logs[0] as LogWithDecodedArgs<ExchangeErrorContractEventArgs>;
+            const errCode = log.args.errorId;
+            expect(errCode).to.be.equal(ExchangeContractErrs.ERROR_ORDER_EXPIRED);
         });
     });
 

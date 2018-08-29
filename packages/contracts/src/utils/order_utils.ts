@@ -80,13 +80,4 @@ export const orderUtils = {
         const orderHashHex = `0x${orderHashBuff.toString('hex')}`;
         return orderHashHex;
     },
-    createMatchOrders(signedOrderLeft: SignedOrder, signedOrderRight: SignedOrder) {
-        const fill = {
-            left: orderUtils.getOrderStruct(signedOrderLeft),
-            right: orderUtils.getOrderStruct(signedOrderRight),
-            leftSignature: signedOrderLeft.signature,
-            rightSignature: signedOrderRight.signature,
-        };
-        return fill;
-    },
 };
