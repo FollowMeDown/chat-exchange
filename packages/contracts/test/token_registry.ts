@@ -1,4 +1,3 @@
-import { ZeroEx } from '0x.js';
 import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-utils';
 import { BigNumber, NULL_BYTES } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
@@ -24,12 +23,6 @@ describe('TokenRegistry', () => {
     let notOwner: string;
     let tokenReg: TokenRegistryContract;
     let tokenRegWrapper: TokenRegWrapper;
-    before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
     before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         owner = accounts[0];
@@ -66,7 +59,7 @@ describe('TokenRegistry', () => {
     };
 
     const nullToken = {
-        address: ZeroEx.NULL_ADDRESS,
+        address: constants.NULL_ADDRESS,
         name: '',
         symbol: '',
         decimals: 0,
@@ -143,12 +136,9 @@ describe('TokenRegistry', () => {
             });
 
             it('should change the token name when called by owner', async () => {
-                await web3Wrapper.awaitTransactionMinedAsync(
-                    await tokenReg.setTokenName.sendTransactionAsync(token1.address, token2.name, {
-                        from: owner,
-                    }),
-                    constants.AWAIT_TRANSACTION_MINED_MS,
-                );
+                await tokenReg.setTokenName.sendTransactionAsync(token1.address, token2.name, {
+                    from: owner,
+                });
                 const [newData, oldData] = await Promise.all([
                     tokenRegWrapper.getTokenByNameAsync(token2.name),
                     tokenRegWrapper.getTokenByNameAsync(token1.name),
@@ -185,10 +175,7 @@ describe('TokenRegistry', () => {
             });
 
             it('should change the token symbol when called by owner', async () => {
-                await web3Wrapper.awaitTransactionMinedAsync(
-                    await tokenReg.setTokenSymbol.sendTransactionAsync(token1.address, token2.symbol, { from: owner }),
-                    constants.AWAIT_TRANSACTION_MINED_MS,
-                );
+                await tokenReg.setTokenSymbol.sendTransactionAsync(token1.address, token2.symbol, { from: owner });
                 const [newData, oldData] = await Promise.all([
                     tokenRegWrapper.getTokenBySymbolAsync(token2.symbol),
                     tokenRegWrapper.getTokenBySymbolAsync(token1.symbol),
@@ -229,12 +216,9 @@ describe('TokenRegistry', () => {
 
             it('should remove token metadata when called by owner', async () => {
                 const index = new BigNumber(0);
-                await web3Wrapper.awaitTransactionMinedAsync(
-                    await tokenReg.removeToken.sendTransactionAsync(token1.address, index, {
-                        from: owner,
-                    }),
-                    constants.AWAIT_TRANSACTION_MINED_MS,
-                );
+                await tokenReg.removeToken.sendTransactionAsync(token1.address, index, {
+                    from: owner,
+                });
                 const tokenData = await tokenRegWrapper.getTokenMetaDataAsync(token1.address);
                 expect(tokenData).to.be.deep.equal(nullToken);
             });

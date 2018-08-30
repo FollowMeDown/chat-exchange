@@ -1,6 +1,7 @@
-import { LogWithDecodedArgs, ZeroEx } from '0x.js';
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
+import { LogWithDecodedArgs } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
+import { Web3Wrapper } from '@0xproject/web-wrapper';
 import * as chai from 'chai';
 import ethUtil = require('ethereumjs-util');
 import 'make-promises-safe';
@@ -62,12 +63,6 @@ describe('Exchange core', () => {
     let zeroEx: ZeroEx;
 
     before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
-    before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         const usedAddresses = ([owner, makerAddress, takerAddress, feeRecipientAddress] = accounts);
 
@@ -95,22 +90,16 @@ describe('Exchange core', () => {
             exchangeContractAddress: exchange.address,
             networkId: constants.TESTRPC_NETWORK_ID,
         });
-        exchangeWrapper = new ExchangeWrapper(exchange, zeroEx);
+        exchangeWrapper = new ExchangeWrapper(exchange);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC20, erc20Proxy.address, owner);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC721, erc721Proxy.address, owner);
 
-        await web3Wrapper.awaitTransactionMinedAsync(
-            await erc20Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
-                from: owner,
-            }),
-            constants.AWAIT_TRANSACTION_MINED_MS,
-        );
-        await web3Wrapper.awaitTransactionMinedAsync(
-            await erc721Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
-                from: owner,
-            }),
-            constants.AWAIT_TRANSACTION_MINED_MS,
-        );
+        await erc20Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
+            from: owner,
+        });
+        await erc721Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
+            from: owner,
+        });
 
         defaultMakerAssetAddress = erc20TokenA.address;
         defaultTakerAssetAddress = erc20TokenB.address;
@@ -178,8 +167,8 @@ describe('Exchange core', () => {
 
         it('should transfer the correct amounts when makerAssetAmount === takerAssetAmount', async () => {
             signedOrder = orderFactory.newSignedOrder({
-                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
-                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
+                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
             });
 
             const takerAssetFilledAmountBefore = await exchangeWrapper.getTakerAssetFilledAmountAsync(
@@ -231,8 +220,8 @@ describe('Exchange core', () => {
 
         it('should transfer the correct amounts when makerAssetAmount > takerAssetAmount', async () => {
             signedOrder = orderFactory.newSignedOrder({
-                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(200), 18),
-                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
+                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(200), 18),
+                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
             });
 
             const takerAssetFilledAmountBefore = await exchangeWrapper.getTakerAssetFilledAmountAsync(
@@ -284,8 +273,8 @@ describe('Exchange core', () => {
 
         it('should transfer the correct amounts when makerAssetAmount < takerAssetAmount', async () => {
             signedOrder = orderFactory.newSignedOrder({
-                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
-                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(200), 18),
+                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(200), 18),
             });
 
             const takerAssetFilledAmountBefore = await exchangeWrapper.getTakerAssetFilledAmountAsync(
@@ -338,8 +327,8 @@ describe('Exchange core', () => {
         it('should transfer the correct amounts when taker is specified and order is claimed by taker', async () => {
             signedOrder = orderFactory.newSignedOrder({
                 takerAddress,
-                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
-                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(200), 18),
+                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(200), 18),
             });
 
             const takerAssetFilledAmountBefore = await exchangeWrapper.getTakerAssetFilledAmountAsync(
@@ -457,8 +446,8 @@ describe('Exchange core', () => {
         it('should throw when taker is specified and order is claimed by other', async () => {
             signedOrder = orderFactory.newSignedOrder({
                 takerAddress: feeRecipientAddress,
-                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
-                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(200), 18),
+                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(200), 18),
             });
             return expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(
                 constants.REVERT,
@@ -467,7 +456,7 @@ describe('Exchange core', () => {
 
         it('should throw if signature is invalid', async () => {
             signedOrder = orderFactory.newSignedOrder({
-                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
             });
 
             const invalidR = ethUtil.sha3('invalidR');
@@ -513,7 +502,7 @@ describe('Exchange core', () => {
 
         it('should throw if maker erc20Balances are too low to fill order', async () => {
             signedOrder = orderFactory.newSignedOrder({
-                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100000), 18),
+                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100000), 18),
             });
 
             return expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(
@@ -523,7 +512,7 @@ describe('Exchange core', () => {
 
         it('should throw if taker erc20Balances are too low to fill order', async () => {
             signedOrder = orderFactory.newSignedOrder({
-                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100000), 18),
+                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100000), 18),
             });
 
             return expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(
@@ -532,39 +521,23 @@ describe('Exchange core', () => {
         });
 
         it('should throw if maker allowances are too low to fill order', async () => {
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
-                    from: makerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
-            await expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(
-                constants.REVERT,
-            );
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
-                    from: makerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
+                from: makerAddress,
+            });
+            expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(constants.REVERT);
+            await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
+                from: makerAddress,
+            });
         });
 
         it('should throw if taker allowances are too low to fill order', async () => {
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
-                    from: takerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
-            await expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(
-                constants.REVERT,
-            );
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
-                    from: takerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
+                from: takerAddress,
+            });
+            expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(constants.REVERT);
+            await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
+                from: takerAddress,
+            });
         });
 
         it('should not change erc20Balances if an order is expired', async () => {
@@ -709,23 +682,23 @@ describe('Exchange core', () => {
             erc20Balances = await erc20Wrapper.getBalancesAsync();
             const signedOrders = await Promise.all([
                 orderFactory.newSignedOrder({
-                    makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(9), 18),
-                    takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(9), 18),
+                    makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(9), 18),
+                    takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(9), 18),
                     salt: new BigNumber(0),
                 }),
                 orderFactory.newSignedOrder({
-                    makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(79), 18),
-                    takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(79), 18),
+                    makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(79), 18),
+                    takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(79), 18),
                     salt: new BigNumber(1),
                 }),
                 orderFactory.newSignedOrder({
-                    makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(979), 18),
-                    takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(979), 18),
+                    makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(979), 18),
+                    takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(979), 18),
                     salt: new BigNumber(2),
                 }),
                 orderFactory.newSignedOrder({
-                    makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(7979), 18),
-                    takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(7979), 18),
+                    makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(7979), 18),
+                    takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(7979), 18),
                     salt: new BigNumber(3),
                 }),
             ]);
@@ -901,7 +874,7 @@ describe('Exchange core', () => {
             const makerAssetId = erc721MakerAssetIds[0];
             signedOrder = orderFactory.newSignedOrder({
                 makerAssetAmount: new BigNumber(1),
-                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
                 makerAssetData: assetProxyUtils.encodeERC721ProxyData(erc721Token.address, makerAssetId),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultTakerAssetAddress),
             });
@@ -941,7 +914,7 @@ describe('Exchange core', () => {
             const takerAssetId = erc721TakerAssetIds[0];
             signedOrder = orderFactory.newSignedOrder({
                 takerAssetAmount: new BigNumber(1),
-                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
+                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
                 takerAssetData: assetProxyUtils.encodeERC721ProxyData(erc721Token.address, takerAssetId),
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultMakerAssetAddress),
             });
