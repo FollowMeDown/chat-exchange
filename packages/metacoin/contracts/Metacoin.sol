@@ -1,4 +1,4 @@
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.21;
 pragma experimental ABIEncoderV2;
 
 contract Metacoin {
@@ -16,7 +16,7 @@ contract Metacoin {
         uint32 callback;
     }
 
-    constructor () public {
+    function Metacoin() public {
         balances[msg.sender] = 10000;
     }
 
@@ -24,7 +24,7 @@ contract Metacoin {
         if (balances[msg.sender] < transferData.amount) return false;
         balances[msg.sender] -= transferData.amount;
         balances[transferData.to] += transferData.amount;
-        emit Transfer(msg.sender, transferData.to, transferData.amount);
+        Transfer(msg.sender, transferData.to, transferData.amount);
         return true;
     }
 
