@@ -6,7 +6,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Blockchain } from 'ts/blockchain';
 import { BalanceBoundedInput } from 'ts/components/inputs/balance_bounded_input';
-import { Token, ValidatedBigNumberCallback, WebsitePaths } from 'ts/types';
+import { InputErrMsg, Token, ValidatedBigNumberCallback, WebsitePaths } from 'ts/types';
 
 interface TokenAmountInputProps {
     userAddress: string;
@@ -20,14 +20,11 @@ interface TokenAmountInputProps {
     shouldCheckBalance: boolean;
     shouldCheckAllowance: boolean;
     onChange: ValidatedBigNumberCallback;
-    onErrorMsgChange?: (errorMsg: React.ReactNode) => void;
     onVisitBalancesPageClick?: () => void;
     lastForceTokenStateRefetch: number;
     shouldShowErrs?: boolean;
     shouldShowUnderline?: boolean;
     style?: React.CSSProperties;
-    labelStyle?: React.CSSProperties;
-    inputHintStyle?: React.CSSProperties;
 }
 
 interface TokenAmountInputState {
@@ -77,14 +74,17 @@ export class TokenAmountInput extends React.Component<TokenAmountInputProps, Tok
         const amount = this.props.amount
             ? ZeroEx.toUnitAmount(this.props.amount, this.props.token.decimals)
             : undefined;
+        const hasLabel = !_.isUndefined(this.props.label);
+        const style = !_.isUndefined(this.props.style)
+            ? this.props.style
+            : { height: hasLabel ? HEIGHT_WITH_LABEL : HEIGHT_WITHOUT_LABEL };
         return (
-            <div className="flex overflow-hidden" style={this._getStyle()}>
+            <div className="flex overflow-hidden" style={style}>
                 <BalanceBoundedInput
                     label={this.props.label}
                     amount={amount}
                     balance={ZeroEx.toUnitAmount(this.state.balance, this.props.token.decimals)}
                     onChange={this._onChange.bind(this)}
-                    onErrorMsgChange={this.props.onErrorMsgChange}
                     validate={this._validate.bind(this)}
                     shouldCheckBalance={this.props.shouldCheckBalance}
                     shouldShowIncompleteErrs={this.props.shouldShowIncompleteErrs}
@@ -93,10 +93,8 @@ export class TokenAmountInput extends React.Component<TokenAmountInputProps, Tok
                     hintText={this.props.hintText}
                     shouldShowErrs={this.props.shouldShowErrs}
                     shouldShowUnderline={this.props.shouldShowUnderline}
-                    inputStyle={this.props.style}
-                    inputHintStyle={this.props.inputHintStyle}
                 />
-                <div style={this._getLabelStyle()}>{this.props.token.symbol}</div>
+                <div style={{ paddingTop: hasLabel ? 39 : 14 }}>{this.props.token.symbol}</div>
             </div>
         );
     }
@@ -107,7 +105,7 @@ export class TokenAmountInput extends React.Component<TokenAmountInputProps, Tok
         }
         this.props.onChange(isValid, baseUnitAmount);
     }
-    private _validate(amount: BigNumber): React.ReactNode {
+    private _validate(amount: BigNumber): InputErrMsg {
         if (this.props.shouldCheckAllowance && amount.gt(this.state.allowance)) {
             return (
                 <span>
@@ -140,15 +138,5 @@ export class TokenAmountInput extends React.Component<TokenAmountInputProps, Tok
                 isBalanceAndAllowanceLoaded: true,
             });
         }
-    }
-    private _getStyle(): React.CSSProperties {
-        const hasLabel = !_.isUndefined(this.props.label);
-        return !_.isUndefined(this.props.style)
-            ? this.props.style
-            : { height: hasLabel ? HEIGHT_WITH_LABEL : HEIGHT_WITHOUT_LABEL };
-    }
-    private _getLabelStyle(): React.CSSProperties {
-        const hasLabel = !_.isUndefined(this.props.label);
-        return this.props.labelStyle || { paddingTop: hasLabel ? 39 : 14 };
     }
 }
