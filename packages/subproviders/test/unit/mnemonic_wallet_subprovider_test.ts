@@ -18,7 +18,6 @@ import { reportCallbackErrors } from '../utils/report_callback_errors';
 
 chaiSetup.configure();
 const expect = chai.expect;
-const DEFAULT_NUM_ACCOUNTS = 10;
 
 describe('MnemonicWalletSubprovider', () => {
     let subprovider: MnemonicWalletSubprovider;
@@ -34,7 +33,7 @@ describe('MnemonicWalletSubprovider', () => {
                 const accounts = await subprovider.getAccountsAsync();
                 expect(accounts[0]).to.be.equal(fixtureData.TEST_RPC_ACCOUNT_0);
                 expect(accounts[1]).to.be.equal(fixtureData.TEST_RPC_ACCOUNT_1);
-                expect(accounts.length).to.be.equal(DEFAULT_NUM_ACCOUNTS);
+                expect(accounts.length).to.be.equal(10);
             });
             it('signs a personal message', async () => {
                 const data = ethUtils.bufferToHex(ethUtils.toBuffer(fixtureData.PERSONAL_MESSAGE_STRING));
@@ -91,7 +90,7 @@ describe('MnemonicWalletSubprovider', () => {
                 const callback = reportCallbackErrors(done)((err: Error, response: JSONRPCResponsePayload) => {
                     expect(err).to.be.a('null');
                     expect(response.result[0]).to.be.equal(fixtureData.TEST_RPC_ACCOUNT_0);
-                    expect(response.result.length).to.be.equal(DEFAULT_NUM_ACCOUNTS);
+                    expect(response.result.length).to.be.equal(10);
                     done();
                 });
                 provider.sendAsync(payload, callback);

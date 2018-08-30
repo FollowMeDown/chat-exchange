@@ -157,14 +157,14 @@ export class NewTokenForm extends React.Component<NewTokenFormProps, NewTokenFor
         const maxLength = 30;
         const tokens = _.values(this.props.tokenByAddress);
         const tokenWithNameIfExists = _.find(tokens, { name });
-        const doesTokenWithNameExists = !_.isUndefined(tokenWithNameIfExists);
+        const tokenWithNameExists = !_.isUndefined(tokenWithNameIfExists);
         if (name === '') {
             nameErrText = 'Name is required';
         } else if (!this._isValidName(name)) {
             nameErrText = 'Name should only contain letters, digits and spaces';
         } else if (name.length > maxLength) {
             nameErrText = `Max length is ${maxLength}`;
-        } else if (doesTokenWithNameExists) {
+        } else if (tokenWithNameExists) {
             nameErrText = 'Token with this name already exists';
         }
 
@@ -177,14 +177,14 @@ export class NewTokenForm extends React.Component<NewTokenFormProps, NewTokenFor
         let symbolErrText = '';
         const maxLength = 5;
         const tokens = _.values(this.props.tokenByAddress);
-        const doesTokenWithSymbolExists = !_.isUndefined(_.find(tokens, { symbol }));
+        const tokenWithSymbolExists = !_.isUndefined(_.find(tokens, { symbol }));
         if (symbol === '') {
             symbolErrText = 'Symbol is required';
         } else if (!this._isAlphanumeric(symbol)) {
             symbolErrText = 'Can only include alphanumeric characters';
         } else if (symbol.length > maxLength) {
             symbolErrText = `Max length is ${maxLength}`;
-        } else if (doesTokenWithSymbolExists) {
+        } else if (tokenWithSymbolExists) {
             symbolErrText = 'Token with symbol already exists';
         }
 
