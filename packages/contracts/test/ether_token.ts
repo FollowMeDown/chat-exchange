@@ -6,13 +6,10 @@ import * as chai from 'chai';
 import 'make-promises-safe';
 
 import { WETH9Contract } from '../src/contract_wrappers/generated/weth9';
-import { artifacts } from '../util/artifacts';
-import { constants } from '../util/constants';
-import { ContractName } from '../util/types';
-
-import { chaiSetup } from './utils/chai_setup';
-
-import { provider, txDefaults, web3Wrapper } from './utils/web3_wrapper';
+import { artifacts } from '../src/utils/artifacts';
+import { chaiSetup } from '../src/utils/chai_setup';
+import { constants } from '../src/utils/constants';
+import { provider, txDefaults, web3Wrapper } from '../src/utils/web3_wrapper';
 
 chaiSetup.configure();
 const expect = chai.expect;

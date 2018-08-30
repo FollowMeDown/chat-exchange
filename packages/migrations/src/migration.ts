@@ -5,11 +5,11 @@ import * as _ from 'lodash';
 
 import { ArtifactWriter } from './artifact_writer';
 import { artifacts } from './artifacts';
-import { DummyTokenContract } from './contract_wrappers/dummy_token';
-import { ExchangeContract } from './contract_wrappers/exchange';
+import { DummyERC20TokenContract } from './contract_wrappers/dummy_e_r_c20_token';
+import { Exchange_v1Contract } from './contract_wrappers/exchange_v1';
 import { MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddressContract } from './contract_wrappers/multi_sig_wallet_with_time_lock_except_remove_authorized_address';
 import { TokenRegistryContract } from './contract_wrappers/token_registry';
-import { TokenTransferProxyContract } from './contract_wrappers/token_transfer_proxy';
+import { TokenTransferProxy_v1Contract } from './contract_wrappers/tokentransferproxy_v1';
 import { WETH9Contract } from './contract_wrappers/weth9';
 import { ZRXTokenContract } from './contract_wrappers/zrx_token';
 import { ContractName } from './types';
@@ -27,7 +27,7 @@ export const runMigrationsAsync = async (provider: Provider, artifactsDir: strin
     const web3Wrapper = new Web3Wrapper(provider);
     const networkId = await web3Wrapper.getNetworkIdAsync();
     const artifactsWriter = new ArtifactWriter(artifactsDir, networkId);
-    const tokenTransferProxy = await TokenTransferProxyContract.deployFrom0xArtifactAsync(
+    const tokenTransferProxy = await TokenTransferProxy_v1Contract.deployFrom0xArtifactAsync(
         artifacts.TokenTransferProxy,
         provider,
         txDefaults,
@@ -49,7 +49,7 @@ export const runMigrationsAsync = async (provider: Provider, artifactsDir: strin
     const owners = [accounts[0], accounts[1]];
     const confirmationsRequired = new BigNumber(2);
     const secondsRequired = new BigNumber(0);
-    const exchange = await ExchangeContract.deployFrom0xArtifactAsync(
+    const exchange = await Exchange_v1Contract.deployFrom0xArtifactAsync(
         artifacts.Exchange,
         provider,
         txDefaults,
@@ -107,8 +107,8 @@ export const runMigrationsAsync = async (provider: Provider, artifactsDir: strin
     );
     for (const token of tokenInfo) {
         const totalSupply = new BigNumber(100000000000000000000);
-        const dummyToken = await DummyTokenContract.deployFrom0xArtifactAsync(
-            artifacts.DummyToken,
+        const dummyToken = await DummyERC20TokenContract.deployFrom0xArtifactAsync(
+            artifacts.DummyERC20Token,
             provider,
             txDefaults,
             token.name,

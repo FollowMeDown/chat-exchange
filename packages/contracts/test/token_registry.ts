@@ -9,13 +9,11 @@ import 'make-promises-safe';
 import * as Web3 from 'web3';
 
 import { TokenRegistryContract } from '../src/contract_wrappers/generated/token_registry';
-import { artifacts } from '../util/artifacts';
-import { constants } from '../util/constants';
-import { TokenRegWrapper } from '../util/token_registry_wrapper';
-import { ContractName } from '../util/types';
-
-import { chaiSetup } from './utils/chai_setup';
-import { provider, txDefaults, web3Wrapper } from './utils/web3_wrapper';
+import { artifacts } from '../src/utils/artifacts';
+import { chaiSetup } from '../src/utils/chai_setup';
+import { constants } from '../src/utils/constants';
+import { TokenRegWrapper } from '../src/utils/token_registry_wrapper';
+import { provider, txDefaults, web3Wrapper } from '../src/utils/web3_wrapper';
 
 chaiSetup.configure();
 const expect = chai.expect;
