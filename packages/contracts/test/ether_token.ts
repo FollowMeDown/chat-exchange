@@ -1,8 +1,7 @@
-import { ContractWrappersError } from '@0xproject/contract-wrappers';
+import { ContractWrappersError, ZeroEx } from '0x.js';
 import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-utils';
 import { BigNumber, promisify } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
-import { Web3Wrapper } from '@0xproject/web3_wrapper';
 import * as chai from 'chai';
 import 'make-promises-safe';
 
@@ -18,7 +17,7 @@ const blockchainLifecycle = new BlockchainLifecycle(web3Wrapper);
 
 describe('EtherToken', () => {
     let account: string;
-    const gasPrice = Web3Wrapper.toBaseUnitAmount(new BigNumber(20), 9);
+    const gasPrice = ZeroEx.toBaseUnitAmount(new BigNumber(20), 9);
     let zeroEx: ZeroEx;
     let etherTokenAddress: string;
     before(async () => {
@@ -104,7 +103,7 @@ describe('EtherToken', () => {
             const initEthBalance = await web3Wrapper.getBalanceInWeiAsync(account);
             const initEthTokenBalance = await zeroEx.token.getBalanceAsync(etherTokenAddress, account);
 
-            const ethToDeposit = Web3Wrapper.toBaseUnitAmount(new BigNumber(1), 18);
+            const ethToDeposit = ZeroEx.toBaseUnitAmount(new BigNumber(1), 18);
 
             const txHash = await web3Wrapper.sendTransactionAsync({
                 from: account,

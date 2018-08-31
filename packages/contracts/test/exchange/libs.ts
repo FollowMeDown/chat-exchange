@@ -1,3 +1,4 @@
+import { ZeroEx } from '0x.js';
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
@@ -28,6 +29,7 @@ describe('Exchange libs', () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         const makerAddress = accounts[0];
         libs = await TestLibsContract.deployFrom0xArtifactAsync(artifacts.TestLibs, provider, txDefaults);
+        const zeroEx = new ZeroEx(provider, { networkId: constants.TESTRPC_NETWORK_ID });
 
         const defaultOrderParams = {
             ...constants.STATIC_ORDER_PARAMS,

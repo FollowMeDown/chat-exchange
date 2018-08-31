@@ -1,7 +1,6 @@
+import { LogWithDecodedArgs, ZeroEx } from '0x.js';
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
-import { LogWithDecodedArgs } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
-import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
 import ethUtil = require('ethereumjs-util');
 import * as _ from 'lodash';
@@ -77,6 +76,8 @@ describe('matchOrders', () => {
 
     let matchOrderTester: MatchOrderTester;
 
+    let zeroEx: ZeroEx;
+
     before(async () => {
         // Create accounts
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
@@ -110,7 +111,11 @@ describe('matchOrders', () => {
             txDefaults,
             assetProxyUtils.encodeERC20ProxyData(zrxToken.address),
         );
-        exchangeWrapper = new ExchangeWrapper(exchange);
+        zeroEx = new ZeroEx(provider, {
+            exchangeContractAddress: exchange.address,
+            networkId: constants.TESTRPC_NETWORK_ID,
+        });
+        exchangeWrapper = new ExchangeWrapper(exchange, zeroEx);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC20, erc20Proxy.address, owner);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC721, erc721Proxy.address, owner);
         // Authorize ERC20 and ERC721 trades by exchange
@@ -156,16 +161,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match signedOrderLeft with signedOrderRight
@@ -190,16 +195,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Store original taker balance
@@ -235,16 +240,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(20), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(4), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(20), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(4), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -269,16 +274,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(50), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(50), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -303,16 +308,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(50), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(50), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -342,8 +347,8 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(50), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(50), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match signedOrderLeft with signedOrderRight2
@@ -372,8 +377,8 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
 
@@ -381,8 +386,8 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(50), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(50), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -412,8 +417,8 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(50), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(50), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             // Match signedOrderLeft2 with signedOrderRight
@@ -445,16 +450,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress,
             });
             // Match orders
@@ -473,16 +478,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -502,16 +507,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -531,16 +536,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -560,16 +565,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -589,16 +594,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: makerAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: makerAddressRight,
             });
             // Match orders
@@ -617,16 +622,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Cancel left order
@@ -643,16 +648,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Cancel right order
@@ -669,16 +674,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(1), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(200), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(1), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(200), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -699,16 +704,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -729,16 +734,16 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(5), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(5), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(2), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(2), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
@@ -761,14 +766,14 @@ describe('matchOrders', () => {
                 makerAssetData: assetProxyUtils.encodeERC721ProxyData(defaultERC721AssetAddress, erc721TokenToTransfer),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 makerAssetAmount: new BigNumber(1),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
             const signedOrderRight = orderFactoryRight.newSignedOrder({
                 makerAddress: makerAddressRight,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20TakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC721ProxyData(defaultERC721AssetAddress, erc721TokenToTransfer),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 takerAssetAmount: new BigNumber(1),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
@@ -795,7 +800,7 @@ describe('matchOrders', () => {
                 makerAddress: makerAddressLeft,
                 makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 takerAssetData: assetProxyUtils.encodeERC721ProxyData(defaultERC721AssetAddress, erc721TokenToTransfer),
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 takerAssetAmount: new BigNumber(1),
                 feeRecipientAddress: feeRecipientAddressLeft,
             });
@@ -804,7 +809,7 @@ describe('matchOrders', () => {
                 makerAssetData: assetProxyUtils.encodeERC721ProxyData(defaultERC721AssetAddress, erc721TokenToTransfer),
                 takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultERC20MakerAssetAddress),
                 makerAssetAmount: new BigNumber(1),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(10), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(10), 18),
                 feeRecipientAddress: feeRecipientAddressRight,
             });
             // Match orders
