@@ -1,4 +1,4 @@
-import { ContractWrappersError, ZeroEx } from '0x.js';
+import { ContractWrappersError } from '@0xproject/contract-wrappers';
 import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-utils';
 import { BigNumber, promisify } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
@@ -17,9 +17,16 @@ const blockchainLifecycle = new BlockchainLifecycle(web3Wrapper);
 
 describe('EtherToken', () => {
     let account: string;
-    const gasPrice = ZeroEx.toBaseUnitAmount(new BigNumber(20), 9);
+    const gasPrice = Web3Wrapper.toBaseUnitAmount(new BigNumber(20), 9);
     let zeroEx: ZeroEx;
     let etherTokenAddress: string;
+
+    before(async () => {
+        await blockchainLifecycle.startAsync();
+    });
+    after(async () => {
+        await blockchainLifecycle.revertAsync();
+    });
     before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         account = accounts[0];
@@ -54,7 +61,7 @@ describe('EtherToken', () => {
             const ethToDeposit = new BigNumber(Web3Wrapper.toWei(new BigNumber(1)));
 
             const txHash = await zeroEx.etherToken.depositAsync(etherTokenAddress, ethToDeposit, account);
-            const receipt = await zeroEx.awaitTransactionMinedAsync(txHash);
+            const receipt = await zeroEx.awaitTransactionMinedAsync(txHash, constants.AWAIT_TRANSACTION_MINED_MS);
 
             const ethSpentOnGas = gasPrice.times(receipt.gasUsed);
             const finalEthBalance = await web3Wrapper.getBalanceInWeiAsync(account);
@@ -85,7 +92,7 @@ describe('EtherToken', () => {
             const txHash = await zeroEx.etherToken.withdrawAsync(etherTokenAddress, ethTokensToWithdraw, account, {
                 gasLimit: constants.MAX_ETHERTOKEN_WITHDRAW_GAS,
             });
-            const receipt = await zeroEx.awaitTransactionMinedAsync(txHash);
+            const receipt = await zeroEx.awaitTransactionMinedAsync(txHash, constants.AWAIT_TRANSACTION_MINED_MS);
 
             const ethSpentOnGas = gasPrice.times(receipt.gasUsed);
             const finalEthBalance = await web3Wrapper.getBalanceInWeiAsync(account);
@@ -103,7 +110,7 @@ describe('EtherToken', () => {
             const initEthBalance = await web3Wrapper.getBalanceInWeiAsync(account);
             const initEthTokenBalance = await zeroEx.token.getBalanceAsync(etherTokenAddress, account);
 
-            const ethToDeposit = ZeroEx.toBaseUnitAmount(new BigNumber(1), 18);
+            const ethToDeposit = Web3Wrapper.toBaseUnitAmount(new BigNumber(1), 18);
 
             const txHash = await web3Wrapper.sendTransactionAsync({
                 from: account,
@@ -112,7 +119,7 @@ describe('EtherToken', () => {
                 gasPrice,
             });
 
-            const receipt = await zeroEx.awaitTransactionMinedAsync(txHash);
+            const receipt = await zeroEx.awaitTransactionMinedAsync(txHash, constants.AWAIT_TRANSACTION_MINED_MS);
 
             const ethSpentOnGas = gasPrice.times(receipt.gasUsed);
             const finalEthBalance = await web3Wrapper.getBalanceInWeiAsync(account);
