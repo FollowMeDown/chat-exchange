@@ -1,6 +1,5 @@
 import { web3Factory } from '@0xproject/dev-utils';
 import * as chai from 'chai';
-import 'make-promises-safe';
 import 'mocha';
 
 import { assert } from '../src/assert';

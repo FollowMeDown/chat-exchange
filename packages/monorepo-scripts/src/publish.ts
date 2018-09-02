@@ -285,8 +285,8 @@ function shouldAddNewChangelogEntry(currentVersion: string, changelogs: Changelo
         return true;
     }
     const lastEntry = changelogs[0];
-    const isLastEntryCurrentVersion = lastEntry.version === currentVersion;
-    return isLastEntryCurrentVersion;
+    const lastEntryCurrentVersion = lastEntry.version === currentVersion;
+    return lastEntryCurrentVersion;
 }
 
 function generateChangelogMd(changelogs: Changelog[]): string {

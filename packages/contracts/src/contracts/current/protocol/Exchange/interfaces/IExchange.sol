@@ -16,23 +16,19 @@
 
 */
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.23;
 pragma experimental ABIEncoderV2;
 
 import "./IExchangeCore.sol";
-import "./IMatchOrders";
-import "./ISettlement";
-import "./ISignatureValidator";
-import "./ITransactions";
-import "./IAssetProxyDispatcher";
-import "./IWrapperFunctions";
+import "./ISignatureValidator.sol";
+import "./IAssetProxyDispatcher.sol";
+import "./ITransactions.sol";
+import "./IWrapperFunctions.sol";
 
 contract IExchange is
+    IWrapperFunctions,
     IExchangeCore,
-    IMatchOrders,
-    ISettlement,
     ISignatureValidator,
     ITransactions,
-    IAssetProxyDispatcher,
-    IWrapperFunctions
+    IAssetProxyDispatcher
 {}

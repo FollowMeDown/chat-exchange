@@ -21,7 +21,7 @@ import { TransactionFactory } from '../../src/utils/transaction_factory';
 import {
     AssetProxyId,
     ERC20BalancesByOwner,
-    ExchangeStatus,
+    ExchangeContractErrs,
     OrderStruct,
     SignatureType,
     SignedOrder,
@@ -62,12 +62,6 @@ describe('Exchange transactions', () => {
     let zeroEx: ZeroEx;
 
     before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
-    before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         const usedAddresses = ([owner, senderAddress, makerAddress, takerAddress, feeRecipientAddress] = accounts);
 
@@ -90,10 +84,7 @@ describe('Exchange transactions', () => {
         exchangeWrapper = new ExchangeWrapper(exchange, zeroEx);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC20, erc20Proxy.address, owner);
 
-        await web3Wrapper.awaitTransactionMinedAsync(
-            await erc20Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, { from: owner }),
-            constants.AWAIT_TRANSACTION_MINED_MS,
-        );
+        await erc20Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, { from: owner });
 
         defaultMakerTokenAddress = erc20TokenA.address;
         defaultTakerTokenAddress = erc20TokenB.address;
@@ -206,7 +197,7 @@ describe('Exchange transactions', () => {
 
             it('should cancel the order when signed by maker and called by sender', async () => {
                 await exchangeWrapper.executeTransactionAsync(signedTx, senderAddress);
-                const res = await exchangeWrapper.fillOrderAsync(signedOrder, senderAddress);
+                const res = await exchangeWrapper.fillOrderAsync(signedOrder, takerAddress);
                 const newBalances = await erc20Wrapper.getBalancesAsync();
                 expect(newBalances).to.deep.equal(erc20Balances);
             });

@@ -30,10 +30,10 @@ class DerivedHDKeyInfoIterator implements IterableIterator<DerivedHDKeyInfo> {
             baseDerivationPath,
             derivationPath: fullDerivationPath,
         };
-        const isDone = this._index === this._searchLimit;
+        const done = this._index === this._searchLimit;
         this._index++;
         return {
-            done: isDone,
+            done,
             value: derivedKey,
         };
     }

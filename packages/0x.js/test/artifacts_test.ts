@@ -1,6 +1,5 @@
 import { web3Factory } from '@0xproject/dev-utils';
 import * as fs from 'fs';
-import 'make-promises-safe';
 
 import { ZeroEx } from '../src';
 

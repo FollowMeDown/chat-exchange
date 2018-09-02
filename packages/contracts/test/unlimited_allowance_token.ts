@@ -3,7 +3,6 @@ import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-u
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
-import 'make-promises-safe';
 import * as Web3 from 'web3';
 
 import { DummyERC20TokenContract } from '../src/contract_wrappers/generated/dummy_e_r_c20_token';
@@ -28,12 +27,6 @@ describe('UnlimitedAllowanceToken', () => {
     let token: DummyERC20TokenContract;
 
     before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
-    before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         owner = accounts[0];
         spender = accounts[1];
@@ -46,10 +39,7 @@ describe('UnlimitedAllowanceToken', () => {
             constants.DUMMY_TOKEN_DECIMALS,
             constants.DUMMY_TOKEN_TOTAL_SUPPLY,
         );
-        await web3Wrapper.awaitTransactionMinedAsync(
-            await token.mint.sendTransactionAsync(MAX_MINT_VALUE, { from: owner }),
-            constants.AWAIT_TRANSACTION_MINED_MS,
-        );
+        await token.mint.sendTransactionAsync(MAX_MINT_VALUE, { from: owner });
         tokenAddress = token.address;
     });
     beforeEach(async () => {
@@ -106,8 +96,8 @@ describe('UnlimitedAllowanceToken', () => {
             const amountToTransfer = ownerBalance;
 
             const spenderAllowance = await zeroEx.token.getAllowanceAsync(tokenAddress, owner, spender);
-            const isSpenderAllowanceInsufficient = spenderAllowance.cmp(amountToTransfer) < 0;
-            expect(isSpenderAllowanceInsufficient).to.be.true();
+            const spenderAllowanceIsInsufficient = spenderAllowance.cmp(amountToTransfer) < 0;
+            expect(spenderAllowanceIsInsufficient).to.be.true();
 
             return expect(
                 token.transferFrom.callAsync(owner, spender, amountToTransfer, {

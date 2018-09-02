@@ -93,8 +93,7 @@ export class NonceTrackerSubprovider extends Subprovider {
         // Increment the nonce from the previous successfully submitted transaction
         let nonce = ethUtil.bufferToInt(transaction.nonce);
         nonce++;
-        const hexBase = 16;
-        let nextHexNonce = nonce.toString(hexBase);
+        let nextHexNonce = nonce.toString(16);
         if (nextHexNonce.length % 2) {
             nextHexNonce = `0${nextHexNonce}`;
         }

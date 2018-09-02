@@ -1,6 +1,3 @@
 {
-    "extends": ["@0xproject/tslint-config"],
-    "rules": {
-        "custom-no-magic-numbers": false
-    }
+    "extends": ["@0xproject/tslint-config"]
 }

@@ -1,7 +1,6 @@
+import { SignedOrder, ZeroEx } from '0x.js';
 import { HttpClient } from '@0xproject/connect';
 import { Schema, schemas as schemasByName } from '@0xproject/json-schemas';
-import { getOrderHashHex } from '@0xproject/order-utils';
-import { SignedOrder } from '@0xproject/types';
 import { logUtils } from '@0xproject/utils';
 import chalk from 'chalk';
 import * as _ from 'lodash';
@@ -12,12 +11,6 @@ import { addresses as rinkebyAddresses } from './contract_addresses/rinkeby_addr
 import { addresses as ropstenAddresses } from './contract_addresses/ropsten_addresses';
 
 const ENVIRONMENT_NAME = 'SRA Report';
-const networkNameToId: { [networkName: string]: number } = {
-    mainnet: 1,
-    ropsten: 3,
-    rinkeby: 4,
-    kovan: 42,
-};
 
 export interface EnvironmentValue {
     key: string;
@@ -99,7 +92,7 @@ async function createOrderEnvironmentValuesAsync(url: string): Promise<Environme
             createEnvironmentValue('orderMaker', orderIfExists.maker),
             createEnvironmentValue('orderTaker', orderIfExists.taker),
             createEnvironmentValue('orderFeeRecipient', orderIfExists.feeRecipient),
-            createEnvironmentValue('orderHash', getOrderHashHex(orderIfExists)),
+            createEnvironmentValue('orderHash', ZeroEx.getOrderHashHex(orderIfExists)),
         ];
     } else {
         logUtils.log(`${chalk.red(`No orders from /orders found`)}`);
@@ -114,13 +107,13 @@ async function createOrderEnvironmentValuesAsync(url: string): Promise<Environme
 }
 function getContractAddresses(networkId: number): Addresses {
     switch (networkId) {
-        case networkNameToId.mainnet:
+        case 1:
             return mainnetAddresses;
-        case networkNameToId.ropsten:
+        case 3:
             return ropstenAddresses;
-        case networkNameToId.rinkeby:
+        case 4:
             return rinkebyAddresses;
-        case networkNameToId.kovan:
+        case 42:
             return kovanAddresses;
         default:
             throw new Error('Unsupported network id');
