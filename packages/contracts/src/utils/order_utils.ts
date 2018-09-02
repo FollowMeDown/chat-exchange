@@ -4,7 +4,7 @@ import ethUtil = require('ethereumjs-util');
 import * as _ from 'lodash';
 
 import { crypto } from './crypto';
-import { OrderStruct, SignatureType, SignedOrder, UnsignedOrder } from './types';
+import { CancelOrder, MatchOrder, OrderStruct, SignatureType, SignedOrder, UnsignedOrder } from './types';
 
 export const orderUtils = {
     createFill: (signedOrder: SignedOrder, takerAssetFillAmount?: BigNumber) => {
@@ -15,7 +15,7 @@ export const orderUtils = {
         };
         return fill;
     },
-    createCancel(signedOrder: SignedOrder, takerAssetCancelAmount?: BigNumber) {
+    createCancel(signedOrder: SignedOrder, takerAssetCancelAmount?: BigNumber): CancelOrder {
         const cancel = {
             order: orderUtils.getOrderStruct(signedOrder),
             takerAssetCancelAmount: takerAssetCancelAmount || signedOrder.takerAssetAmount,
@@ -79,5 +79,14 @@ export const orderUtils = {
         const orderHashBuff = orderUtils.getOrderHashBuff(order);
         const orderHashHex = `0x${orderHashBuff.toString('hex')}`;
         return orderHashHex;
+    },
+    createMatchOrders(signedOrderLeft: SignedOrder, signedOrderRight: SignedOrder): MatchOrder {
+        const fill = {
+            left: orderUtils.getOrderStruct(signedOrderLeft),
+            right: orderUtils.getOrderStruct(signedOrderRight),
+            leftSignature: signedOrderLeft.signature,
+            rightSignature: signedOrderRight.signature,
+        };
+        return fill;
     },
 };

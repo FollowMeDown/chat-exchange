@@ -3,6 +3,7 @@ import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-u
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
+import 'make-promises-safe';
 import * as Web3 from 'web3';
 
 import { ZRXTokenContract } from '../src/contract_wrappers/generated/zrx_token';
@@ -25,6 +26,12 @@ describe('ZRXToken', () => {
     let zrxToken: ZRXTokenContract;
     let zrxAddress: string;
 
+    before(async () => {
+        await blockchainLifecycle.startAsync();
+    });
+    after(async () => {
+        await blockchainLifecycle.revertAsync();
+    });
     before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         owner = accounts[0];
@@ -117,8 +124,8 @@ describe('ZRXToken', () => {
             const amountToTransfer = ownerBalance;
 
             const spenderAllowance = await zeroEx.token.getAllowanceAsync(zrxAddress, owner, spender);
-            const spenderAllowanceIsInsufficient = spenderAllowance.cmp(amountToTransfer) < 0;
-            expect(spenderAllowanceIsInsufficient).to.be.true();
+            const isSpenderAllowanceInsufficient = spenderAllowance.cmp(amountToTransfer) < 0;
+            expect(isSpenderAllowanceInsufficient).to.be.true();
 
             const didReturnTrue = await zrxToken.transferFrom.callAsync(owner, spender, amountToTransfer, {
                 from: spender,
