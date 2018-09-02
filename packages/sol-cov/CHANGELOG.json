@@ -1,5 +1,6 @@
 [
     {
+        "timestamp": 1527009134,
         "version": "0.1.0",
         "changes": [
             {
@@ -17,6 +18,15 @@
             {
                 "note": "Add support for solidity libraries",
                 "pr": 589
+            }
+        ]
+    },
+    {
+        "timestamp": 1527009133,
+        "version": "0.0.11",
+        "changes": [
+            {
+                "note": "Dependencies updated"
             }
         ]
     },
