@@ -16,7 +16,7 @@
 
 */
 
-pragma solidity ^0.4.24;
+pragma solidity ^0.4.23;
 pragma experimental ABIEncoderV2;
 
 import "../../utils/LibBytes/LibBytes.sol";
@@ -27,11 +27,10 @@ import "./libs/LibFillResults.sol";
 import "./libs/LibExchangeErrors.sol";
 
 contract MixinWrapperFunctions is
-    SafeMath,
-    LibBytes,
-    LibMath,
     LibOrder,
     LibFillResults,
+    LibMath,
+    LibBytes,
     LibExchangeErrors,
     MExchangeCore
 {

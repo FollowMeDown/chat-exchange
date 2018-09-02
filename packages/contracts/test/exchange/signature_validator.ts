@@ -26,12 +26,6 @@ describe('MixinSignatureValidator', () => {
     let signatureValidator: TestSignatureValidatorContract;
 
     before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
-    before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         const makerAddress = accounts[0];
         signatureValidator = await TestSignatureValidatorContract.deployFrom0xArtifactAsync(
@@ -68,12 +62,12 @@ describe('MixinSignatureValidator', () => {
 
         it('should return true with a valid signature', async () => {
             const orderHashHex = orderUtils.getOrderHashHex(signedOrder);
-            const isValidSignature = await signatureValidator.publicIsValidSignature.callAsync(
+            const success = await signatureValidator.publicIsValidSignature.callAsync(
                 orderHashHex,
                 signedOrder.makerAddress,
                 signedOrder.signature,
             );
-            expect(isValidSignature).to.be.true();
+            expect(success).to.be.true();
         });
 
         it('should return false with an invalid signature', async () => {
@@ -87,12 +81,12 @@ describe('MixinSignatureValidator', () => {
             const invalidSigHex = `0x${invalidSigBuff.toString('hex')}`;
             signedOrder.signature = invalidSigHex;
             const orderHashHex = orderUtils.getOrderHashHex(signedOrder);
-            const isValidSignature = await signatureValidator.publicIsValidSignature.callAsync(
+            const success = await signatureValidator.publicIsValidSignature.callAsync(
                 orderHashHex,
                 signedOrder.makerAddress,
                 signedOrder.signature,
             );
-            expect(isValidSignature).to.be.false();
+            expect(success).to.be.false();
         });
     });
 });

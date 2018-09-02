@@ -4,7 +4,6 @@ import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
 import * as _ from 'lodash';
-import 'make-promises-safe';
 import * as Web3 from 'web3';
 
 import { DummyERC20TokenContract } from '../../src/contract_wrappers/generated/dummy_e_r_c20_token';
@@ -57,12 +56,6 @@ describe('Exchange wrappers', () => {
     let zeroEx: ZeroEx;
 
     before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
-    before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         const usedAddresses = ([owner, makerAddress, takerAddress, feeRecipientAddress] = accounts);
 
@@ -94,18 +87,12 @@ describe('Exchange wrappers', () => {
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC20, erc20Proxy.address, owner);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC721, erc721Proxy.address, owner);
 
-        await web3Wrapper.awaitTransactionMinedAsync(
-            await erc20Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
-                from: owner,
-            }),
-            constants.AWAIT_TRANSACTION_MINED_MS,
-        );
-        await web3Wrapper.awaitTransactionMinedAsync(
-            await erc721Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
-                from: owner,
-            }),
-            constants.AWAIT_TRANSACTION_MINED_MS,
-        );
+        await erc20Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
+            from: owner,
+        });
+        await erc721Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
+            from: owner,
+        });
 
         defaultMakerAssetAddress = erc20TokenA.address;
         defaultTakerAssetAddress = erc20TokenB.address;
@@ -263,19 +250,13 @@ describe('Exchange wrappers', () => {
 
         it('should not change erc20Balances if maker allowances are too low to fill order', async () => {
             const signedOrder = orderFactory.newSignedOrder();
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
-                    from: makerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
+                from: makerAddress,
+            });
             await exchangeWrapper.fillOrderNoThrowAsync(signedOrder, takerAddress);
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
-                    from: makerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
+                from: makerAddress,
+            });
 
             const newBalances = await erc20Wrapper.getBalancesAsync();
             expect(newBalances).to.be.deep.equal(erc20Balances);
@@ -283,19 +264,13 @@ describe('Exchange wrappers', () => {
 
         it('should not change erc20Balances if taker allowances are too low to fill order', async () => {
             const signedOrder = orderFactory.newSignedOrder();
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
-                    from: takerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
+                from: takerAddress,
+            });
             await exchangeWrapper.fillOrderNoThrowAsync(signedOrder, takerAddress);
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
-                    from: takerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
+                from: takerAddress,
+            });
 
             const newBalances = await erc20Wrapper.getBalancesAsync();
             expect(newBalances).to.be.deep.equal(erc20Balances);

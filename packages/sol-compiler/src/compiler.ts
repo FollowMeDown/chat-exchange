@@ -74,7 +74,6 @@ export class Compiler {
     private _contractsDir: string;
     private _compilerSettings: solc.CompilerSettings;
     private _artifactsDir: string;
-    private _solcVersionIfExists: string | undefined;
     private _specifiedContracts: string[] | TYPE_ALL_FILES_IDENTIFIER;
     /**
      * Instantiates a new instance of the Compiler class.
@@ -86,7 +85,6 @@ export class Compiler {
             ? JSON.parse(fs.readFileSync(CONFIG_FILE).toString())
             : {};
         this._contractsDir = opts.contractsDir || config.contractsDir || DEFAULT_CONTRACTS_DIR;
-        this._solcVersionIfExists = opts.solcVersion || config.solcVersion;
         this._compilerSettings = opts.compilerSettings || config.compilerSettings || DEFAULT_COMPILER_SETTINGS;
         this._artifactsDir = opts.artifactsDir || config.artifactsDir || DEFAULT_ARTIFACTS_DIR;
         this._specifiedContracts = opts.contracts || config.contracts || ALL_CONTRACTS_IDENTIFIER;
@@ -141,12 +139,9 @@ export class Compiler {
         if (!shouldCompile) {
             return;
         }
-        let solcVersion = this._solcVersionIfExists;
-        if (_.isUndefined(solcVersion)) {
-            const solcVersionRange = parseSolidityVersionRange(contractSource.source);
-            const availableCompilerVersions = _.keys(binPaths);
-            solcVersion = semver.maxSatisfying(availableCompilerVersions, solcVersionRange);
-        }
+        const solcVersionRange = parseSolidityVersionRange(contractSource.source);
+        const availableCompilerVersions = _.keys(binPaths);
+        const solcVersion = semver.maxSatisfying(availableCompilerVersions, solcVersionRange);
         const fullSolcVersion = binPaths[solcVersion];
         const compilerBinFilename = path.join(SOLC_BIN_DIR, fullSolcVersion);
         let solcjs: string;
@@ -157,8 +152,7 @@ export class Compiler {
             logUtils.log(`Downloading ${fullSolcVersion}...`);
             const url = `${constants.BASE_COMPILER_URL}${fullSolcVersion}`;
             const response = await fetch(url);
-            const SUCCESS_STATUS = 200;
-            if (response.status !== SUCCESS_STATUS) {
+            if (response.status !== 200) {
                 throw new Error(`Failed to load ${fullSolcVersion}`);
             }
             solcjs = await response.text();
@@ -234,7 +228,7 @@ export class Compiler {
             sourceTreeHashHex,
             compiler: {
                 name: 'solc',
-                version: fullSolcVersion,
+                version: solcVersion,
                 settings: this._compilerSettings,
             },
         };

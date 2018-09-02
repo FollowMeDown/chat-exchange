@@ -466,8 +466,8 @@ export class Portal extends React.Component<PortalProps, PortalState> {
         this.props.dispatcher.updateScreenWidth(newScreenWidth);
     }
     private _isSmallScreen(): boolean {
-        const isSmallScreen = this.props.screenWidth === ScreenWidths.Sm;
-        return isSmallScreen;
+        const result = this.props.screenWidth === ScreenWidths.Sm;
+        return result;
     }
 }
 

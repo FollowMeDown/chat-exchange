@@ -13,7 +13,15 @@ import * as _ from 'lodash';
 import * as process from 'process';
 
 import { constants } from './constants';
+import { coverage } from './coverage';
 import { env, EnvVars } from './env';
+
+// HACK: web3 leaks XMLHttpRequest into the global scope and causes requests to hang
+// because they are using the wrong XHR package.
+// importing web3 after subproviders fixes this issue
+// Filed issue: https://github.com/ethereum/web3.js/issues/844
+// tslint:disable-next-line:ordered-imports
+import * as Web3 from 'web3';
 
 export interface Web3Config {
     hasAddresses?: boolean; // default: true
@@ -22,8 +30,18 @@ export interface Web3Config {
 }
 
 export const web3Factory = {
-    getRpcProvider(config: Web3Config = {}): ProviderEngine {
+    create(config: Web3Config = {}): Web3 {
+        const provider = this.getRpcProvider(config);
+        const web3 = new Web3();
+        web3.setProvider(provider);
+        return web3;
+    },
+    getRpcProvider(config: Web3Config = {}): Provider {
         const provider = new ProviderEngine();
+        const isCoverageEnabled = env.parseBoolean(EnvVars.SolidityCoverage);
+        if (isCoverageEnabled) {
+            provider.addProvider(coverage.getCoverageSubproviderSingleton());
+        }
         const hasAddresses = _.isUndefined(config.hasAddresses) || config.hasAddresses;
         if (!hasAddresses) {
             provider.addProvider(new EmptyWalletSubprovider());

@@ -13,18 +13,7 @@ import { postmanEnvironmentFactory } from './postman_environment_factory';
 import { utils } from './utils';
 
 const DEFAULT_NETWORK_ID = 1;
-const networkNameToId: { [networkName: string]: number } = {
-    mainnet: 1,
-    ropsten: 3,
-    rinkeby: 4,
-    kovan: 42,
-};
-const SUPPORTED_NETWORK_IDS = [
-    networkNameToId.mainnet,
-    networkNameToId.ropsten,
-    networkNameToId.rinkeby,
-    networkNameToId.kovan,
-];
+const SUPPORTED_NETWORK_IDS = [1, 3, 4, 42];
 
 // extract command line arguments
 const args = yargs

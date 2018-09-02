@@ -58,18 +58,7 @@ export interface DataItem {
     components?: DataItem[];
 }
 
-export enum OpCode {
-    DelegateCall = 'DELEGATECALL',
-    Revert = 'REVERT',
-    Create = 'CREATE',
-    Stop = 'STOP',
-    Invalid = 'INVALID',
-    CallCode = 'CALLCODE',
-    StaticCall = 'STATICCALL',
-    Return = 'RETURN',
-    Call = 'CALL',
-    SelfDestruct = 'SELFDESTRUCT',
-}
+export type OpCode = string;
 
 export interface StructLog {
     depth: number;

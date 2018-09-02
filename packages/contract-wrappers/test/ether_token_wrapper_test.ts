@@ -3,7 +3,6 @@ import { DoneCallback } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
-import 'make-promises-safe';
 import 'mocha';
 
 import {
@@ -42,7 +41,7 @@ describe('EtherTokenWrapper', () => {
     let addressWithETH: string;
     let wethContractAddress: string;
     let depositWeiAmount: BigNumber;
-    const decimalPlaces = 7;
+    let decimalPlaces: number;
     let addressWithoutFunds: string;
     const gasPrice = new BigNumber(1);
     const zeroExConfig = {
@@ -60,6 +59,7 @@ describe('EtherTokenWrapper', () => {
         addressWithETH = userAddresses[0];
         wethContractAddress = contractWrappers.etherToken.getContractAddressIfExists() as string;
         depositWeiAmount = Web3Wrapper.toWei(new BigNumber(5));
+        decimalPlaces = 7;
         addressWithoutFunds = userAddresses[1];
     });
     beforeEach(async () => {
@@ -154,7 +154,6 @@ describe('EtherTokenWrapper', () => {
             const preWETHBalance = await contractWrappers.token.getBalanceAsync(wethContractAddress, addressWithETH);
             expect(preWETHBalance).to.be.bignumber.equal(0);
 
-            // tslint:disable-next-line:custom-no-magic-numbers
             const overWETHBalance = preWETHBalance.add(999999999);
 
             return expect(

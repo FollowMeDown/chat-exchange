@@ -3,7 +3,6 @@ import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-u
 import { BigNumber, promisify } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
-import 'make-promises-safe';
 
 import { WETH9Contract } from '../src/contract_wrappers/generated/weth9';
 import { artifacts } from '../src/utils/artifacts';
@@ -20,13 +19,6 @@ describe('EtherToken', () => {
     const gasPrice = ZeroEx.toBaseUnitAmount(new BigNumber(20), 9);
     let zeroEx: ZeroEx;
     let etherTokenAddress: string;
-
-    before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
     before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         account = accounts[0];

@@ -3,7 +3,7 @@ import { BlockchainLifecycle } from '@0xproject/dev-utils';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
 import ethUtil = require('ethereumjs-util');
-import 'make-promises-safe';
+import * as _ from 'lodash';
 
 import { DummyERC20TokenContract } from '../../src/contract_wrappers/generated/dummy_e_r_c20_token';
 import { DummyERC721TokenContract } from '../../src/contract_wrappers/generated/dummy_e_r_c721_token';
@@ -12,7 +12,7 @@ import { ERC721ProxyContract } from '../../src/contract_wrappers/generated/e_r_c
 import {
     CancelContractEventArgs,
     ExchangeContract,
-    ExchangeStatusContractEventArgs,
+    ExchangeErrorContractEventArgs,
     FillContractEventArgs,
 } from '../../src/contract_wrappers/generated/exchange';
 import { artifacts } from '../../src/utils/artifacts';
@@ -25,7 +25,7 @@ import { ERC721Wrapper } from '../../src/utils/erc721_wrapper';
 import { ExchangeWrapper } from '../../src/utils/exchange_wrapper';
 import { OrderFactory } from '../../src/utils/order_factory';
 import { orderUtils } from '../../src/utils/order_utils';
-import { AssetProxyId, ContractName, ERC20BalancesByOwner, ExchangeStatus, SignedOrder } from '../../src/utils/types';
+import { AssetProxyId, ERC20BalancesByOwner, ExchangeContractErrs, SignedOrder } from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
 
 chaiSetup.configure();
@@ -62,12 +62,6 @@ describe('Exchange core', () => {
     let zeroEx: ZeroEx;
 
     before(async () => {
-        await blockchainLifecycle.startAsync();
-    });
-    after(async () => {
-        await blockchainLifecycle.revertAsync();
-    });
-    before(async () => {
         const accounts = await web3Wrapper.getAvailableAddressesAsync();
         const usedAddresses = ([owner, makerAddress, takerAddress, feeRecipientAddress] = accounts);
 
@@ -99,18 +93,12 @@ describe('Exchange core', () => {
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC20, erc20Proxy.address, owner);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC721, erc721Proxy.address, owner);
 
-        await web3Wrapper.awaitTransactionMinedAsync(
-            await erc20Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
-                from: owner,
-            }),
-            constants.AWAIT_TRANSACTION_MINED_MS,
-        );
-        await web3Wrapper.awaitTransactionMinedAsync(
-            await erc721Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
-                from: owner,
-            }),
-            constants.AWAIT_TRANSACTION_MINED_MS,
-        );
+        await erc20Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
+            from: owner,
+        });
+        await erc721Proxy.addAuthorizedAddress.sendTransactionAsync(exchange.address, {
+            from: owner,
+        });
 
         defaultMakerAssetAddress = erc20TokenA.address;
         defaultTakerAssetAddress = erc20TokenB.address;
@@ -532,39 +520,23 @@ describe('Exchange core', () => {
         });
 
         it('should throw if maker allowances are too low to fill order', async () => {
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
-                    from: makerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
-            await expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(
-                constants.REVERT,
-            );
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
-                    from: makerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
+                from: makerAddress,
+            });
+            expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(constants.REVERT);
+            await erc20TokenA.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
+                from: makerAddress,
+            });
         });
 
         it('should throw if taker allowances are too low to fill order', async () => {
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
-                    from: takerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
-            await expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(
-                constants.REVERT,
-            );
-            await web3Wrapper.awaitTransactionMinedAsync(
-                await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
-                    from: takerAddress,
-                }),
-                constants.AWAIT_TRANSACTION_MINED_MS,
-            );
+            await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, new BigNumber(0), {
+                from: takerAddress,
+            });
+            expect(exchangeWrapper.fillOrderAsync(signedOrder, takerAddress)).to.be.rejectedWith(constants.REVERT);
+            await erc20TokenB.approve.sendTransactionAsync(erc20Proxy.address, constants.INITIAL_ERC20_ALLOWANCE, {
+                from: takerAddress,
+            });
         });
 
         it('should not change erc20Balances if an order is expired', async () => {
@@ -584,9 +556,9 @@ describe('Exchange core', () => {
 
             const res = await exchangeWrapper.fillOrderAsync(signedOrder, takerAddress);
             expect(res.logs).to.have.length(1);
-            const log = res.logs[0] as LogWithDecodedArgs<ExchangeStatusContractEventArgs>;
-            const statusCode = log.args.statusId;
-            expect(statusCode).to.be.equal(ExchangeStatus.ORDER_EXPIRED);
+            const log = res.logs[0] as LogWithDecodedArgs<ExchangeErrorContractEventArgs>;
+            const errCode = log.args.errorId;
+            expect(errCode).to.be.equal(ExchangeContractErrs.ERROR_ORDER_EXPIRED);
         });
 
         it('should log an error event if no value is filled', async () => {
@@ -595,9 +567,9 @@ describe('Exchange core', () => {
 
             const res = await exchangeWrapper.fillOrderAsync(signedOrder, takerAddress);
             expect(res.logs).to.have.length(1);
-            const log = res.logs[0] as LogWithDecodedArgs<ExchangeStatusContractEventArgs>;
-            const statusCode = log.args.statusId;
-            expect(statusCode).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
+            const log = res.logs[0] as LogWithDecodedArgs<ExchangeErrorContractEventArgs>;
+            const errCode = log.args.errorId;
+            expect(errCode).to.be.equal(ExchangeContractErrs.ERROR_ORDER_FULLY_FILLED);
         });
     });
 
@@ -663,9 +635,9 @@ describe('Exchange core', () => {
 
             const res = await exchangeWrapper.cancelOrderAsync(signedOrder, makerAddress);
             expect(res.logs).to.have.length(1);
-            const log = res.logs[0] as LogWithDecodedArgs<ExchangeStatusContractEventArgs>;
-            const statusCode = log.args.statusId;
-            expect(statusCode).to.be.equal(ExchangeStatus.ORDER_CANCELLED);
+            const log = res.logs[0] as LogWithDecodedArgs<ExchangeErrorContractEventArgs>;
+            const errCode = log.args.errorId;
+            expect(errCode).to.be.equal(ExchangeContractErrs.ERROR_ORDER_CANCELLED);
         });
 
         it('should log error if order is expired', async () => {
@@ -675,9 +647,9 @@ describe('Exchange core', () => {
 
             const res = await exchangeWrapper.cancelOrderAsync(signedOrder, makerAddress);
             expect(res.logs).to.have.length(1);
-            const log = res.logs[0] as LogWithDecodedArgs<ExchangeStatusContractEventArgs>;
-            const statusCode = log.args.statusId;
-            expect(statusCode).to.be.equal(ExchangeStatus.ORDER_EXPIRED);
+            const log = res.logs[0] as LogWithDecodedArgs<ExchangeErrorContractEventArgs>;
+            const errCode = log.args.errorId;
+            expect(errCode).to.be.equal(ExchangeContractErrs.ERROR_ORDER_EXPIRED);
         });
     });
 
