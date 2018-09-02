@@ -4,17 +4,16 @@ import 'make-promises-safe';
 import 'mocha';
 import * as path from 'path';
 
-import { SolCompilerArtifactAdapter } from '../src/artifact_adapters/sol_compiler_artifact_adapter';
+import { collectContractsData } from '../src/collect_contract_data';
 
 const expect = chai.expect;
 
 describe('Collect contracts data', () => {
     describe('#collectContractsData', () => {
-        it('correctly collects contracts data', async () => {
+        it('correctly collects contracts data', () => {
             const artifactsPath = path.resolve(__dirname, 'fixtures/artifacts');
             const sourcesPath = path.resolve(__dirname, 'fixtures/contracts');
-            const zeroExArtifactsAdapter = new SolCompilerArtifactAdapter(artifactsPath, sourcesPath);
-            const contractsData = await zeroExArtifactsAdapter.collectContractsDataAsync();
+            const contractsData = collectContractsData(artifactsPath, sourcesPath);
             _.forEach(contractsData, contractData => {
                 expect(contractData).to.have.keys([
                     'sourceCodes',
