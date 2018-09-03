@@ -3,7 +3,7 @@
     "name": "contracts",
     "version": "2.1.28",
     "engines": {
-        "node" : ">=6.12"
+        "node": ">=6.12"
     },
     "description": "Smart contract components of 0x protocol",
     "main": "index.js",
@@ -12,7 +12,7 @@
     },
     "scripts": {
         "watch": "tsc -w",
-        "prebuild": "run-s clean copy_artifacts generate_contract_wrappers",
+        "prebuild": "run-s clean compile copy_artifacts generate_contract_wrappers",
         "copy_artifacts": "copyfiles -u 4 '../migrations/artifacts/2.0.0/**/*' ./lib/src/artifacts;",
         "build": "tsc",
         "test": "run-s build run_mocha",
@@ -28,8 +28,7 @@
         "test:circleci": "yarn test:coverage"
     },
     "config": {
-        "abis":
-            "../migrations/artifacts/2.0.0/@(DummyERC20Token|DummyERC721Token|ERC20Proxy|ERC721Proxy|Exchange|MixinAuthorizable|MultiSigWallet|MultiSigWalletWithTimeLock|MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress|TestAssetProxyDispatcher|TestLibBytes|TestLibs|TestSignatureValidator|TokenRegistry|WETH9|ZRXToken).json"
+        "abis": "../migrations/artifacts/2.0.0/@(DummyERC20Token|DummyERC721Token|ERC20Proxy|ERC721Proxy|Exchange|MixinAuthorizable|MultiSigWallet|MultiSigWalletWithTimeLock|MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress|TestAssetProxyDispatcher|TestLibBytes|TestLibs|TestSignatureValidator|TokenRegistry|WETH9|ZRXToken).json"
     },
     "repository": {
         "type": "git",
@@ -53,18 +52,20 @@
         "chai-bignumber": "^2.0.1",
         "copyfiles": "^1.2.0",
         "dirty-chai": "^2.0.1",
+        "make-promises-safe": "^1.1.0",
         "mocha": "^4.0.1",
         "npm-run-all": "^4.1.2",
         "prettier": "^1.11.1",
         "shx": "^0.2.2",
-        "solc": "^0.4.23",
+        "solc": "^0.4.24",
         "tslint": "5.8.0",
         "typescript": "2.7.1",
         "yargs": "^10.0.3"
     },
     "dependencies": {
-        "0x.js": "^0.37.2",
         "@0xproject/base-contract": "^0.3.1",
+        "@0xproject/contract-wrappers": "^0.0.1",
+        "@0xproject/order-utils": "^0.0.4",
         "@0xproject/sol-compiler": "^0.4.3",
         "@0xproject/types": "^0.6.3",
         "@0xproject/typescript-typings": "^0.3.1",
