@@ -1,3 +1,5 @@
+import { ZeroEx } from '0x.js';
+
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
@@ -57,6 +59,8 @@ describe('Exchange transactions', () => {
     let defaultMakerTokenAddress: string;
     let defaultTakerTokenAddress: string;
 
+    let zeroEx: ZeroEx;
+
     before(async () => {
         await blockchainLifecycle.startAsync();
     });
@@ -79,7 +83,11 @@ describe('Exchange transactions', () => {
             txDefaults,
             assetProxyUtils.encodeERC20ProxyData(zrxToken.address),
         );
-        exchangeWrapper = new ExchangeWrapper(exchange, provider);
+        zeroEx = new ZeroEx(provider, {
+            exchangeContractAddress: exchange.address,
+            networkId: constants.TESTRPC_NETWORK_ID,
+        });
+        exchangeWrapper = new ExchangeWrapper(exchange, zeroEx);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC20, erc20Proxy.address, owner);
 
         await web3Wrapper.awaitTransactionMinedAsync(
@@ -180,7 +188,7 @@ describe('Exchange transactions', () => {
             it('should reset the currentContextAddress', async () => {
                 await exchangeWrapper.executeTransactionAsync(signedTx, senderAddress);
                 const currentContextAddress = await exchange.currentContextAddress.callAsync();
-                expect(currentContextAddress).to.equal(constants.NULL_ADDRESS);
+                expect(currentContextAddress).to.equal(ZeroEx.NULL_ADDRESS);
             });
         });
 
