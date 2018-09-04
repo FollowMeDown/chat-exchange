@@ -1,7 +1,6 @@
+import { SignedOrder, ZeroEx } from '0x.js';
 import { HttpClient } from '@0xproject/connect';
 import { Schema, schemas as schemasByName } from '@0xproject/json-schemas';
-import { getOrderHashHex } from '@0xproject/order-utils';
-import { SignedOrder } from '@0xproject/types';
 import { logUtils } from '@0xproject/utils';
 import chalk from 'chalk';
 import * as _ from 'lodash';
@@ -99,7 +98,7 @@ async function createOrderEnvironmentValuesAsync(url: string): Promise<Environme
             createEnvironmentValue('orderMaker', orderIfExists.maker),
             createEnvironmentValue('orderTaker', orderIfExists.taker),
             createEnvironmentValue('orderFeeRecipient', orderIfExists.feeRecipient),
-            createEnvironmentValue('orderHash', getOrderHashHex(orderIfExists)),
+            createEnvironmentValue('orderHash', ZeroEx.getOrderHashHex(orderIfExists)),
         ];
     } else {
         logUtils.log(`${chalk.red(`No orders from /orders found`)}`);
