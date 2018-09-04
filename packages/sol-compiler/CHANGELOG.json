@@ -5,10 +5,6 @@
             {
                 "note": "Properly export the executable binary",
                 "pr": 588
-            },
-            {
-                "note": "Add the ability to define a specific solidity version",
-                "pr": 589
             }
         ],
         "timestamp": 1527009133
