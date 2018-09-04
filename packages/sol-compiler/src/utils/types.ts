@@ -55,7 +55,6 @@ export interface CompilerOptions {
     artifactsDir?: string;
     compilerSettings?: solc.CompilerSettings;
     contracts?: string[] | '*';
-    solcVersion?: string;
 }
 
 export interface ContractSourceData {
