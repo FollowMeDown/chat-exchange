@@ -1,3 +1,4 @@
+import { ZeroEx } from '0x.js';
 import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-utils';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
@@ -53,6 +54,8 @@ describe('Exchange wrappers', () => {
     let defaultMakerAssetAddress: string;
     let defaultTakerAssetAddress: string;
 
+    let zeroEx: ZeroEx;
+
     before(async () => {
         await blockchainLifecycle.startAsync();
     });
@@ -83,7 +86,11 @@ describe('Exchange wrappers', () => {
             txDefaults,
             assetProxyUtils.encodeERC20ProxyData(zrxToken.address),
         );
-        exchangeWrapper = new ExchangeWrapper(exchange, provider);
+        zeroEx = new ZeroEx(provider, {
+            exchangeContractAddress: exchange.address,
+            networkId: constants.TESTRPC_NETWORK_ID,
+        });
+        exchangeWrapper = new ExchangeWrapper(exchange, zeroEx);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC20, erc20Proxy.address, owner);
         await exchangeWrapper.registerAssetProxyAsync(AssetProxyId.ERC721, erc721Proxy.address, owner);
 
@@ -124,8 +131,8 @@ describe('Exchange wrappers', () => {
     describe('fillOrKillOrder', () => {
         it('should transfer the correct amounts', async () => {
             const signedOrder = orderFactory.newSignedOrder({
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(200), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(200), 18),
             });
             const takerAssetFillAmount = signedOrder.takerAssetAmount.div(2);
             await exchangeWrapper.fillOrKillOrderAsync(signedOrder, takerAddress, {
@@ -192,8 +199,8 @@ describe('Exchange wrappers', () => {
     describe('fillOrderNoThrow', () => {
         it('should transfer the correct amounts', async () => {
             const signedOrder = orderFactory.newSignedOrder({
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(200), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(200), 18),
             });
             const takerAssetFillAmount = signedOrder.takerAssetAmount.div(2);
             await exchangeWrapper.fillOrderNoThrowAsync(signedOrder, takerAddress, {
@@ -236,7 +243,7 @@ describe('Exchange wrappers', () => {
 
         it('should not change erc20Balances if maker erc20Balances are too low to fill order', async () => {
             const signedOrder = orderFactory.newSignedOrder({
-                makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100000), 18),
+                makerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100000), 18),
             });
 
             await exchangeWrapper.fillOrderNoThrowAsync(signedOrder, takerAddress);
@@ -246,7 +253,7 @@ describe('Exchange wrappers', () => {
 
         it('should not change erc20Balances if taker erc20Balances are too low to fill order', async () => {
             const signedOrder = orderFactory.newSignedOrder({
-                takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100000), 18),
+                takerAssetAmount: ZeroEx.toBaseUnitAmount(new BigNumber(100000), 18),
             });
 
             await exchangeWrapper.fillOrderNoThrowAsync(signedOrder, takerAddress);
@@ -637,7 +644,7 @@ describe('Exchange wrappers', () => {
             });
 
             it('should fill all signedOrders if cannot fill entire takerAssetFillAmount', async () => {
-                const takerAssetFillAmount = Web3Wrapper.toBaseUnitAmount(new BigNumber(100000), 18);
+                const takerAssetFillAmount = ZeroEx.toBaseUnitAmount(new BigNumber(100000), 18);
                 _.forEach(signedOrders, signedOrder => {
                     erc20Balances[makerAddress][defaultMakerAssetAddress] = erc20Balances[makerAddress][
                         defaultMakerAssetAddress
@@ -680,7 +687,7 @@ describe('Exchange wrappers', () => {
 
                 return expect(
                     exchangeWrapper.marketSellOrdersAsync(signedOrders, takerAddress, {
-                        takerAssetFillAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 18),
+                        takerAssetFillAmount: ZeroEx.toBaseUnitAmount(new BigNumber(1000), 18),
                     }),
                 ).to.be.rejectedWith(constants.REVERT);
             });
@@ -726,7 +733,7 @@ describe('Exchange wrappers', () => {
             });
 
             it('should fill all signedOrders if cannot fill entire takerAssetFillAmount', async () => {
-                const takerAssetFillAmount = Web3Wrapper.toBaseUnitAmount(new BigNumber(100000), 18);
+                const takerAssetFillAmount = ZeroEx.toBaseUnitAmount(new BigNumber(100000), 18);
                 _.forEach(signedOrders, signedOrder => {
                     erc20Balances[makerAddress][defaultMakerAssetAddress] = erc20Balances[makerAddress][
                         defaultMakerAssetAddress
@@ -769,7 +776,7 @@ describe('Exchange wrappers', () => {
 
                 return expect(
                     exchangeWrapper.marketSellOrdersNoThrowAsync(signedOrders, takerAddress, {
-                        takerAssetFillAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 18),
+                        takerAssetFillAmount: ZeroEx.toBaseUnitAmount(new BigNumber(1000), 18),
                     }),
                 ).to.be.rejectedWith(constants.REVERT);
             });
@@ -815,7 +822,7 @@ describe('Exchange wrappers', () => {
             });
 
             it('should fill all signedOrders if cannot fill entire makerAssetFillAmount', async () => {
-                const makerAssetFillAmount = Web3Wrapper.toBaseUnitAmount(new BigNumber(100000), 18);
+                const makerAssetFillAmount = ZeroEx.toBaseUnitAmount(new BigNumber(100000), 18);
                 _.forEach(signedOrders, signedOrder => {
                     erc20Balances[makerAddress][defaultMakerAssetAddress] = erc20Balances[makerAddress][
                         defaultMakerAssetAddress
@@ -858,7 +865,7 @@ describe('Exchange wrappers', () => {
 
                 return expect(
                     exchangeWrapper.marketBuyOrdersAsync(signedOrders, takerAddress, {
-                        makerAssetFillAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 18),
+                        makerAssetFillAmount: ZeroEx.toBaseUnitAmount(new BigNumber(1000), 18),
                     }),
                 ).to.be.rejectedWith(constants.REVERT);
             });
@@ -904,7 +911,7 @@ describe('Exchange wrappers', () => {
             });
 
             it('should fill all signedOrders if cannot fill entire takerAssetFillAmount', async () => {
-                const takerAssetFillAmount = Web3Wrapper.toBaseUnitAmount(new BigNumber(100000), 18);
+                const takerAssetFillAmount = ZeroEx.toBaseUnitAmount(new BigNumber(100000), 18);
                 _.forEach(signedOrders, signedOrder => {
                     erc20Balances[makerAddress][defaultMakerAssetAddress] = erc20Balances[makerAddress][
                         defaultMakerAssetAddress
@@ -947,7 +954,7 @@ describe('Exchange wrappers', () => {
 
                 return expect(
                     exchangeWrapper.marketBuyOrdersNoThrowAsync(signedOrders, takerAddress, {
-                        makerAssetFillAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(1000), 18),
+                        makerAssetFillAmount: ZeroEx.toBaseUnitAmount(new BigNumber(1000), 18),
                     }),
                 ).to.be.rejectedWith(constants.REVERT);
             });

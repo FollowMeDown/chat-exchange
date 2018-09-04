@@ -1,6 +1,5 @@
-import { getOrderHashHex } from '@0xproject/order-utils';
+import { Order, ZeroEx } from '0x.js';
 import { Styles } from '@0xproject/react-shared';
-import { Order } from '@0xproject/types';
 import * as _ from 'lodash';
 import * as React from 'react';
 import ReactTooltip = require('react-tooltip');
@@ -58,7 +57,7 @@ export class HashInput extends React.Component<HashInputProps, HashInputState> {
             takerTokenAddress: hashData.receiveTokenContractAddr,
             takerTokenAmount: hashData.receiveAmount,
         };
-        const orderHash = getOrderHashHex(order);
+        const orderHash = ZeroEx.getOrderHashHex(order);
         return orderHash;
     }
 }

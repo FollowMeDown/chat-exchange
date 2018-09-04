@@ -1,8 +1,6 @@
-import { getOrderHashHex, isValidSignature } from '@0xproject/order-utils';
+import { Order as ZeroExOrder, ZeroEx } from '0x.js';
 import { colors, constants as sharedConstants } from '@0xproject/react-shared';
-import { Order as ZeroExOrder } from '@0xproject/types';
 import { BigNumber, logUtils } from '@0xproject/utils';
-import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as accounting from 'accounting';
 import * as _ from 'lodash';
 import { Card, CardHeader, CardText } from 'material-ui/Card';
@@ -435,15 +433,15 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
                 takerTokenAddress: parsedOrder.signedOrder.takerTokenAddress,
                 takerTokenAmount: takerAmount,
             };
-            orderHash = getOrderHashHex(zeroExOrder);
+            orderHash = ZeroEx.getOrderHashHex(zeroExOrder);
 
             const exchangeContractAddr = this.props.blockchain.getExchangeContractAddressIfExists();
             const signature = parsedOrder.signedOrder.ecSignature;
-            const isSignatureValid = isValidSignature(orderHash, signature, parsedOrder.signedOrder.maker);
+            const isValidSignature = ZeroEx.isValidSignature(orderHash, signature, parsedOrder.signedOrder.maker);
             if (exchangeContractAddr !== parsedOrder.signedOrder.exchangeContractAddress) {
                 orderJSONErrMsg = 'This order was made on another network or using a deprecated Exchange contract';
                 parsedOrder = undefined;
-            } else if (!isSignatureValid) {
+            } else if (!isValidSignature) {
                 orderJSONErrMsg = 'Order signature is invalid';
                 parsedOrder = undefined;
             } else {
@@ -602,7 +600,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
         const takerTokenAmount = new BigNumber(parsedOrder.signedOrder.takerTokenAmount);
 
         const signedOrder = this.props.blockchain.portalOrderToZeroExOrder(parsedOrder);
-        const orderHash = getOrderHashHex(signedOrder);
+        const orderHash = ZeroEx.getOrderHashHex(signedOrder);
         const unavailableTakerAmount = await this.props.blockchain.getUnavailableTakerAmountAsync(orderHash);
         const availableTakerTokenAmount = takerTokenAmount.minus(unavailableTakerAmount);
         try {
@@ -648,7 +646,7 @@ export class FillOrder extends React.Component<FillOrderProps, FillOrderState> {
         }
     }
     private _formatCurrencyAmount(amount: BigNumber, decimals: number): number {
-        const unitAmount = Web3Wrapper.toUnitAmount(amount, decimals);
+        const unitAmount = ZeroEx.toUnitAmount(amount, decimals);
         const roundedUnitAmount = Math.round(unitAmount.toNumber() * 100000) / 100000;
         return roundedUnitAmount;
     }
