@@ -1,6 +1,16 @@
 import { BigNumber } from '@0xproject/utils';
 
-export interface ERC20Token {
+export interface MultiSigConfig {
+    owners: string[];
+    confirmationsRequired: number;
+    secondsRequired: number;
+}
+
+export interface MultiSigConfigByNetwork {
+    [networkName: string]: MultiSigConfig;
+}
+
+export interface Token {
     address?: string;
     name: string;
     symbol: string;
@@ -9,9 +19,9 @@ export interface ERC20Token {
     swarmHash: string;
 }
 
-export interface ERC721Token {
-    name: string;
-    symbol: string;
+export interface TokenInfoByNetwork {
+    development: Token[];
+    live: Token[];
 }
 
 export enum ContractName {

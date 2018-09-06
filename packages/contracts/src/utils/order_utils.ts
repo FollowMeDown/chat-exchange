@@ -1,11 +1,10 @@
-import { Order, SignedOrder, UnsignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import ethUtil = require('ethereumjs-util');
 import * as _ from 'lodash';
 
 import { crypto } from './crypto';
-import { CancelOrder, MatchOrder, SignatureType } from './types';
+import { CancelOrder, MatchOrder, OrderStruct, SignatureType, SignedOrder, UnsignedOrder } from './types';
 
 export const orderUtils = {
     createFill: (signedOrder: SignedOrder, takerAssetFillAmount?: BigNumber) => {
@@ -23,7 +22,7 @@ export const orderUtils = {
         };
         return cancel;
     },
-    getOrderStruct(signedOrder: SignedOrder): Order {
+    getOrderStruct(signedOrder: SignedOrder): OrderStruct {
         const orderStruct = {
             senderAddress: signedOrder.senderAddress,
             makerAddress: signedOrder.makerAddress,

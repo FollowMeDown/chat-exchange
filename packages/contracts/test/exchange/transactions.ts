@@ -1,5 +1,4 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
-import { Order, SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
 import * as ethUtil from 'ethereumjs-util';
@@ -21,7 +20,9 @@ import {
     AssetProxyId,
     ERC20BalancesByOwner,
     ExchangeStatus,
+    OrderStruct,
     SignatureType,
+    SignedOrder,
     SignedTransaction,
 } from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
@@ -46,7 +47,7 @@ describe('Exchange transactions', () => {
     let erc20Balances: ERC20BalancesByOwner;
     let signedOrder: SignedOrder;
     let signedTx: SignedTransaction;
-    let order: Order;
+    let order: OrderStruct;
     let orderFactory: OrderFactory;
     let makerTransactionFactory: TransactionFactory;
     let takerTransactionFactory: TransactionFactory;
