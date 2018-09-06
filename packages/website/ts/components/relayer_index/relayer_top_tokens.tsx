@@ -14,7 +14,6 @@ const styles: Styles = {
     tokenLabel: {
         textDecoration: 'none',
         color: colors.mediumBlue,
-        fontSize: 14,
     },
     followingTokenLabel: {
         paddingLeft: 16,
