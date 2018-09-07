@@ -18,19 +18,15 @@
 
 pragma solidity ^0.4.10;
 
-import "../MultiSigWalletWithTimeLock/MultiSigWalletWithTimeLock.sol";
+import { MultiSigWalletWithTimeLock } from "../MultiSigWalletWithTimeLock/MultiSigWalletWithTimeLock.sol";
 
-contract MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress is
-    MultiSigWalletWithTimeLock
-{
-    event AssetProxyRegistration(address assetProxyContract, bool isRegistered);
+contract MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress is MultiSigWalletWithTimeLock {
 
-    // Mapping of AssetProxy contract address => approved to execute removeAuthorizedAddress without time lock.
-    mapping (address => bool) public isAssetProxyRegistered;
+    address public TOKEN_TRANSFER_PROXY_CONTRACT;
 
-    modifier validRemoveAuthorizedAddressTx(uint256 transactionId) {
+    modifier validRemoveAuthorizedAddressTx(uint transactionId) {
         Transaction storage tx = transactions[transactionId];
-        require(isAssetProxyRegistered[tx.destination]);
+        require(tx.destination == TOKEN_TRANSFER_PROXY_CONTRACT);
         require(isFunctionRemoveAuthorizedAddress(tx.data));
         _;
     }
@@ -39,36 +35,21 @@ contract MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress is
     /// @param _owners List of initial owners.
     /// @param _required Number of required confirmations.
     /// @param _secondsTimeLocked Duration needed after a transaction is confirmed and before it becomes executable, in seconds.
-    /// @param _assetProxyContracts Array of AssetProxy contract addresses.
+    /// @param _tokenTransferProxy Address of TokenTransferProxy contract.
     function MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress(
-        address[] memory _owners,
-        uint256 _required,
-        uint256 _secondsTimeLocked,
-        address[] memory _assetProxyContracts)
+        address[] _owners,
+        uint _required,
+        uint _secondsTimeLocked,
+        address _tokenTransferProxy)
         public
         MultiSigWalletWithTimeLock(_owners, _required, _secondsTimeLocked)
     {
-        for (uint256 i = 0; i < _assetProxyContracts.length; i++) {
-            require(_assetProxyContracts[i] != address(0));
-            isAssetProxyRegistered[_assetProxyContracts[i]] = true;
-        }
-    }
-
-    /// @dev Sets approval for calling removeAuthorizedAddress on an AssetProxy contract without a timelock.
-    /// @param assetProxyContract Address of AssetProxy contract.
-    /// @param isRegistered Status of approval for AssetProxy contract.
-    function registerAssetProxy(address assetProxyContract, bool isRegistered)
-        public
-        onlyWallet
-        notNull(assetProxyContract)
-    {
-        isAssetProxyRegistered[assetProxyContract] = isRegistered;
-        AssetProxyRegistration(assetProxyContract, isRegistered);
+        TOKEN_TRANSFER_PROXY_CONTRACT = _tokenTransferProxy;
     }
 
     /// @dev Allows execution of removeAuthorizedAddress without time lock.
     /// @param transactionId Transaction ID.
-    function executeRemoveAuthorizedAddress(uint256 transactionId)
+    function executeRemoveAuthorizedAddress(uint transactionId)
         public
         notExecuted(transactionId)
         fullyConfirmed(transactionId)
@@ -87,26 +68,15 @@ contract MultiSigWalletWithTimeLockExceptRemoveAuthorizedAddress is
     /// @dev Compares first 4 bytes of byte array to removeAuthorizedAddress function signature.
     /// @param data Transaction data.
     /// @return Successful if data is a call to removeAuthorizedAddress.
-    function isFunctionRemoveAuthorizedAddress(bytes memory data)
+    function isFunctionRemoveAuthorizedAddress(bytes data)
         public
-        pure
+        constant
         returns (bool)
     {
-        bytes4 removeAuthorizedAddressSelector = bytes4(keccak256("removeAuthorizedAddress(address)"));
-        bytes4 first4Bytes = readFirst4(data);
-        require(removeAuthorizedAddressSelector == first4Bytes);
-        return true;
-    }
-
-    function readFirst4(bytes memory data)
-        public
-        pure
-        returns (bytes4 result)
-    {
-        require(data.length >= 4);
-        assembly {
-            result := mload(add(data, 32))
+        bytes4 removeAuthorizedAddressSignature = bytes4(sha3("removeAuthorizedAddress(address)"));
+        for (uint i = 0; i < 4; i++) {
+            require(data[i] == removeAuthorizedAddressSignature[i]);
         }
-        return result;
+        return true;
     }
 }

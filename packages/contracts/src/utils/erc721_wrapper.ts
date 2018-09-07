@@ -1,7 +1,6 @@
 import { generatePseudoRandomSalt } from '@0xproject/order-utils';
 import { Provider } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
-import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as _ from 'lodash';
 
 import { DummyERC721TokenContract } from '../contract_wrappers/generated/dummy_e_r_c721_token';
@@ -15,13 +14,11 @@ import { txDefaults } from './web3_wrapper';
 export class ERC721Wrapper {
     private _tokenOwnerAddresses: string[];
     private _contractOwnerAddress: string;
-    private _web3Wrapper: Web3Wrapper;
     private _provider: Provider;
     private _dummyTokenContracts?: DummyERC721TokenContract[];
     private _proxyContract?: ERC721ProxyContract;
     private _initialTokenIdsByOwner: ERC721TokenIdsByOwner = {};
     constructor(provider: Provider, tokenOwnerAddresses: string[], contractOwnerAddress: string) {
-        this._web3Wrapper = new Web3Wrapper(provider);
         this._provider = provider;
         this._tokenOwnerAddresses = tokenOwnerAddresses;
         this._contractOwnerAddress = contractOwnerAddress;
@@ -83,8 +80,7 @@ export class ERC721Wrapper {
                 );
             });
         });
-        const txHashes = await Promise.all([...setBalancePromises, ...setAllowancePromises]);
-        await Promise.all(_.map(txHashes, async txHash => this._web3Wrapper.awaitTransactionSuccessAsync(txHash)));
+        await Promise.all([...setBalancePromises, ...setAllowancePromises]);
     }
     public async getBalancesAsync(): Promise<ERC721TokenIdsByOwner> {
         this._validateDummyTokenContractsExistOrThrow();

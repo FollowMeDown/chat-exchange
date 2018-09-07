@@ -1,5 +1,5 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
-import { LogWithDecodedArgs } from '@0xproject/types';
+import { LogWithDecodedArgs, SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
@@ -26,7 +26,7 @@ import { ERC721Wrapper } from '../../src/utils/erc721_wrapper';
 import { ExchangeWrapper } from '../../src/utils/exchange_wrapper';
 import { OrderFactory } from '../../src/utils/order_factory';
 import { orderUtils } from '../../src/utils/order_utils';
-import { AssetProxyId, ContractName, ERC20BalancesByOwner, ExchangeStatus, SignedOrder } from '../../src/utils/types';
+import { AssetProxyId, ContractName, ERC20BalancesByOwner, ExchangeStatus } from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
 
 chaiSetup.configure();
@@ -126,6 +126,11 @@ describe('Exchange core', () => {
     });
     afterEach(async () => {
         await blockchainLifecycle.revertAsync();
+    });
+    describe('internal functions', () => {
+        it('should include transferViaTokenTransferProxy', () => {
+            expect((exchange as any).transferViaTokenTransferProxy).to.be.undefined();
+        });
     });
 
     describe('fillOrder', () => {
@@ -703,7 +708,7 @@ describe('Exchange core', () => {
             // Create 3 orders with makerEpoch values: 0,1,2,3
             // Since we cancelled with makerEpoch=1, orders with makerEpoch<=1 will not be processed
             erc20Balances = await erc20Wrapper.getBalancesAsync();
-            const signedOrders = [
+            const signedOrders = await Promise.all([
                 orderFactory.newSignedOrder({
                     makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(9), 18),
                     takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(9), 18),
@@ -724,7 +729,7 @@ describe('Exchange core', () => {
                     takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(7979), 18),
                     salt: new BigNumber(3),
                 }),
-            ];
+            ]);
             await exchangeWrapper.batchFillOrdersNoThrowAsync(signedOrders, takerAddress);
 
             const newBalances = await erc20Wrapper.getBalancesAsync();

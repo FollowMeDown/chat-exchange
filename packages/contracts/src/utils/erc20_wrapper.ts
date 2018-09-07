@@ -1,6 +1,5 @@
 import { Provider } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
-import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as _ from 'lodash';
 
 import { DummyERC20TokenContract } from '../contract_wrappers/generated/dummy_e_r_c20_token';
@@ -14,12 +13,10 @@ import { txDefaults } from './web3_wrapper';
 export class ERC20Wrapper {
     private _tokenOwnerAddresses: string[];
     private _contractOwnerAddress: string;
-    private _web3Wrapper: Web3Wrapper;
     private _provider: Provider;
     private _dummyTokenContracts?: DummyERC20TokenContract[];
     private _proxyContract?: ERC20ProxyContract;
     constructor(provider: Provider, tokenOwnerAddresses: string[], contractOwnerAddress: string) {
-        this._web3Wrapper = new Web3Wrapper(provider);
         this._provider = provider;
         this._tokenOwnerAddresses = tokenOwnerAddresses;
         this._contractOwnerAddress = contractOwnerAddress;
@@ -71,8 +68,7 @@ export class ERC20Wrapper {
                 );
             });
         });
-        const txHashes = await Promise.all([...setBalancePromises, ...setAllowancePromises]);
-        await Promise.all(_.map(txHashes, async txHash => this._web3Wrapper.awaitTransactionSuccessAsync(txHash)));
+        await Promise.all([...setBalancePromises, ...setAllowancePromises]);
     }
     public async getBalancesAsync(): Promise<ERC20BalancesByOwner> {
         this._validateDummyTokenContractsExistOrThrow();
