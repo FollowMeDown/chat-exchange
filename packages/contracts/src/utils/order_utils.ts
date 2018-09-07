@@ -1,8 +1,10 @@
 import { BigNumber } from '@0xproject/utils';
+import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import ethUtil = require('ethereumjs-util');
+import * as _ from 'lodash';
 
 import { crypto } from './crypto';
-import { CancelOrder, MatchOrder, OrderStruct, SignedOrder, UnsignedOrder } from './types';
+import { CancelOrder, MatchOrder, OrderStruct, SignatureType, SignedOrder, UnsignedOrder } from './types';
 
 export const orderUtils = {
     createFill: (signedOrder: SignedOrder, takerAssetFillAmount?: BigNumber) => {
@@ -37,41 +39,24 @@ export const orderUtils = {
         };
         return orderStruct;
     },
-    getDomainSeparatorSchemaHex(): string {
-        const domainSeparatorSchemaHashBuff = crypto.solSHA3(['DomainSeparator(address contract)']);
-        const schemaHashHex = `0x${domainSeparatorSchemaHashBuff.toString('hex')}`;
-        return schemaHashHex;
-    },
-    getDomainSeparatorHashHex(exchangeAddress: string): string {
-        const domainSeparatorHashBuff = crypto.solSHA3([exchangeAddress]);
-        const domainSeparatorHashHex = `0x${domainSeparatorHashBuff.toString('hex')}`;
-        return domainSeparatorHashHex;
-    },
-    getOrderSchemaHex(): string {
-        const orderSchemaHashBuff = crypto.solSHA3([
-            'Order(',
-            'address makerAddress,',
-            'address takerAddress,',
-            'address feeRecipientAddress,',
-            'address senderAddress,',
-            'uint256 makerAssetAmount,',
-            'uint256 takerAssetAmount,',
-            'uint256 makerFee,',
-            'uint256 takerFee,',
-            'uint256 expirationTimeSeconds,',
-            'uint256 salt,',
-            'bytes makerAssetData,',
-            'bytes takerAssetData,',
-            ')',
-        ]);
-        const schemaHashHex = `0x${orderSchemaHashBuff.toString('hex')}`;
-        return schemaHashHex;
-    },
     getOrderHashBuff(order: SignedOrder | UnsignedOrder): Buffer {
-        const makerAssetDataHash = crypto.solSHA3([ethUtil.toBuffer(order.makerAssetData)]);
-        const takerAssetDataHash = crypto.solSHA3([ethUtil.toBuffer(order.takerAssetData)]);
-
+        const orderSchemaHashBuff = crypto.solSHA3([
+            'address exchangeAddress',
+            'address makerAddress',
+            'address takerAddress',
+            'address feeRecipientAddress',
+            'address senderAddress',
+            'uint256 makerAssetAmount',
+            'uint256 takerAssetAmount',
+            'uint256 makerFee',
+            'uint256 takerFee',
+            'uint256 expirationTimeSeconds',
+            'uint256 salt',
+            'bytes makerAssetData',
+            'bytes takerAssetData',
+        ]);
         const orderParamsHashBuff = crypto.solSHA3([
+            order.exchangeAddress,
             order.makerAddress,
             order.takerAddress,
             order.feeRecipientAddress,
@@ -82,19 +67,12 @@ export const orderUtils = {
             order.takerFee,
             order.expirationTimeSeconds,
             order.salt,
-            makerAssetDataHash,
-            takerAssetDataHash,
+            ethUtil.toBuffer(order.makerAssetData),
+            ethUtil.toBuffer(order.takerAssetData),
         ]);
+        const orderSchemaHashHex = `0x${orderSchemaHashBuff.toString('hex')}`;
         const orderParamsHashHex = `0x${orderParamsHashBuff.toString('hex')}`;
-        const orderSchemaHashHex = orderUtils.getOrderSchemaHex();
-        const domainSeparatorHashHex = this.getDomainSeparatorHashHex(order.exchangeAddress);
-        const domainSeparatorSchemaHex = this.getDomainSeparatorSchemaHex();
-        const orderHashBuff = crypto.solSHA3([
-            new BigNumber(domainSeparatorSchemaHex),
-            new BigNumber(domainSeparatorHashHex),
-            new BigNumber(orderSchemaHashHex),
-            new BigNumber(orderParamsHashHex),
-        ]);
+        const orderHashBuff = crypto.solSHA3([new BigNumber(orderSchemaHashHex), new BigNumber(orderParamsHashHex)]);
         return orderHashBuff;
     },
     getOrderHashHex(order: SignedOrder | UnsignedOrder): string {

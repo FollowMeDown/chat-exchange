@@ -20,25 +20,20 @@ pragma solidity ^0.4.24;
 
 contract LibOrder {
 
-    bytes32 constant DOMAIN_SEPARATOR_SCHEMA_HASH = keccak256(
-        "DomainSeparator(address contract)"
-    );
-
     bytes32 constant ORDER_SCHEMA_HASH = keccak256(
-        "Order(",
-        "address makerAddress,",
-        "address takerAddress,",
-        "address feeRecipientAddress,",
-        "address senderAddress,",
-        "uint256 makerAssetAmount,",
-        "uint256 takerAssetAmount,",
-        "uint256 makerFee,",
-        "uint256 takerFee,",
-        "uint256 expirationTimeSeconds,",
-        "uint256 salt,",
-        "bytes makerAssetData,",
-        "bytes takerAssetData,",
-        ")"
+        "address exchangeAddress",
+        "address makerAddress",
+        "address takerAddress",
+        "address feeRecipientAddress",
+        "address senderAddress",
+        "uint256 makerAssetAmount",
+        "uint256 takerAssetAmount",
+        "uint256 makerFee",
+        "uint256 takerFee",
+        "uint256 expirationTimeSeconds",
+        "uint256 salt",
+        "bytes makerAssetData",
+        "bytes takerAssetData"
     );
 
     struct Order {
@@ -76,10 +71,9 @@ contract LibOrder {
         // TODO: EIP712 is not finalized yet
         // Source: https://github.com/ethereum/EIPs/pull/712
         orderHash = keccak256(
-            DOMAIN_SEPARATOR_SCHEMA_HASH,
-            keccak256(address(this)),
             ORDER_SCHEMA_HASH,
             keccak256(
+                address(this),
                 order.makerAddress,
                 order.takerAddress,
                 order.feeRecipientAddress,
@@ -90,8 +84,8 @@ contract LibOrder {
                 order.takerFee,
                 order.expirationTimeSeconds,
                 order.salt,
-                keccak256(order.makerAssetData),
-                keccak256(order.takerAssetData)
+                order.makerAssetData,
+                order.takerAssetData
             )
         );
         return orderHash;
