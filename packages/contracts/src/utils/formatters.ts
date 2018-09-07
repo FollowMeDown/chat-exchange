@@ -1,9 +1,8 @@
-import { SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import * as _ from 'lodash';
 
 import { orderUtils } from './order_utils';
-import { BatchCancelOrders, BatchFillOrders, MarketBuyOrders, MarketSellOrders } from './types';
+import { BatchCancelOrders, BatchFillOrders, MarketBuyOrders, MarketSellOrders, SignedOrder } from './types';
 
 export const formatters = {
     createBatchFill(signedOrders: SignedOrder[], takerAssetFillAmounts: BigNumber[] = []): BatchFillOrders {

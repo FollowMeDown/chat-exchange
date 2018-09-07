@@ -1,5 +1,5 @@
 import { devConstants } from '@0xproject/dev-utils';
-import { runV1MigrationsAsync } from '@0xproject/migrations';
+import { runMigrationsAsync } from '@0xproject/migrations';
 import 'make-promises-safe';
 import * as path from 'path';
 
@@ -16,5 +16,5 @@ before('migrate contracts', async function(): Promise<void> {
         from: devConstants.TESTRPC_FIRST_ADDRESS,
     };
     const artifactsDir = `../migrations/artifacts/1.0.0`;
-    await runV1MigrationsAsync(provider, artifactsDir, txDefaults);
+    await runMigrationsAsync(provider, artifactsDir, txDefaults);
 });
