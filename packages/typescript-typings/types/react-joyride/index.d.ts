@@ -62,16 +62,15 @@ declare module 'react-joyride' {
         steps?: Step[];
         beaconComponent?: React.ReactNode;
         disableOverlayClose?: boolean;
-        continuous?: boolean;
         run?: boolean;
         stepIndex?: number;
+        callback?: (data: CallbackData) => void;
         debug?: boolean;
         styles?: StyleOptionsProp;
-        tooltipComponent: React.ComponentClass<any> | React.StatelessComponent;
     }
 
     export interface State {
-        action: 'prev' | 'close' | 'next';
+        action: string;
         controlled: boolean;
         index: number;
         lifecycle: string;
