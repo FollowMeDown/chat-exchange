@@ -11,7 +11,6 @@ import { Dispatcher } from 'ts/redux/dispatcher';
 import { ProviderType } from 'ts/types';
 import { colors } from 'ts/utils/colors';
 import { constants } from 'ts/utils/constants';
-import { zIndex } from 'ts/utils/style';
 import { utils } from 'ts/utils/utils';
 
 const ROOT_HEIGHT = 24;
@@ -40,10 +39,8 @@ const styles: Styles = {
 export class ProviderDisplay extends React.Component<ProviderDisplayProps, ProviderDisplayState> {
     public render(): React.ReactNode {
         const isAddressAvailable = !_.isEmpty(this.props.userAddress);
-        const isExternallyInjectedProvider = utils.isExternallyInjected(
-            this.props.providerType,
-            this.props.injectedProviderName,
-        );
+        const isExternallyInjectedProvider =
+            this.props.providerType === ProviderType.Injected && this.props.injectedProviderName !== '0x Public';
         const displayAddress = isAddressAvailable
             ? utils.getAddressBeginAndEnd(this.props.userAddress)
             : isExternallyInjectedProvider
@@ -72,13 +69,15 @@ export class ProviderDisplay extends React.Component<ProviderDisplayProps, Provi
                 )}
             </div>
         );
+        const hasInjectedProvider =
+            this.props.injectedProviderName !== '0x Public' && this.props.providerType === ProviderType.Injected;
         const hasLedgerProvider = this.props.providerType === ProviderType.Ledger;
-        const horizontalPosition = isExternallyInjectedProvider || hasLedgerProvider ? 'left' : 'middle';
+        const horizontalPosition = hasInjectedProvider || hasLedgerProvider ? 'left' : 'middle';
         return (
             <div style={{ width: 'fit-content', height: 48, float: 'right' }}>
                 <DropDown
                     hoverActiveNode={hoverActiveNode}
-                    popoverContent={this.renderPopoverContent(isExternallyInjectedProvider, hasLedgerProvider)}
+                    popoverContent={this.renderPopoverContent(hasInjectedProvider, hasLedgerProvider)}
                     anchorOrigin={{ horizontal: horizontalPosition, vertical: 'bottom' }}
                     targetOrigin={{ horizontal: horizontalPosition, vertical: 'top' }}
                     zDepth={1}
