@@ -35,7 +35,6 @@ import {
     BlockchainErrs,
     ItemByAddress,
     ProviderType,
-    ScreenWidths,
     Side,
     Token,
     TokenByAddress,
@@ -48,6 +47,7 @@ import { colors } from 'ts/utils/colors';
 import { constants } from 'ts/utils/constants';
 import { utils } from 'ts/utils/utils';
 import { styles as walletItemStyles } from 'ts/utils/wallet_item_styles';
+import { zIndex } from '../../utils/style';
 
 export interface WalletProps {
     userAddress: string;
@@ -62,8 +62,6 @@ export interface WalletProps {
     lastForceTokenStateRefetch: number;
     injectedProviderName: string;
     providerType: ProviderType;
-    screenWidth: ScreenWidths;
-    location: Location;
     onToggleLedgerDialog: () => void;
     onAddToken: () => void;
     onRemoveToken: () => void;
@@ -88,6 +86,8 @@ interface AccessoryItemConfig {
 const styles: Styles = {
     root: {
         width: '100%',
+        zIndex: zIndex.aboveOverlay,
+        position: 'relative',
     },
     headerItemInnerDiv: {
         paddingLeft: 65,
@@ -119,6 +119,8 @@ const styles: Styles = {
         paddingBottom: 8,
     },
     bodyInnerDiv: {
+        // TODO: make this completely responsive
+        maxHeight: 475,
         overflow: 'auto',
         WebkitOverflowScrolling: 'touch',
     },
@@ -141,7 +143,6 @@ const DISCONNECTED_ITEM_KEY = 'DISCONNECTED';
 const ETHER_ITEM_KEY = 'ETHER';
 const USD_DECIMAL_PLACES = 2;
 const NO_ALLOWANCE_TOGGLE_SPACE_WIDTH = 56;
-const ACCOUNT_PATH = `${WebsitePaths.Portal}/account`;
 
 export class Wallet extends React.Component<WalletProps, WalletState> {
     private _isUnmounted: boolean;
@@ -228,7 +229,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const userAddress = this.props.userAddress;
         const primaryText = utils.getAddressBeginAndEnd(userAddress);
         return (
-            <Link key={HEADER_ITEM_KEY} to={ACCOUNT_PATH} style={{ textDecoration: 'none' }}>
+            <Link key={HEADER_ITEM_KEY} to={`${WebsitePaths.Portal}/account`} style={{ textDecoration: 'none' }}>
                 <ListItem
                     primaryText={primaryText}
                     leftIcon={<Identicon address={userAddress} diameter={ICON_DIMENSION} />}
@@ -242,8 +243,6 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const bodyStyle: React.CSSProperties = {
             ...styles.bodyInnerDiv,
             overflow: this.state.isHoveringSidebar ? 'auto' : 'hidden',
-            // TODO: make this completely responsive
-            maxHeight: this.props.screenWidth !== ScreenWidths.Sm ? 475 : undefined,
         };
         return (
             <div
@@ -300,20 +299,18 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
                     innerDivStyle={styles.footerItemInnerDiv}
                     style={styles.borderedItem}
                 />
-                {this.props.location.pathname !== ACCOUNT_PATH && (
-                    <Link to={ACCOUNT_PATH} style={{ textDecoration: 'none' }}>
-                        <ListItem
-                            primaryText={
-                                <div className="flex right" style={styles.manageYourWalletText}>
-                                    {'manage your wallet'}
-                                </div>
-                                // https://github.com/palantir/tslint-react/issues/140
-                                // tslint:disable-next-line:jsx-curly-spacing
-                            }
-                            style={{ ...styles.paddedItem, ...styles.borderedItem }}
-                        />
-                    </Link>
-                )}
+                <Link to={`${WebsitePaths.Portal}/account`} style={{ textDecoration: 'none' }}>
+                    <ListItem
+                        primaryText={
+                            <div className="flex right" style={styles.manageYourWalletText}>
+                                {'manage your wallet'}
+                            </div>
+                            // https://github.com/palantir/tslint-react/issues/140
+                            // tslint:disable-next-line:jsx-curly-spacing
+                        }
+                        style={{ ...styles.paddedItem, ...styles.borderedItem }}
+                    />
+                </Link>
             </div>
         );
     }

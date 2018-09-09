@@ -1,3 +1,4 @@
+import { ContractWrappers } from '@0xproject/contract-wrappers';
 import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-utils';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
@@ -18,7 +19,12 @@ const blockchainLifecycle = new BlockchainLifecycle(web3Wrapper);
 describe('UnlimitedAllowanceToken', () => {
     let owner: string;
     let spender: string;
+    const contractWrappers = new ContractWrappers(provider, {
+        networkId: constants.TESTRPC_NETWORK_ID,
+    });
+
     const MAX_MINT_VALUE = new BigNumber(100000000000000000000);
+    let tokenAddress: string;
     let token: DummyERC20TokenContract;
 
     before(async () => {
@@ -44,6 +50,7 @@ describe('UnlimitedAllowanceToken', () => {
             await token.mint.sendTransactionAsync(MAX_MINT_VALUE, { from: owner }),
             constants.AWAIT_TRANSACTION_MINED_MS,
         );
+        tokenAddress = token.address;
     });
     beforeEach(async () => {
         await blockchainLifecycle.startAsync();
@@ -53,7 +60,7 @@ describe('UnlimitedAllowanceToken', () => {
     });
     describe('transfer', () => {
         it('should throw if owner has insufficient balance', async () => {
-            const ownerBalance = await token.balanceOf.callAsync(owner);
+            const ownerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
             const amountToTransfer = ownerBalance.plus(1);
             return expect(token.transfer.callAsync(spender, amountToTransfer, { from: owner })).to.be.rejectedWith(
                 constants.REVERT,
@@ -62,11 +69,11 @@ describe('UnlimitedAllowanceToken', () => {
 
         it('should transfer balance from sender to receiver', async () => {
             const receiver = spender;
-            const initOwnerBalance = await token.balanceOf.callAsync(owner);
+            const initOwnerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
             const amountToTransfer = new BigNumber(1);
-            await token.transfer.sendTransactionAsync(receiver, amountToTransfer, { from: owner });
-            const finalOwnerBalance = await token.balanceOf.callAsync(owner);
-            const finalReceiverBalance = await token.balanceOf.callAsync(receiver);
+            await contractWrappers.token.transferAsync(tokenAddress, owner, receiver, amountToTransfer);
+            const finalOwnerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
+            const finalReceiverBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, receiver);
 
             const expectedFinalOwnerBalance = initOwnerBalance.minus(amountToTransfer);
             const expectedFinalReceiverBalance = amountToTransfer;
@@ -84,9 +91,9 @@ describe('UnlimitedAllowanceToken', () => {
 
     describe('transferFrom', () => {
         it('should throw if owner has insufficient balance', async () => {
-            const ownerBalance = await token.balanceOf.callAsync(owner);
+            const ownerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
             const amountToTransfer = ownerBalance.plus(1);
-            await token.approve.sendTransactionAsync(spender, amountToTransfer, { from: owner });
+            await contractWrappers.token.setAllowanceAsync(tokenAddress, owner, spender, amountToTransfer);
             return expect(
                 token.transferFrom.callAsync(owner, spender, amountToTransfer, {
                     from: spender,
@@ -95,10 +102,10 @@ describe('UnlimitedAllowanceToken', () => {
         });
 
         it('should throw if spender has insufficient allowance', async () => {
-            const ownerBalance = await token.balanceOf.callAsync(owner);
+            const ownerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
             const amountToTransfer = ownerBalance;
 
-            const spenderAllowance = await token.allowance.callAsync(owner, spender);
+            const spenderAllowance = await contractWrappers.token.getAllowanceAsync(tokenAddress, owner, spender);
             const isSpenderAllowanceInsufficient = spenderAllowance.cmp(amountToTransfer) < 0;
             expect(isSpenderAllowanceInsufficient).to.be.true();
 
@@ -118,47 +125,44 @@ describe('UnlimitedAllowanceToken', () => {
         });
 
         it('should not modify spender allowance if spender allowance is 2^256 - 1', async () => {
-            const initOwnerBalance = await token.balanceOf.callAsync(owner);
+            const initOwnerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
             const amountToTransfer = initOwnerBalance;
-            const initSpenderAllowance = constants.UNLIMITED_ALLOWANCE_IN_BASE_UNITS;
-            await token.approve.sendTransactionAsync(spender, initSpenderAllowance, { from: owner });
-            await token.transferFrom.sendTransactionAsync(owner, spender, amountToTransfer, {
-                from: spender,
-                gas: constants.MAX_TOKEN_TRANSFERFROM_GAS,
+            const initSpenderAllowance = contractWrappers.token.UNLIMITED_ALLOWANCE_IN_BASE_UNITS;
+            await contractWrappers.token.setAllowanceAsync(tokenAddress, owner, spender, initSpenderAllowance);
+            await contractWrappers.token.transferFromAsync(tokenAddress, owner, spender, spender, amountToTransfer, {
+                gasLimit: constants.MAX_TOKEN_TRANSFERFROM_GAS,
             });
 
-            const newSpenderAllowance = await token.allowance.callAsync(owner, spender);
+            const newSpenderAllowance = await contractWrappers.token.getAllowanceAsync(tokenAddress, owner, spender);
             expect(initSpenderAllowance).to.be.bignumber.equal(newSpenderAllowance);
         });
 
         it('should transfer the correct balances if spender has sufficient allowance', async () => {
-            const initOwnerBalance = await token.balanceOf.callAsync(owner);
+            const initOwnerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
             const amountToTransfer = initOwnerBalance;
             const initSpenderAllowance = initOwnerBalance;
-            await token.approve.sendTransactionAsync(spender, initSpenderAllowance, { from: owner });
-            await token.transferFrom.sendTransactionAsync(owner, spender, amountToTransfer, {
-                from: spender,
-                gas: constants.MAX_TOKEN_TRANSFERFROM_GAS,
+            await contractWrappers.token.setAllowanceAsync(tokenAddress, owner, spender, initSpenderAllowance);
+            await contractWrappers.token.transferFromAsync(tokenAddress, owner, spender, spender, amountToTransfer, {
+                gasLimit: constants.MAX_TOKEN_TRANSFERFROM_GAS,
             });
 
-            const newOwnerBalance = await token.balanceOf.callAsync(owner);
-            const newSpenderBalance = await token.balanceOf.callAsync(spender);
+            const newOwnerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
+            const newSpenderBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, spender);
 
             expect(newOwnerBalance).to.be.bignumber.equal(0);
             expect(newSpenderBalance).to.be.bignumber.equal(initOwnerBalance);
         });
 
         it('should modify allowance if spender has sufficient allowance less than 2^256 - 1', async () => {
-            const initOwnerBalance = await token.balanceOf.callAsync(owner);
+            const initOwnerBalance = await contractWrappers.token.getBalanceAsync(tokenAddress, owner);
             const amountToTransfer = initOwnerBalance;
             const initSpenderAllowance = initOwnerBalance;
-            await token.approve.sendTransactionAsync(spender, initSpenderAllowance, { from: owner });
-            await token.transferFrom.sendTransactionAsync(owner, spender, amountToTransfer, {
-                from: spender,
-                gas: constants.MAX_TOKEN_TRANSFERFROM_GAS,
+            await contractWrappers.token.setAllowanceAsync(tokenAddress, owner, spender, initSpenderAllowance);
+            await contractWrappers.token.transferFromAsync(tokenAddress, owner, spender, spender, amountToTransfer, {
+                gasLimit: constants.MAX_TOKEN_TRANSFERFROM_GAS,
             });
 
-            const newSpenderAllowance = await token.allowance.callAsync(owner, spender);
+            const newSpenderAllowance = await contractWrappers.token.getAllowanceAsync(tokenAddress, owner, spender);
             expect(newSpenderAllowance).to.be.bignumber.equal(0);
         });
     });
