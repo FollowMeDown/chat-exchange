@@ -35,6 +35,7 @@ import {
     BlockchainErrs,
     ItemByAddress,
     ProviderType,
+    ScreenWidths,
     Side,
     Token,
     TokenByAddress,
@@ -45,7 +46,6 @@ import {
 import { backendClient } from 'ts/utils/backend_client';
 import { colors } from 'ts/utils/colors';
 import { constants } from 'ts/utils/constants';
-import { zIndex } from 'ts/utils/style';
 import { utils } from 'ts/utils/utils';
 import { styles as walletItemStyles } from 'ts/utils/wallet_item_styles';
 
@@ -62,6 +62,8 @@ export interface WalletProps {
     lastForceTokenStateRefetch: number;
     injectedProviderName: string;
     providerType: ProviderType;
+    screenWidth: ScreenWidths;
+    location: Location;
     onToggleLedgerDialog: () => void;
     onAddToken: () => void;
     onRemoveToken: () => void;
@@ -86,8 +88,6 @@ interface AccessoryItemConfig {
 const styles: Styles = {
     root: {
         width: '100%',
-        zIndex: zIndex.aboveOverlay,
-        position: 'relative',
     },
     headerItemInnerDiv: {
         paddingLeft: 65,
@@ -119,8 +119,6 @@ const styles: Styles = {
         paddingBottom: 8,
     },
     bodyInnerDiv: {
-        // TODO: make this completely responsive
-        maxHeight: 475,
         overflow: 'auto',
         WebkitOverflowScrolling: 'touch',
     },
@@ -131,6 +129,9 @@ const styles: Styles = {
 };
 
 const ETHER_ICON_PATH = '/images/ether.png';
+const ETHER_TOKEN_SYMBOL = 'WETH';
+const ZRX_TOKEN_SYMBOL = 'ZRX';
+const ETHER_SYMBOL = 'ETH';
 const ICON_DIMENSION = 24;
 const TOKEN_AMOUNT_DISPLAY_PRECISION = 3;
 const BODY_ITEM_KEY = 'BODY';
@@ -140,6 +141,7 @@ const DISCONNECTED_ITEM_KEY = 'DISCONNECTED';
 const ETHER_ITEM_KEY = 'ETHER';
 const USD_DECIMAL_PLACES = 2;
 const NO_ALLOWANCE_TOGGLE_SPACE_WIDTH = 56;
+const ACCOUNT_PATH = `${WebsitePaths.Portal}/account`;
 
 export class Wallet extends React.Component<WalletProps, WalletState> {
     private _isUnmounted: boolean;
@@ -226,7 +228,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const userAddress = this.props.userAddress;
         const primaryText = utils.getAddressBeginAndEnd(userAddress);
         return (
-            <Link key={HEADER_ITEM_KEY} to={`${WebsitePaths.Portal}/account`} style={{ textDecoration: 'none' }}>
+            <Link key={HEADER_ITEM_KEY} to={ACCOUNT_PATH} style={{ textDecoration: 'none' }}>
                 <ListItem
                     primaryText={primaryText}
                     leftIcon={<Identicon address={userAddress} diameter={ICON_DIMENSION} />}
@@ -240,6 +242,8 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const bodyStyle: React.CSSProperties = {
             ...styles.bodyInnerDiv,
             overflow: this.state.isHoveringSidebar ? 'auto' : 'hidden',
+            // TODO: make this completely responsive
+            maxHeight: this.props.screenWidth !== ScreenWidths.Sm ? 475 : undefined,
         };
         return (
             <div
@@ -296,18 +300,20 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
                     innerDivStyle={styles.footerItemInnerDiv}
                     style={styles.borderedItem}
                 />
-                <Link to={`${WebsitePaths.Portal}/account`} style={{ textDecoration: 'none' }}>
-                    <ListItem
-                        primaryText={
-                            <div className="flex right" style={styles.manageYourWalletText}>
-                                {'manage your wallet'}
-                            </div>
-                            // https://github.com/palantir/tslint-react/issues/140
-                            // tslint:disable-next-line:jsx-curly-spacing
-                        }
-                        style={{ ...styles.paddedItem, ...styles.borderedItem }}
-                    />
-                </Link>
+                {this.props.location.pathname !== ACCOUNT_PATH && (
+                    <Link to={ACCOUNT_PATH} style={{ textDecoration: 'none' }}>
+                        <ListItem
+                            primaryText={
+                                <div className="flex right" style={styles.manageYourWalletText}>
+                                    {'manage your wallet'}
+                                </div>
+                                // https://github.com/palantir/tslint-react/issues/140
+                                // tslint:disable-next-line:jsx-curly-spacing
+                            }
+                            style={{ ...styles.paddedItem, ...styles.borderedItem }}
+                        />
+                    </Link>
+                )}
             </div>
         );
     }
@@ -316,7 +322,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const primaryText = this._renderAmount(
             this.props.userEtherBalanceInWei,
             constants.DECIMAL_PLACES_ETH,
-            constants.ETHER_SYMBOL,
+            ETHER_SYMBOL,
         );
         const etherToken = this._getEthToken();
         const etherPrice = this.state.trackedTokenStateByAddress[etherToken.address].price;
@@ -335,13 +341,13 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             ? { ...walletItemStyles.focusedItem, ...styles.paddedItem }
             : { ...styles.tokenItem, ...styles.borderedItem, ...styles.paddedItem };
         const key = ETHER_ITEM_KEY;
-        return this._renderBalanceRow(key, icon, primaryText, secondaryText, accessoryItemConfig, 'eth-row');
+        return this._renderBalanceRow(key, icon, primaryText, secondaryText, accessoryItemConfig);
     }
     private _renderTokenRows(): React.ReactNode {
         const trackedTokens = this.props.trackedTokens;
         const trackedTokensStartingWithEtherToken = trackedTokens.sort(
-            firstBy((t: Token) => t.symbol !== constants.ETHER_TOKEN_SYMBOL)
-                .thenBy((t: Token) => t.symbol !== constants.ZRX_TOKEN_SYMBOL)
+            firstBy((t: Token) => t.symbol !== ETHER_TOKEN_SYMBOL)
+                .thenBy((t: Token) => t.symbol !== ZRX_TOKEN_SYMBOL)
                 .thenBy('address'),
         );
         return _.map(trackedTokensStartingWithEtherToken, this._renderTokenRow.bind(this));
@@ -356,8 +362,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         const icon = <TokenIcon token={token} diameter={ICON_DIMENSION} link={tokenLink} />;
         const primaryText = this._renderAmount(tokenState.balance, token.decimals, token.symbol);
         const secondaryText = this._renderValue(tokenState.balance, token.decimals, tokenState.price);
-        const isWeth = token.symbol === constants.ETHER_TOKEN_SYMBOL;
-        const wrappedEtherDirection = isWeth ? Side.Receive : undefined;
+        const wrappedEtherDirection = token.symbol === ETHER_TOKEN_SYMBOL ? Side.Receive : undefined;
         const accessoryItemConfig: AccessoryItemConfig = {
             wrappedEtherDirection,
             allowanceToggleConfig: {
@@ -366,14 +371,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             },
         };
         const key = token.address;
-        return this._renderBalanceRow(
-            key,
-            icon,
-            primaryText,
-            secondaryText,
-            accessoryItemConfig,
-            isWeth ? 'weth-row' : undefined,
-        );
+        return this._renderBalanceRow(key, icon, primaryText, secondaryText, accessoryItemConfig);
     }
     private _renderBalanceRow(
         key: string,
@@ -381,7 +379,6 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         primaryText: React.ReactNode,
         secondaryText: React.ReactNode,
         accessoryItemConfig: AccessoryItemConfig,
-        className?: string,
     ): React.ReactNode {
         const shouldShowWrapEtherItem =
             !_.isUndefined(this.state.wrappedEtherDirection) &&
@@ -391,7 +388,7 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
             : { ...styles.tokenItem, ...styles.borderedItem, ...styles.paddedItem };
         const etherToken = this._getEthToken();
         return (
-            <div key={key} className={`flex flex-column ${className || ''}`}>
+            <div key={key} className="flex flex-column">
                 <div className="flex items-center" style={style}>
                     <div className="px2">{icon}</div>
                     <div className="flex-none pr2 pt2 pb2">
@@ -581,6 +578,8 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         });
     }
     private _getEthToken(): Token {
-        return utils.getEthToken(this.props.tokenByAddress);
+        const tokens = _.values(this.props.tokenByAddress);
+        const etherToken = _.find(tokens, { symbol: ETHER_TOKEN_SYMBOL });
+        return etherToken;
     }
 } // tslint:disable:max-file-line-count

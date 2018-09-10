@@ -6,7 +6,6 @@ import * as React from 'react';
 import { ProviderType } from 'ts/types';
 import { colors } from 'ts/utils/colors';
 import { constants } from 'ts/utils/constants';
-import { utils } from 'ts/utils/utils';
 
 export interface WalletDisconnectedItemProps {
     providerType: ProviderType;
@@ -39,7 +38,8 @@ const BUTTON_BOTTOM_PADDING = 80;
 export const WalletDisconnectedItem: React.StatelessComponent<WalletDisconnectedItemProps> = (
     props: WalletDisconnectedItemProps,
 ) => {
-    const isExternallyInjectedProvider = utils.isExternallyInjected(props.providerType, props.injectedProviderName);
+    const isExternallyInjectedProvider =
+        props.providerType === ProviderType.Injected && props.injectedProviderName !== '0x Public';
     return (
         <div className="flex flex-center">
             <div className="mx-auto">

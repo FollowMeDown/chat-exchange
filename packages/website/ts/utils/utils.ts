@@ -11,7 +11,6 @@ import {
     Environments,
     Order,
     Providers,
-    ProviderType,
     ScreenWidths,
     Side,
     SideToAssetToken,
@@ -314,16 +313,8 @@ export const utils = {
     isStaging(): boolean {
         return _.includes(window.location.href, configs.DOMAIN_STAGING);
     },
-    isExternallyInjected(providerType: ProviderType, injectedProviderName: string): boolean {
-        return providerType === ProviderType.Injected && injectedProviderName !== constants.PROVIDER_NAME_PUBLIC;
-    },
     isDogfood,
     shouldShowPortalV2(): boolean {
         return this.isDevelopment() || this.isStaging() || this.isDogfood();
-    },
-    getEthToken(tokenByAddress: TokenByAddress): Token {
-        const tokens = _.values(tokenByAddress);
-        const etherToken = _.find(tokens, { symbol: constants.ETHER_TOKEN_SYMBOL });
-        return etherToken;
     },
 };
