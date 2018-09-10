@@ -1,10 +1,10 @@
-import { crypto, generatePseudoRandomSalt } from '@0xproject/order-utils';
-import { SignatureType } from '@0xproject/types';
+import { generatePseudoRandomSalt } from '@0xproject/order-utils';
 import { BigNumber } from '@0xproject/utils';
 import * as ethUtil from 'ethereumjs-util';
 
+import { crypto } from './crypto';
 import { signingUtils } from './signing_utils';
-import { SignedTransaction } from './types';
+import { SignatureType, SignedTransaction } from './types';
 
 export class TransactionFactory {
     private _signer: string;

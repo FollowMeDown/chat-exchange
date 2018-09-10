@@ -1,5 +1,6 @@
-import { SignatureType } from '@0xproject/types';
 import * as ethUtil from 'ethereumjs-util';
+
+import { SignatureType } from './types';
 
 export const signingUtils = {
     signMessage(message: Buffer, privateKey: Buffer, signatureType: SignatureType): Buffer {
