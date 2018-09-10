@@ -1,5 +1,5 @@
 import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-utils';
-import { AssetProxyId, LogWithDecodedArgs, TransactionReceiptWithDecodedLogs } from '@0xproject/types';
+import { LogWithDecodedArgs, TransactionReceiptWithDecodedLogs } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import BN = require('bn.js');
@@ -11,6 +11,7 @@ import { TestLibBytesContract } from '../../src/contract_wrappers/generated/test
 import { artifacts } from '../../src/utils/artifacts';
 import { chaiSetup } from '../../src/utils/chai_setup';
 import { constants } from '../../src/utils/constants';
+import { AssetProxyId } from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
 
 chaiSetup.configure();
@@ -57,6 +58,40 @@ describe('LibBytes', () => {
     });
     afterEach(async () => {
         await blockchainLifecycle.revertAsync();
+    });
+
+    describe.only('deepCopyBytes', () => {
+        const byteArrayLongerThan32BytesLen = (byteArrayLongerThan32Bytes.length - 2) / 2;
+        it('should throw if length of copy is 0', async () => {
+            const index = new BigNumber(0);
+            const len = new BigNumber(0);
+            return expect(
+                libBytes.publicDeepCopyBytes.callAsync(byteArrayLongerThan32Bytes, index, len),
+            ).to.be.rejectedWith(constants.REVERT);
+        });
+
+        it('should throw if start index + length to copy is greater than length of byte array', async () => {
+            const index = new BigNumber(0);
+            const len = new BigNumber(byteArrayLongerThan32BytesLen + 1);
+            return expect(
+                libBytes.publicDeepCopyBytes.callAsync(byteArrayLongerThan32Bytes, index, len),
+            ).to.be.rejectedWith(constants.REVERT);
+        });
+
+        it('should copy the entire byte array if index = 0 and len = b.length', async () => {
+            const index = new BigNumber(0);
+            const len = new BigNumber(byteArrayLongerThan32BytesLen);
+            const copy = await libBytes.publicDeepCopyBytes.callAsync(byteArrayLongerThan32Bytes, index, len);
+            expect(copy).to.equal(byteArrayLongerThan32Bytes);
+        });
+
+        it('should copy part of the byte array if area to copy is less than b.length', async () => {
+            const index = new BigNumber(10);
+            const len = new BigNumber(4);
+            const copy = await libBytes.publicDeepCopyBytes.callAsync(byteArrayLongerThan32Bytes, index, len);
+            const expectedCopy = `0x${byteArrayLongerThan32Bytes.slice(22, 30)}`;
+            expect(copy).to.equal(expectedCopy);
+        });
     });
 
     describe('areBytesEqual', () => {
