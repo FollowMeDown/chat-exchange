@@ -23,7 +23,6 @@ describe('TokenRegistry', () => {
     let notOwner: string;
     let tokenReg: TokenRegistryContract;
     let tokenRegWrapper: TokenRegWrapper;
-
     before(async () => {
         await blockchainLifecycle.startAsync();
     });

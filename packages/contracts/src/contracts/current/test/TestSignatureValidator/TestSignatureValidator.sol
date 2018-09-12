@@ -20,18 +20,13 @@ pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
 import "../../protocol/Exchange/MixinSignatureValidator.sol";
-import "../../protocol/Exchange/MixinTransactions.sol";
 
-contract TestSignatureValidator is
-    MixinSignatureValidator,
-    MixinTransactions
-{
+contract TestSignatureValidator is MixinSignatureValidator {
 
     function publicIsValidSignature(
         bytes32 hash,
         address signer,
-        bytes memory signature
-    )
+        bytes memory signature)
         public
         view
         returns (bool isValid)

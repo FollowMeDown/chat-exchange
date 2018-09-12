@@ -1,6 +1,6 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
-import { generatePseudoRandomSalt } from '@0xproject/order-utils';
-import { Order, SignedOrder } from '@0xproject/types';
+import { assetProxyUtils } from '@0xproject/order-utils';
+import { AssetProxyId, Order, OrderWithoutExchangeAddress, SignatureType, SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
 import * as ethUtil from 'ethereumjs-util';
@@ -9,9 +9,7 @@ import * as Web3 from 'web3';
 import { DummyERC20TokenContract } from '../../src/contract_wrappers/generated/dummy_e_r_c20_token';
 import { ERC20ProxyContract } from '../../src/contract_wrappers/generated/e_r_c20_proxy';
 import { ExchangeContract } from '../../src/contract_wrappers/generated/exchange';
-import { WhitelistContract } from '../../src/contract_wrappers/generated/whitelist';
 import { artifacts } from '../../src/utils/artifacts';
-import { assetProxyUtils } from '../../src/utils/asset_proxy_utils';
 import { chaiSetup } from '../../src/utils/chai_setup';
 import { constants } from '../../src/utils/constants';
 import { ERC20Wrapper } from '../../src/utils/erc20_wrapper';
@@ -19,13 +17,7 @@ import { ExchangeWrapper } from '../../src/utils/exchange_wrapper';
 import { OrderFactory } from '../../src/utils/order_factory';
 import { orderUtils } from '../../src/utils/order_utils';
 import { TransactionFactory } from '../../src/utils/transaction_factory';
-import {
-    AssetProxyId,
-    ERC20BalancesByOwner,
-    ExchangeStatus,
-    SignatureType,
-    SignedTransaction,
-} from '../../src/utils/types';
+import { ERC20BalancesByOwner, ExchangeStatus, SignedTransaction } from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
 
 chaiSetup.configure();
@@ -48,7 +40,7 @@ describe('Exchange transactions', () => {
     let erc20Balances: ERC20BalancesByOwner;
     let signedOrder: SignedOrder;
     let signedTx: SignedTransaction;
-    let order: Order;
+    let orderWithoutExchangeAddress: OrderWithoutExchangeAddress;
     let orderFactory: OrderFactory;
     let makerTransactionFactory: TransactionFactory;
     let takerTransactionFactory: TransactionFactory;
@@ -57,8 +49,6 @@ describe('Exchange transactions', () => {
 
     let defaultMakerTokenAddress: string;
     let defaultTakerTokenAddress: string;
-    let makerPrivateKey: Buffer;
-    let takerPrivateKey: Buffer;
 
     before(async () => {
         await blockchainLifecycle.startAsync();
@@ -102,8 +92,8 @@ describe('Exchange transactions', () => {
             makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultMakerTokenAddress),
             takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultTakerTokenAddress),
         };
-        makerPrivateKey = constants.TESTRPC_PRIVATE_KEYS[accounts.indexOf(makerAddress)];
-        takerPrivateKey = constants.TESTRPC_PRIVATE_KEYS[accounts.indexOf(takerAddress)];
+        const makerPrivateKey = constants.TESTRPC_PRIVATE_KEYS[accounts.indexOf(makerAddress)];
+        const takerPrivateKey = constants.TESTRPC_PRIVATE_KEYS[accounts.indexOf(takerAddress)];
         orderFactory = new OrderFactory(makerPrivateKey, defaultOrderParams);
         makerTransactionFactory = new TransactionFactory(makerPrivateKey, exchange.address);
         takerTransactionFactory = new TransactionFactory(takerPrivateKey, exchange.address);
@@ -121,11 +111,11 @@ describe('Exchange transactions', () => {
             beforeEach(async () => {
                 erc20Balances = await erc20Wrapper.getBalancesAsync();
                 signedOrder = orderFactory.newSignedOrder();
-                order = orderUtils.getOrderStruct(signedOrder);
+                orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
 
                 takerAssetFillAmount = signedOrder.takerAssetAmount.div(2);
                 const data = exchange.fillOrder.getABIEncodedTransactionData(
-                    order,
+                    orderWithoutExchangeAddress,
                     takerAssetFillAmount,
                     signedOrder.signature,
                 );
@@ -189,7 +179,7 @@ describe('Exchange transactions', () => {
 
         describe('cancelOrder', () => {
             beforeEach(async () => {
-                const data = exchange.cancelOrder.getABIEncodedTransactionData(order);
+                const data = exchange.cancelOrder.getABIEncodedTransactionData(orderWithoutExchangeAddress);
                 signedTx = makerTransactionFactory.newSignedTransaction(data);
             });
 
@@ -205,133 +195,6 @@ describe('Exchange transactions', () => {
                 const newBalances = await erc20Wrapper.getBalancesAsync();
                 expect(newBalances).to.deep.equal(erc20Balances);
             });
-        });
-    });
-
-    describe('Whitelist', () => {
-        let whitelist: WhitelistContract;
-        let whitelistOrderFactory: OrderFactory;
-
-        before(async () => {
-            whitelist = await WhitelistContract.deployFrom0xArtifactAsync(
-                artifacts.Whitelist,
-                provider,
-                txDefaults,
-                exchange.address,
-            );
-            const isApproved = true;
-            await web3Wrapper.awaitTransactionSuccessAsync(
-                await exchange.approveSignatureValidator.sendTransactionAsync(whitelist.address, isApproved, {
-                    from: takerAddress,
-                }),
-            );
-            const defaultOrderParams = {
-                ...constants.STATIC_ORDER_PARAMS,
-                senderAddress: whitelist.address,
-                exchangeAddress: exchange.address,
-                makerAddress,
-                feeRecipientAddress,
-                makerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultMakerTokenAddress),
-                takerAssetData: assetProxyUtils.encodeERC20ProxyData(defaultTakerTokenAddress),
-            };
-            whitelistOrderFactory = new OrderFactory(makerPrivateKey, defaultOrderParams);
-        });
-
-        beforeEach(async () => {
-            signedOrder = whitelistOrderFactory.newSignedOrder();
-            erc20Balances = await erc20Wrapper.getBalancesAsync();
-        });
-
-        it('should revert if maker has not been whitelisted', async () => {
-            const isApproved = true;
-            await web3Wrapper.awaitTransactionSuccessAsync(
-                await whitelist.updateWhitelistStatus.sendTransactionAsync(takerAddress, isApproved, { from: owner }),
-            );
-
-            const orderStruct = orderUtils.getOrderStruct(signedOrder);
-            const takerAssetFillAmount = signedOrder.takerAssetAmount;
-            const salt = generatePseudoRandomSalt();
-            return expect(
-                whitelist.fillOrderIfWhitelisted.sendTransactionAsync(
-                    orderStruct,
-                    takerAssetFillAmount,
-                    salt,
-                    signedOrder.signature,
-                    { from: takerAddress },
-                ),
-            ).to.be.rejectedWith(constants.REVERT);
-        });
-
-        it('should revert if taker has not been whitelisted', async () => {
-            const isApproved = true;
-            await web3Wrapper.awaitTransactionSuccessAsync(
-                await whitelist.updateWhitelistStatus.sendTransactionAsync(makerAddress, isApproved, { from: owner }),
-            );
-
-            const orderStruct = orderUtils.getOrderStruct(signedOrder);
-            const takerAssetFillAmount = signedOrder.takerAssetAmount;
-            const salt = generatePseudoRandomSalt();
-            return expect(
-                whitelist.fillOrderIfWhitelisted.sendTransactionAsync(
-                    orderStruct,
-                    takerAssetFillAmount,
-                    salt,
-                    signedOrder.signature,
-                    { from: takerAddress },
-                ),
-            ).to.be.rejectedWith(constants.REVERT);
-        });
-
-        it('should fill the order if maker and taker have been whitelisted', async () => {
-            const isApproved = true;
-            await web3Wrapper.awaitTransactionSuccessAsync(
-                await whitelist.updateWhitelistStatus.sendTransactionAsync(makerAddress, isApproved, { from: owner }),
-            );
-
-            await web3Wrapper.awaitTransactionSuccessAsync(
-                await whitelist.updateWhitelistStatus.sendTransactionAsync(takerAddress, isApproved, { from: owner }),
-            );
-
-            const orderStruct = orderUtils.getOrderStruct(signedOrder);
-            const takerAssetFillAmount = signedOrder.takerAssetAmount;
-            const salt = generatePseudoRandomSalt();
-            await web3Wrapper.awaitTransactionSuccessAsync(
-                await whitelist.fillOrderIfWhitelisted.sendTransactionAsync(
-                    orderStruct,
-                    takerAssetFillAmount,
-                    salt,
-                    signedOrder.signature,
-                    { from: takerAddress },
-                ),
-            );
-
-            const newBalances = await erc20Wrapper.getBalancesAsync();
-
-            const makerAssetFillAmount = signedOrder.makerAssetAmount;
-            const makerFeePaid = signedOrder.makerFee;
-            const takerFeePaid = signedOrder.takerFee;
-
-            expect(newBalances[makerAddress][defaultMakerTokenAddress]).to.be.bignumber.equal(
-                erc20Balances[makerAddress][defaultMakerTokenAddress].minus(makerAssetFillAmount),
-            );
-            expect(newBalances[makerAddress][defaultTakerTokenAddress]).to.be.bignumber.equal(
-                erc20Balances[makerAddress][defaultTakerTokenAddress].add(takerAssetFillAmount),
-            );
-            expect(newBalances[makerAddress][zrxToken.address]).to.be.bignumber.equal(
-                erc20Balances[makerAddress][zrxToken.address].minus(makerFeePaid),
-            );
-            expect(newBalances[takerAddress][defaultTakerTokenAddress]).to.be.bignumber.equal(
-                erc20Balances[takerAddress][defaultTakerTokenAddress].minus(takerAssetFillAmount),
-            );
-            expect(newBalances[takerAddress][defaultMakerTokenAddress]).to.be.bignumber.equal(
-                erc20Balances[takerAddress][defaultMakerTokenAddress].add(makerAssetFillAmount),
-            );
-            expect(newBalances[takerAddress][zrxToken.address]).to.be.bignumber.equal(
-                erc20Balances[takerAddress][zrxToken.address].minus(takerFeePaid),
-            );
-            expect(newBalances[feeRecipientAddress][zrxToken.address]).to.be.bignumber.equal(
-                erc20Balances[feeRecipientAddress][zrxToken.address].add(makerFeePaid.add(takerFeePaid)),
-            );
         });
     });
 });

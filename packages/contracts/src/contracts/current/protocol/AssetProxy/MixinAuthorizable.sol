@@ -87,10 +87,7 @@ contract MixinAuthorizable is
     /// @dev Removes authorizion of an address.
     /// @param target Address to remove authorization from.
     /// @param index Index of target in authorities array.
-    function removeAuthorizedAddressAtIndex(
-        address target,
-        uint256 index
-    )
+    function removeAuthorizedAddressAtIndex(address target, uint256 index)
         external
     {
         require(

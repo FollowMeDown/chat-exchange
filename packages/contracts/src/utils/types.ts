@@ -1,4 +1,4 @@
-import { AbiDefinition, ContractAbi, Order } from '@0xproject/types';
+import { AbiDefinition, ContractAbi, Order, OrderWithoutExchangeAddress } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 
 export interface ERC20BalancesByOwner {
@@ -18,35 +18,29 @@ export interface SubmissionContractEventArgs {
 }
 
 export interface BatchFillOrders {
-    orders: Order[];
+    orders: OrderWithoutExchangeAddress[];
     signatures: string[];
     takerAssetFillAmounts: BigNumber[];
 }
 
 export interface MarketSellOrders {
-    orders: Order[];
+    orders: OrderWithoutExchangeAddress[];
     signatures: string[];
     takerAssetFillAmount: BigNumber;
 }
 
 export interface MarketBuyOrders {
-    orders: Order[];
+    orders: OrderWithoutExchangeAddress[];
     signatures: string[];
     makerAssetFillAmount: BigNumber;
 }
 
 export interface BatchCancelOrders {
-    orders: Order[];
+    orders: OrderWithoutExchangeAddress[];
 }
 
 export interface CancelOrdersBefore {
     salt: BigNumber;
-}
-
-export enum AssetProxyId {
-    INVALID,
-    ERC20,
-    ERC721,
 }
 
 export interface TransactionDataParams {
@@ -111,19 +105,6 @@ export enum ContractName {
     DummyERC721Token = 'DummyERC721Token',
     TestLibBytes = 'TestLibBytes',
     Authorizable = 'Authorizable',
-    Whitelist = 'Whitelist',
-}
-
-export enum SignatureType {
-    Illegal,
-    Invalid,
-    EIP712,
-    Ecrecover,
-    TxOrigin,
-    Caller,
-    Contract,
-    PreSigned,
-    Trezor,
 }
 
 export interface SignedTransaction {
@@ -161,31 +142,14 @@ export interface OrderInfo {
     orderTakerAssetFilledAmount: BigNumber;
 }
 
-export interface ERC20ProxyData {
-    assetProxyId: AssetProxyId;
-    tokenAddress: string;
-}
-
-export interface ERC721ProxyData {
-    assetProxyId: AssetProxyId;
-    tokenAddress: string;
-    tokenId: BigNumber;
-}
-
-export interface ProxyData {
-    assetProxyId: AssetProxyId;
-    tokenAddress?: string;
-    data?: any;
-}
-
 export interface CancelOrder {
-    order: Order;
+    order: OrderWithoutExchangeAddress;
     takerAssetCancelAmount: BigNumber;
 }
 
 export interface MatchOrder {
-    left: Order;
-    right: Order;
+    left: OrderWithoutExchangeAddress;
+    right: OrderWithoutExchangeAddress;
     leftSignature: string;
     rightSignature: string;
 }

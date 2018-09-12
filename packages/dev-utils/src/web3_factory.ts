@@ -28,7 +28,7 @@ export const web3Factory = {
         if (!hasAddresses) {
             provider.addProvider(new EmptyWalletSubprovider());
         }
-        provider.addProvider(new FakeGasEstimateSubprovider(constants.GAS_LIMIT));
+        provider.addProvider(new FakeGasEstimateSubprovider(constants.GAS_ESTIMATE));
         const logger = {
             log: (arg: any) => {
                 fs.appendFileSync('ganache.log', `${arg}\n`);
@@ -41,7 +41,6 @@ export const web3Factory = {
             }
             provider.addProvider(
                 new GanacheSubprovider({
-                    gasLimit: constants.GAS_LIMIT,
                     logger,
                     verbose: env.parseBoolean(EnvVars.VerboseGanache),
                     port: 8545,

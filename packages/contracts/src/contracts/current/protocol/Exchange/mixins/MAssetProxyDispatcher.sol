@@ -41,7 +41,6 @@ contract MAssetProxyDispatcher is
         bytes memory assetMetadata,
         address from,
         address to,
-        uint256 amount
-    )
+        uint256 amount)
         internal;
 }

@@ -12,7 +12,7 @@ before('migrate contracts', async function(): Promise<void> {
     const mochaTestTimeoutMs = 20000;
     this.timeout(mochaTestTimeoutMs);
     const txDefaults = {
-        gas: devConstants.GAS_LIMIT,
+        gas: devConstants.GAS_ESTIMATE,
         from: devConstants.TESTRPC_FIRST_ADDRESS,
     };
     const artifactsDir = `../migrations/artifacts/1.0.0`;

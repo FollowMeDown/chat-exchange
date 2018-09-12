@@ -35,7 +35,7 @@ const SEPARATOR = ',';
         : argv.contracts === DEFAULT_CONTRACTS_LIST
             ? DEFAULT_CONTRACTS_LIST
             : argv.contracts.split(SEPARATOR);
-    const opts = {
+    const opts: CompilerOptions = {
         contractsDir: argv.contractsDir,
         artifactsDir: argv.artifactsDir,
         contracts,

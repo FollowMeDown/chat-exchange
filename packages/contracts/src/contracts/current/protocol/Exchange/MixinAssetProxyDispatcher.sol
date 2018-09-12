@@ -39,8 +39,7 @@ contract MixinAssetProxyDispatcher is
     function registerAssetProxy(
         uint8 assetProxyId,
         address newAssetProxy,
-        address oldAssetProxy
-    )
+        address oldAssetProxy)
         external
         onlyOwner
     {
@@ -87,20 +86,17 @@ contract MixinAssetProxyDispatcher is
         bytes memory assetMetadata,
         address from,
         address to,
-        uint256 amount
-    )
+        uint256 amount)
         internal
     {
         // Do nothing if no amount should be transferred.
         if (amount > 0) {
-
             // Lookup asset proxy
-            uint256 length = assetMetadata.length;
             require(
-                length > 0,
+                assetMetadata.length >= 1,
                 GT_ZERO_LENGTH_REQUIRED
             );
-            uint8 assetProxyId = uint8(assetMetadata[length - 1]);
+            uint8 assetProxyId = uint8(assetMetadata[0]);
             IAssetProxy assetProxy = assetProxies[assetProxyId];
 
             // transferFrom will either succeed or throw.

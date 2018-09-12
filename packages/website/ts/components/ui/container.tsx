@@ -1,17 +1,10 @@
 import * as React from 'react';
 
-type StringOrNum = string | number;
-
 export interface ContainerProps {
-    marginTop?: StringOrNum;
-    marginBottom?: StringOrNum;
-    marginRight?: StringOrNum;
-    marginLeft?: StringOrNum;
-    paddingTop?: StringOrNum;
-    paddingBottom?: StringOrNum;
-    paddingRight?: StringOrNum;
-    paddingLeft?: StringOrNum;
-    maxWidth?: StringOrNum;
+    marginTop?: string | number;
+    marginBottom?: string | number;
+    marginRight?: string | number;
+    marginLeft?: string | number;
     children?: React.ReactNode;
 }
 
