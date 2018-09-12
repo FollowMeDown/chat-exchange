@@ -1,4 +1,4 @@
-import { AbiDefinition, ContractAbi, Order, OrderWithoutExchangeAddress } from '@0xproject/types';
+import { AbiDefinition, ContractAbi, Order } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 
 export interface ERC20BalancesByOwner {
@@ -18,29 +18,35 @@ export interface SubmissionContractEventArgs {
 }
 
 export interface BatchFillOrders {
-    orders: OrderWithoutExchangeAddress[];
+    orders: Order[];
     signatures: string[];
     takerAssetFillAmounts: BigNumber[];
 }
 
 export interface MarketSellOrders {
-    orders: OrderWithoutExchangeAddress[];
+    orders: Order[];
     signatures: string[];
     takerAssetFillAmount: BigNumber;
 }
 
 export interface MarketBuyOrders {
-    orders: OrderWithoutExchangeAddress[];
+    orders: Order[];
     signatures: string[];
     makerAssetFillAmount: BigNumber;
 }
 
 export interface BatchCancelOrders {
-    orders: OrderWithoutExchangeAddress[];
+    orders: Order[];
 }
 
 export interface CancelOrdersBefore {
     salt: BigNumber;
+}
+
+export enum AssetProxyId {
+    INVALID,
+    ERC20,
+    ERC721,
 }
 
 export interface TransactionDataParams {
@@ -107,6 +113,16 @@ export enum ContractName {
     Authorizable = 'Authorizable',
 }
 
+export enum SignatureType {
+    Illegal,
+    Invalid,
+    Caller,
+    Ecrecover,
+    EIP712,
+    Trezor,
+    Contract,
+}
+
 export interface SignedTransaction {
     exchangeAddress: string;
     salt: BigNumber;
@@ -142,14 +158,31 @@ export interface OrderInfo {
     orderTakerAssetFilledAmount: BigNumber;
 }
 
+export interface ERC20ProxyData {
+    assetProxyId: AssetProxyId;
+    tokenAddress: string;
+}
+
+export interface ERC721ProxyData {
+    assetProxyId: AssetProxyId;
+    tokenAddress: string;
+    tokenId: BigNumber;
+}
+
+export interface ProxyData {
+    assetProxyId: AssetProxyId;
+    tokenAddress?: string;
+    data?: any;
+}
+
 export interface CancelOrder {
-    order: OrderWithoutExchangeAddress;
+    order: Order;
     takerAssetCancelAmount: BigNumber;
 }
 
 export interface MatchOrder {
-    left: OrderWithoutExchangeAddress;
-    right: OrderWithoutExchangeAddress;
+    left: Order;
+    right: Order;
     leftSignature: string;
     rightSignature: string;
 }

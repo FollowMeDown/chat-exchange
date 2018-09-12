@@ -1,5 +1,5 @@
 import { BlockchainLifecycle, devConstants, web3Factory } from '@0xproject/dev-utils';
-import { AssetProxyId, LogWithDecodedArgs, TransactionReceiptWithDecodedLogs } from '@0xproject/types';
+import { LogWithDecodedArgs, TransactionReceiptWithDecodedLogs } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import BN = require('bn.js');
@@ -11,6 +11,7 @@ import { TestLibBytesContract } from '../../src/contract_wrappers/generated/test
 import { artifacts } from '../../src/utils/artifacts';
 import { chaiSetup } from '../../src/utils/chai_setup';
 import { constants } from '../../src/utils/constants';
+import { AssetProxyId } from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
 
 chaiSetup.configure();
