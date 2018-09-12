@@ -1,5 +1,5 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
-import { LogWithDecodedArgs } from '@0xproject/types';
+import { LogWithDecodedArgs } from 'ethereum-types';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
 import * as _ from 'lodash';
@@ -66,8 +66,14 @@ describe('AssetProxyOwner', () => {
             SECONDS_TIME_LOCKED,
         );
         multiSigWrapper = new MultiSigWrapper(multiSig, provider);
-        await erc20Proxy.transferOwnership.sendTransactionAsync(multiSig.address, { from: initialOwner });
-        await erc721Proxy.transferOwnership.sendTransactionAsync(multiSig.address, { from: initialOwner });
+        await web3Wrapper.awaitTransactionSuccessAsync(
+            await erc20Proxy.transferOwnership.sendTransactionAsync(multiSig.address, { from: initialOwner }),
+            constants.AWAIT_TRANSACTION_MINED_MS,
+        );
+        await web3Wrapper.awaitTransactionSuccessAsync(
+            await erc721Proxy.transferOwnership.sendTransactionAsync(multiSig.address, { from: initialOwner }),
+            constants.AWAIT_TRANSACTION_MINED_MS,
+        );
     });
     beforeEach(async () => {
         await blockchainLifecycle.startAsync();
