@@ -1,4 +1,4 @@
-import { DataItem } from 'ethereum-types';
+import { DataItem } from '@0xproject/types';
 import * as _ from 'lodash';
 
 // tslint:disable-next-line:completed-docs

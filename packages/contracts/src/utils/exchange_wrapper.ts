@@ -1,7 +1,6 @@
-import { SignedOrder } from '@0xproject/types';
+import { Provider, SignedOrder, TransactionReceiptWithDecodedLogs } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
-import { LogEntry, Provider, TransactionReceiptWithDecodedLogs } from 'ethereum-types';
 import * as _ from 'lodash';
 
 import { ExchangeContract } from '../contract_wrappers/generated/exchange';
