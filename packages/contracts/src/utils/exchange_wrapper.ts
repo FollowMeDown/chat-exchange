@@ -1,6 +1,7 @@
-import { AssetProxyId, Provider, SignedOrder, TransactionReceiptWithDecodedLogs } from '@0xproject/types';
+import { SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
+import { LogEntry, Provider, TransactionReceiptWithDecodedLogs } from 'ethereum-types';
 import * as _ from 'lodash';
 
 import { ExchangeContract } from '../contract_wrappers/generated/exchange';
@@ -9,7 +10,7 @@ import { constants } from './constants';
 import { formatters } from './formatters';
 import { LogDecoder } from './log_decoder';
 import { orderUtils } from './order_utils';
-import { OrderInfo, SignedTransaction } from './types';
+import { AssetProxyId, OrderInfo, SignedTransaction } from './types';
 
 export class ExchangeWrapper {
     private _exchange: ExchangeContract;
