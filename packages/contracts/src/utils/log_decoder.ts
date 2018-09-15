@@ -1,14 +1,13 @@
 import { ContractArtifact } from '@0xproject/sol-compiler';
-import { AbiDecoder, BigNumber } from '@0xproject/utils';
-import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import {
     AbiDefinition,
-    DecodedLogArgs,
     LogEntry,
     LogWithDecodedArgs,
     RawLog,
     TransactionReceiptWithDecodedLogs,
-} from 'ethereum-types';
+} from '@0xproject/types';
+import { AbiDecoder, BigNumber } from '@0xproject/utils';
+import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as _ from 'lodash';
 
 import { artifacts } from './artifacts';
@@ -37,7 +36,7 @@ export class LogDecoder {
         });
         this._abiDecoder = new AbiDecoder(abiArrays);
     }
-    public decodeLogOrThrow<ArgsType extends DecodedLogArgs>(log: LogEntry): LogWithDecodedArgs<ArgsType> | RawLog {
+    public decodeLogOrThrow<ArgsType>(log: LogEntry): LogWithDecodedArgs<ArgsType> | RawLog {
         const logWithDecodedArgsOrLog = this._abiDecoder.tryToDecodeLogOrNoop(log);
         if (_.isUndefined((logWithDecodedArgsOrLog as LogWithDecodedArgs<ArgsType>).args)) {
             throw new Error(`Unable to decode log: ${JSON.stringify(log)}`);

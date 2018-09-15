@@ -1,5 +1,5 @@
 declare module 'ganache-core' {
-    import { Provider } from 'ethereum-types';
+    import { Provider } from '@0xproject/types';
     export interface GanacheOpts {
         verbose?: boolean;
         logger?: {

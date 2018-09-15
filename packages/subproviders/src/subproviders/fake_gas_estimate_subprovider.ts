@@ -1,4 +1,4 @@
-import { JSONRPCRequestPayload } from 'ethereum-types';
+import { JSONRPCRequestPayload } from '@0xproject/types';
 
 import { Callback, ErrorCallback } from '../types';
 
