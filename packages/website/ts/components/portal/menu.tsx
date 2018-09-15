@@ -43,14 +43,9 @@ export const defaultMenuItemEntries: MenuItemEntry[] = [
         iconName: 'zmdi-circle-o',
     },
     {
-        to: `${WebsitePaths.Portal}/generate`,
-        labelText: 'Generate order',
-        iconName: 'zmdi-arrow-right-top',
-    },
-    {
-        to: `${WebsitePaths.Portal}/fill`,
-        labelText: 'Fill order',
-        iconName: 'zmdi-arrow-left-bottom',
+        to: `${WebsitePaths.Portal}/direct`,
+        labelText: 'Trade direct',
+        iconName: 'zmdi-swap',
     },
 ];
 
