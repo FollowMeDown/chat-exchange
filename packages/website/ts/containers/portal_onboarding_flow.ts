@@ -17,7 +17,7 @@ interface ConnectedState {
     providerType: ProviderType;
     injectedProviderName: string;
     blockchainIsLoaded: boolean;
-    userEtherBalanceInWei?: BigNumber;
+    userEthBalanceInWei: BigNumber;
     tokenByAddress: TokenByAddress;
 }
 
@@ -33,7 +33,7 @@ const mapStateToProps = (state: State): ConnectedState => ({
     providerType: state.providerType,
     injectedProviderName: state.injectedProviderName,
     blockchainIsLoaded: state.blockchainIsLoaded,
-    userEtherBalanceInWei: state.userEtherBalanceInWei,
+    userEthBalanceInWei: state.userEtherBalanceInWei,
     tokenByAddress: state.tokenByAddress,
     hasBeenSeen: state.hasPortalOnboardingBeenSeen,
 });

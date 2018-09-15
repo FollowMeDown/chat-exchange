@@ -16,7 +16,7 @@ declare module 'web3' {
         LogEntryEvent,
         JSONRPCRequestPayload,
         JSONRPCResponsePayload,
-    } from 'ethereum-types';
+    } from '@0xproject/types';
 
     type MixedData = string | number | object | any[] | BigNumber.BigNumber;
 

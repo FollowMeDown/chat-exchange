@@ -1,6 +1,5 @@
-import { Order } from '@0xproject/types';
+import { AbiDefinition, ContractAbi, Order } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
-import { AbiDefinition, ContractAbi } from 'ethereum-types';
 
 export interface ERC20BalancesByOwner {
     [ownerAddress: string]: {

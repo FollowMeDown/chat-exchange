@@ -77,17 +77,14 @@ interface TokenBalancesProps {
 
 interface TokenBalancesState {
     errorType: BalanceErrs;
+    trackedTokenStateByAddress: TokenStateByAddress;
     isBalanceSpinnerVisible: boolean;
     isZRXSpinnerVisible: boolean;
     isTokenPickerOpen: boolean;
     isAddingToken: boolean;
-    trackedTokenStateByAddress: TokenStateByAddress;
 }
 
 export class TokenBalances extends React.Component<TokenBalancesProps, TokenBalancesState> {
-    public static defaultProps: Partial<TokenBalancesProps> = {
-        userEtherBalanceInWei: new BigNumber(0),
-    };
     private _isUnmounted: boolean;
     public constructor(props: TokenBalancesProps) {
         super(props);
