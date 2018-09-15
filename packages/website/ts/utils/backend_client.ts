@@ -8,7 +8,6 @@ const ETH_GAS_STATION_ENDPOINT = '/eth_gas_station';
 const PRICES_ENDPOINT = '/prices';
 const RELAYERS_ENDPOINT = '/relayers';
 const WIKI_ENDPOINT = '/wiki';
-const SUBSCRIBE_SUBSTACK_NEWSLETTER_ENDPOINT = '/newsletter_subscriber/substack';
 
 export const backendClient = {
     async getGasInfoAsync(): Promise<WebsiteBackendGasInfo> {
@@ -33,12 +32,5 @@ export const backendClient = {
     async getWikiArticlesBySectionAsync(): Promise<ArticlesBySection> {
         const result = await fetchUtils.requestAsync(utils.getBackendBaseUrl(), WIKI_ENDPOINT);
         return result;
-    },
-    async subscribeToNewsletterAsync(email: string): Promise<boolean> {
-        const result = await fetchUtils.postAsync(utils.getBackendBaseUrl(), SUBSCRIBE_SUBSTACK_NEWSLETTER_ENDPOINT, {
-            email,
-            referrer: window.location.href,
-        });
-        return result.status === 200;
     },
 };
