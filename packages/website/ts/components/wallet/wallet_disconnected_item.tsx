@@ -3,8 +3,8 @@ import FlatButton from 'material-ui/FlatButton';
 import ActionAccountBalanceWallet from 'material-ui/svg-icons/action/account-balance-wallet';
 import * as React from 'react';
 
-import { colors } from 'ts/style/colors';
 import { ProviderType } from 'ts/types';
+import { colors } from 'ts/utils/colors';
 import { constants } from 'ts/utils/constants';
 import { utils } from 'ts/utils/utils';
 
@@ -31,7 +31,7 @@ const styles: Styles = {
     },
 };
 
-const ITEM_HEIGHT = 292;
+const ITEM_HEIGHT = 381;
 const METAMASK_ICON_WIDTH = 35;
 const LEDGER_ICON_WIDTH = 30;
 const BUTTON_BOTTOM_PADDING = 80;
