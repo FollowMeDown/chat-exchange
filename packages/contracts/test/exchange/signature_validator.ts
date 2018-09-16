@@ -1,6 +1,4 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
-import { orderHashUtils } from '@0xproject/order-utils';
-import { assetProxyUtils } from '@0xproject/order-utils';
 import { SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
@@ -9,9 +7,11 @@ import ethUtil = require('ethereumjs-util');
 import { TestSignatureValidatorContract } from '../../src/contract_wrappers/generated/test_signature_validator';
 import { addressUtils } from '../../src/utils/address_utils';
 import { artifacts } from '../../src/utils/artifacts';
+import { assetProxyUtils } from '../../src/utils/asset_proxy_utils';
 import { chaiSetup } from '../../src/utils/chai_setup';
 import { constants } from '../../src/utils/constants';
 import { OrderFactory } from '../../src/utils/order_factory';
+import { orderUtils } from '../../src/utils/order_utils';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
 
 chaiSetup.configure();
@@ -64,7 +64,7 @@ describe('MixinSignatureValidator', () => {
         });
 
         it('should return true with a valid signature', async () => {
-            const orderHashHex = orderHashUtils.getOrderHashHex(signedOrder);
+            const orderHashHex = orderUtils.getOrderHashHex(signedOrder);
             const isValidSignature = await signatureValidator.publicIsValidSignature.callAsync(
                 orderHashHex,
                 signedOrder.makerAddress,
@@ -81,7 +81,7 @@ describe('MixinSignatureValidator', () => {
             const invalidSigBuff = Buffer.concat([v, invalidR, invalidS, signatureType]);
             const invalidSigHex = `0x${invalidSigBuff.toString('hex')}`;
             signedOrder.signature = invalidSigHex;
-            const orderHashHex = orderHashUtils.getOrderHashHex(signedOrder);
+            const orderHashHex = orderUtils.getOrderHashHex(signedOrder);
             const isValidSignature = await signatureValidator.publicIsValidSignature.callAsync(
                 orderHashHex,
                 signedOrder.makerAddress,
