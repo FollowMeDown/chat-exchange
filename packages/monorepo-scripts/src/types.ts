@@ -4,17 +4,15 @@ export interface UpdatedPackage {
     private: boolean;
 }
 
-export interface Change {
+export interface Changes {
     note: string;
     pr?: number;
 }
 
-export type Changelog = VersionChangelog[];
-
-export interface VersionChangelog {
+export interface Changelog {
     timestamp?: number;
     version: string;
-    changes: Change[];
+    changes: Changes[];
 }
 
 export enum SemVerIndex {

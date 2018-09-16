@@ -12,16 +12,28 @@ export interface Order {
     makerAssetData: string;
     takerAssetData: string;
     salt: BigNumber;
+    exchangeAddress: string;
     feeRecipientAddress: string;
     expirationTimeSeconds: BigNumber;
 }
 
-export interface SignedOrder extends UnsignedOrder {
-    signature: string;
+export interface OrderWithoutExchangeAddress {
+    senderAddress: string;
+    makerAddress: string;
+    takerAddress: string;
+    makerFee: BigNumber;
+    takerFee: BigNumber;
+    makerAssetAmount: BigNumber;
+    takerAssetAmount: BigNumber;
+    makerAssetData: string;
+    takerAssetData: string;
+    salt: BigNumber;
+    feeRecipientAddress: string;
+    expirationTimeSeconds: BigNumber;
 }
 
-export interface UnsignedOrder extends Order {
-    exchangeAddress: string;
+export interface SignedOrder extends Order {
+    signature: string;
 }
 
 /**
@@ -31,6 +43,14 @@ export interface ECSignature {
     v: number;
     r: string;
     s: string;
+}
+
+/**
+ * Validator signature components
+ */
+export interface ValidatorSignature {
+    validatorAddress: string;
+    signature: string;
 }
 
 /**
@@ -105,4 +125,48 @@ export interface Token {
     address: string;
     symbol: string;
     decimals: number;
+}
+
+export enum SignatureType {
+    Illegal,
+    Invalid,
+    EIP712,
+    EthSign,
+    Caller,
+    Wallet,
+    Validator,
+    PreSigned,
+    Trezor,
+}
+
+/**
+ * Elliptic Curve signature
+ */
+export interface ECSignature {
+    v: number;
+    r: string;
+    s: string;
+}
+
+export enum AssetProxyId {
+    INVALID,
+    ERC20,
+    ERC721,
+}
+
+export interface ERC20ProxyData {
+    assetProxyId: AssetProxyId;
+    tokenAddress: string;
+}
+
+export interface ERC721ProxyData {
+    assetProxyId: AssetProxyId;
+    tokenAddress: string;
+    tokenId: BigNumber;
+}
+
+export interface ProxyData {
+    assetProxyId: AssetProxyId;
+    tokenAddress?: string;
+    data?: any;
 }
