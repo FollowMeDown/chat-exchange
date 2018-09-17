@@ -1,26 +1,23 @@
-import { generatePseudoRandomSalt } from '@0xproject/order-utils';
-import { SignedOrder, UnsignedOrder } from '@0xproject/types';
+import { generatePseudoRandomSalt, orderHashUtils } from '@0xproject/order-utils';
+import { Order, SignatureType, SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import * as _ from 'lodash';
 
 import { constants } from './constants';
-import { orderUtils } from './order_utils';
 import { signingUtils } from './signing_utils';
-import { SignatureType } from './types';
 
 export class OrderFactory {
-    private _defaultOrderParams: Partial<UnsignedOrder>;
+    private _defaultOrderParams: Partial<Order>;
     private _privateKey: Buffer;
-    constructor(privateKey: Buffer, defaultOrderParams: Partial<UnsignedOrder>) {
+    constructor(privateKey: Buffer, defaultOrderParams: Partial<Order>) {
         this._defaultOrderParams = defaultOrderParams;
         this._privateKey = privateKey;
     }
     public newSignedOrder(
-        customOrderParams: Partial<UnsignedOrder> = {},
-        signatureType: SignatureType = SignatureType.Ecrecover,
+        customOrderParams: Partial<Order> = {},
+        signatureType: SignatureType = SignatureType.EthSign,
     ): SignedOrder {
-        const tenMinutes = 10 * 60 * 1000;
-        const randomExpiration = new BigNumber(Date.now() + tenMinutes);
+        const randomExpiration = new BigNumber(Math.floor((Date.now() + Math.random() * 100000000000) / 1000));
         const order = ({
             senderAddress: constants.NULL_ADDRESS,
             expirationTimeSeconds: randomExpiration,
@@ -28,8 +25,8 @@ export class OrderFactory {
             takerAddress: constants.NULL_ADDRESS,
             ...this._defaultOrderParams,
             ...customOrderParams,
-        } as any) as UnsignedOrder;
-        const orderHashBuff = orderUtils.getOrderHashBuff(order);
+        } as any) as Order;
+        const orderHashBuff = orderHashUtils.getOrderHashBuff(order);
         const signature = signingUtils.signMessage(orderHashBuff, this._privateKey, signatureType);
         const signedOrder = {
             ...order,
