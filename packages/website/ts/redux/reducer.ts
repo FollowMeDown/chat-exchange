@@ -39,7 +39,7 @@ export interface State {
     tokenByAddress: TokenByAddress;
     lastForceTokenStateRefetch: number;
     userAddress: string;
-    userEtherBalanceInWei?: BigNumber;
+    userEtherBalanceInWei: BigNumber;
     portalOnboardingStep: number;
     isPortalOnboardingShowing: boolean;
     hasPortalOnboardingBeenSeen: boolean;
@@ -81,7 +81,7 @@ export const INITIAL_STATE: State = {
     tokenByAddress: {},
     lastForceTokenStateRefetch: moment().unix(),
     userAddress: '',
-    userEtherBalanceInWei: undefined,
+    userEtherBalanceInWei: new BigNumber(0),
     userSuppliedOrderCache: undefined,
     portalOnboardingStep: 0,
     isPortalOnboardingShowing: false,

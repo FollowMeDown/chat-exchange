@@ -13,8 +13,8 @@ export const formatters = {
             takerAssetFillAmounts,
         };
         _.forEach(signedOrders, signedOrder => {
-            const orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
-            batchFill.orders.push(orderWithoutExchangeAddress);
+            const orderStruct = orderUtils.getOrderStruct(signedOrder);
+            batchFill.orders.push(orderStruct);
             batchFill.signatures.push(signedOrder.signature);
             if (takerAssetFillAmounts.length < signedOrders.length) {
                 batchFill.takerAssetFillAmounts.push(signedOrder.takerAssetAmount);
@@ -29,8 +29,8 @@ export const formatters = {
             takerAssetFillAmount,
         };
         _.forEach(signedOrders, signedOrder => {
-            const orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
-            marketSellOrders.orders.push(orderWithoutExchangeAddress);
+            const orderStruct = orderUtils.getOrderStruct(signedOrder);
+            marketSellOrders.orders.push(orderStruct);
             marketSellOrders.signatures.push(signedOrder.signature);
         });
         return marketSellOrders;
@@ -42,8 +42,8 @@ export const formatters = {
             makerAssetFillAmount,
         };
         _.forEach(signedOrders, signedOrder => {
-            const orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
-            marketBuyOrders.orders.push(orderWithoutExchangeAddress);
+            const orderStruct = orderUtils.getOrderStruct(signedOrder);
+            marketBuyOrders.orders.push(orderStruct);
             marketBuyOrders.signatures.push(signedOrder.signature);
         });
         return marketBuyOrders;
@@ -53,8 +53,8 @@ export const formatters = {
             orders: [],
         };
         _.forEach(signedOrders, signedOrder => {
-            const orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
-            batchCancel.orders.push(orderWithoutExchangeAddress);
+            const orderStruct = orderUtils.getOrderStruct(signedOrder);
+            batchCancel.orders.push(orderStruct);
         });
         return batchCancel;
     },

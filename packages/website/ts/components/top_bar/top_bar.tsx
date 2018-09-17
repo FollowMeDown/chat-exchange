@@ -16,9 +16,9 @@ import { TopBarMenuItem } from 'ts/components/top_bar/top_bar_menu_item';
 import { DropDown } from 'ts/components/ui/drop_down';
 import { Identicon } from 'ts/components/ui/identicon';
 import { Dispatcher } from 'ts/redux/dispatcher';
+import { zIndex } from 'ts/style/z_index';
 import { Deco, Key, ProviderType, WebsiteLegacyPaths, WebsitePaths } from 'ts/types';
 import { constants } from 'ts/utils/constants';
-import { zIndex } from 'ts/utils/style';
 import { Translate } from 'ts/utils/translate';
 import { utils } from 'ts/utils/utils';
 
@@ -261,7 +261,7 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
                             </div>
                         </div>
                     )}
-                    {this._isViewingPortal() && (
+                    {this.props.blockchainIsLoaded && (
                         <div className="sm-hide xs-hide col col-5" style={{ paddingTop: 8, marginRight: 36 }}>
                             <ProviderDisplay
                                 dispatcher={this.props.dispatcher}
@@ -271,7 +271,6 @@ export class TopBar extends React.Component<TopBarProps, TopBarState> {
                                 providerType={this.props.providerType}
                                 onToggleLedgerDialog={this.props.onToggleLedgerDialog}
                                 blockchain={this.props.blockchain}
-                                blockchainIsLoaded={this.props.blockchainIsLoaded}
                             />
                         </div>
                     )}

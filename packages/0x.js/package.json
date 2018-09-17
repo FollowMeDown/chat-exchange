@@ -44,7 +44,6 @@
             "docPublishConfigs": {
                 "extraFileIncludes": [
                     "../types/src/index.ts",
-                    "../ethereum-types/src/index.ts",
                     "../contract-wrappers/src/types.ts",
                     "../contract-wrappers/src/contract_wrappers/ether_token_wrapper.ts",
                     "../contract-wrappers/src/contract_wrappers/exchange_wrapper.ts",
@@ -102,14 +101,13 @@
         "@0xproject/assert": "^0.2.10",
         "@0xproject/base-contract": "^0.3.2",
         "@0xproject/contract-wrappers": "^0.0.2",
-        "@0xproject/order-utils": "0.0.5",
+        "@0xproject/order-utils": "^0.0.5",
         "@0xproject/order-watcher": "^0.0.2",
         "@0xproject/sol-compiler": "^0.5.0",
         "@0xproject/types": "0.7.0",
         "@0xproject/typescript-typings": "^0.3.2",
         "@0xproject/utils": "^0.6.2",
         "@0xproject/web3-wrapper": "^0.6.4",
-        "ethereum-types": "^0.0.1",
         "ethers": "^3.0.15",
         "lodash": "^4.17.4"
     },

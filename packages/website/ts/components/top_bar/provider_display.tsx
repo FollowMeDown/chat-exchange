@@ -1,6 +1,5 @@
 import { Styles } from '@0xproject/react-shared';
 import * as _ from 'lodash';
-import CircularProgress from 'material-ui/CircularProgress';
 import RaisedButton from 'material-ui/RaisedButton';
 import * as React from 'react';
 
@@ -9,10 +8,10 @@ import { ProviderPicker } from 'ts/components/top_bar/provider_picker';
 import { DropDown } from 'ts/components/ui/drop_down';
 import { Identicon } from 'ts/components/ui/identicon';
 import { Dispatcher } from 'ts/redux/dispatcher';
+import { colors } from 'ts/style/colors';
+import { zIndex } from 'ts/style/z_index';
 import { ProviderType } from 'ts/types';
-import { colors } from 'ts/utils/colors';
 import { constants } from 'ts/utils/constants';
-import { zIndex } from 'ts/utils/style';
 import { utils } from 'ts/utils/utils';
 
 const ROOT_HEIGHT = 24;
@@ -24,8 +23,7 @@ export interface ProviderDisplayProps {
     injectedProviderName: string;
     providerType: ProviderType;
     onToggleLedgerDialog: () => void;
-    blockchain?: Blockchain;
-    blockchainIsLoaded: boolean;
+    blockchain: Blockchain;
 }
 
 interface ProviderDisplayState {}
@@ -46,18 +44,11 @@ export class ProviderDisplay extends React.Component<ProviderDisplayProps, Provi
             this.props.providerType,
             this.props.injectedProviderName,
         );
-        let displayMessage;
-        if (!this._isBlockchainReady()) {
-            displayMessage = 'loading account';
-        } else if (isAddressAvailable) {
-            displayMessage = utils.getAddressBeginAndEnd(this.props.userAddress);
-            // tslint:disable-next-line: prefer-conditional-expression
-        } else if (isExternallyInjectedProvider) {
-            displayMessage = 'Account locked';
-        } else {
-            displayMessage = '0x0000...0000';
-        }
-
+        const displayAddress = isAddressAvailable
+            ? utils.getAddressBeginAndEnd(this.props.userAddress)
+            : isExternallyInjectedProvider
+                ? 'Account locked'
+                : '0x0000...0000';
         // If the "injected" provider is our fallback public node, then we want to
         // show the "connect a wallet" message instead of the providerName
         const injectedProviderName = isExternallyInjectedProvider
@@ -69,14 +60,10 @@ export class ProviderDisplay extends React.Component<ProviderDisplayProps, Provi
         const hoverActiveNode = (
             <div className="flex right lg-pr0 md-pr2 sm-pr2 p1" style={styles.root}>
                 <div>
-                    {this._isBlockchainReady() ? (
-                        <Identicon address={this.props.userAddress} diameter={ROOT_HEIGHT} />
-                    ) : (
-                        <CircularProgress size={ROOT_HEIGHT} thickness={2} />
-                    )}
+                    <Identicon address={this.props.userAddress} diameter={ROOT_HEIGHT} />
                 </div>
                 <div style={{ marginLeft: 12, paddingTop: 3 }}>
-                    <div style={{ fontSize: 16, color: colors.darkGrey }}>{displayMessage}</div>
+                    <div style={{ fontSize: 16, color: colors.darkGrey }}>{displayAddress}</div>
                 </div>
                 {isProviderMetamask && (
                     <div style={{ marginLeft: 16 }}>
@@ -100,9 +87,7 @@ export class ProviderDisplay extends React.Component<ProviderDisplayProps, Provi
         );
     }
     public renderPopoverContent(hasInjectedProvider: boolean, hasLedgerProvider: boolean): React.ReactNode {
-        if (!this._isBlockchainReady()) {
-            return null;
-        } else if (hasInjectedProvider || hasLedgerProvider) {
+        if (hasInjectedProvider || hasLedgerProvider) {
             return (
                 <ProviderPicker
                     dispatcher={this.props.dispatcher}
@@ -173,8 +158,5 @@ export class ProviderDisplay extends React.Component<ProviderDisplayProps, Provi
                 </div>
             );
         }
-    }
-    private _isBlockchainReady(): boolean {
-        return this.props.blockchainIsLoaded && !_.isUndefined(this.props.blockchain);
     }
 }
