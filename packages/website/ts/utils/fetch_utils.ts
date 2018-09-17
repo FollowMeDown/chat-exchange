@@ -20,18 +20,6 @@ export const fetchUtils = {
         const result = await response.json();
         return result;
     },
-
-    async postAsync(baseUrl: string, path: string, body: object): Promise<Response> {
-        const url = `${baseUrl}${path}`;
-        const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
-        });
-        return response;
-    },
 };
 
 function queryStringFromQueryParams(queryParams?: object): string {
