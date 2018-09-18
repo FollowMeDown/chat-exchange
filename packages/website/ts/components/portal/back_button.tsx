@@ -2,7 +2,7 @@ import { Styles } from '@0xproject/react-shared';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 
-import { colors } from 'ts/style/colors';
+import { colors } from 'ts/utils/colors';
 
 export interface BackButtonProps {
     to: string;
