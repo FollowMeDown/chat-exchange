@@ -1,6 +1,5 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
-import { assetProxyUtils, crypto } from '@0xproject/order-utils';
-import { AssetProxyId, SignedOrder } from '@0xproject/types';
+import { SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
@@ -15,24 +14,30 @@ import { ERC721ProxyContract } from '../../src/contract_wrappers/generated/e_r_c
 import {
     CancelContractEventArgs,
     ExchangeContract,
+    ExchangeStatusContractEventArgs,
     FillContractEventArgs,
 } from '../../src/contract_wrappers/generated/exchange';
 import { artifacts } from '../../src/utils/artifacts';
+import { assetProxyUtils } from '../../src/utils/asset_proxy_utils';
 import { chaiSetup } from '../../src/utils/chai_setup';
 import { constants } from '../../src/utils/constants';
+import { crypto } from '../../src/utils/crypto';
 import { ERC20Wrapper } from '../../src/utils/erc20_wrapper';
 import { ERC721Wrapper } from '../../src/utils/erc721_wrapper';
 import { ExchangeWrapper } from '../../src/utils/exchange_wrapper';
-import { MatchOrderTester } from '../../src/utils/match_order_tester';
 import { OrderFactory } from '../../src/utils/order_factory';
+import { orderUtils } from '../../src/utils/order_utils';
 import {
+    AssetProxyId,
     ContractName,
     ERC20BalancesByOwner,
     ERC721TokenIdsByOwner,
+    ExchangeStatus,
     OrderInfo,
-    OrderStatus,
 } from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
+
+import { MatchOrderTester } from '../../src/utils/match_order_tester';
 
 chaiSetup.configure();
 const expect = chai.expect;
@@ -185,10 +190,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was fully filled
             const leftOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(leftOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Verify right order was fully filled
             const rightOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(rightOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
         });
 
         it('should transfer the correct amounts when orders completely fill each other and taker doesnt take a profit', async () => {
@@ -226,10 +231,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was fully filled
             const leftOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(leftOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Verify right order was fully filled
             const rightOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(rightOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Verify taker did not take a profit
             expect(takerInitialBalances).to.be.deep.equal(
                 newERC20BalancesByOwner[takerAddress][defaultERC20MakerAssetAddress],
@@ -264,10 +269,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was fully filled
             const leftOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(leftOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Verify right order was partially filled
             const rightOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FILLABLE);
+            expect(rightOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FILLABLE);
         });
 
         it('should transfer the correct amounts when right order is completely filled and left order is partially filled', async () => {
@@ -298,10 +303,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was partially filled
             const leftOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FILLABLE);
+            expect(leftOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FILLABLE);
             // Verify right order was fully filled
             const rightOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(rightOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
         });
 
         it('should transfer the correct amounts when consecutive calls are used to completely fill the left order', async () => {
@@ -337,10 +342,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was partially filled
             const leftOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FILLABLE);
+            expect(leftOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FILLABLE);
             // Verify right order was fully filled
             const rightOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(rightOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Construct second right order
             // Note: This order needs makerAssetAmount=90/takerAssetAmount=[anything <= 45] to fully fill the right order.
             //       However, we use 100/50 to ensure a partial fill as we want to go down the "left fill"
@@ -367,10 +372,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was fully filled
             const leftOrderInfo2: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo2.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(leftOrderInfo2.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Verify second right order was partially filled
             const rightOrderInfo2: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight2);
-            expect(rightOrderInfo2.orderStatus as OrderStatus).to.be.equal(OrderStatus.FILLABLE);
+            expect(rightOrderInfo2.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FILLABLE);
         });
 
         it('should transfer the correct amounts when consecutive calls are used to completely fill the right order', async () => {
@@ -407,10 +412,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was partially filled
             const leftOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(leftOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Verify right order was fully filled
             const rightOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FILLABLE);
+            expect(rightOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FILLABLE);
             // Create second left order
             // Note: This order needs makerAssetAmount=96/takerAssetAmount=48 to fully fill the right order.
             //       However, we use 100/50 to ensure a partial fill as we want to go down the "right fill"
@@ -440,10 +445,10 @@ describe('matchOrders', () => {
             );
             // Verify second left order was partially filled
             const leftOrderInfo2: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft2);
-            expect(leftOrderInfo2.orderStatus as OrderStatus).to.be.equal(OrderStatus.FILLABLE);
+            expect(leftOrderInfo2.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FILLABLE);
             // Verify right order was fully filled
             const rightOrderInfo2: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo2.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(rightOrderInfo2.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
         });
 
         it('should transfer the correct amounts if fee recipient is the same across both matched orders', async () => {
@@ -789,10 +794,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was fully filled
             const leftOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(leftOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Verify right order was fully filled
             const rightOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(rightOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
         });
 
         it('should transfer correct amounts when right order maker asset is an ERC721 token', async () => {
@@ -824,10 +829,10 @@ describe('matchOrders', () => {
             );
             // Verify left order was fully filled
             const leftOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderLeft);
-            expect(leftOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(leftOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
             // Verify right order was fully filled
             const rightOrderInfo: OrderInfo = await exchangeWrapper.getOrderInfoAsync(signedOrderRight);
-            expect(rightOrderInfo.orderStatus as OrderStatus).to.be.equal(OrderStatus.FULLY_FILLED);
+            expect(rightOrderInfo.orderStatus as ExchangeStatus).to.be.equal(ExchangeStatus.ORDER_FULLY_FILLED);
         });
     });
 }); // tslint:disable-line:max-file-line-count

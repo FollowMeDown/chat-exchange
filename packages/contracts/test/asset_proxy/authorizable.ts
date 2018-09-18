@@ -19,7 +19,6 @@ describe('Authorizable', () => {
     let notOwner: string;
     let address: string;
     let authorizable: MixinAuthorizableContract;
-
     before(async () => {
         await blockchainLifecycle.startAsync();
     });
