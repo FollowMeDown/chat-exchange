@@ -35,7 +35,6 @@ const docIdToSubpackageName: { [id: string]: string } = {
     [DocPackages.SolCov]: 'sol-cov',
     [DocPackages.Subproviders]: 'subproviders',
     [DocPackages.OrderUtils]: 'order-utils',
-    [DocPackages.EthereumTypes]: 'ethereum-types',
 };
 
 export interface DocPageProps {

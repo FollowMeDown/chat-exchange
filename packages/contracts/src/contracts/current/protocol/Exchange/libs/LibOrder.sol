@@ -18,28 +18,41 @@
 
 pragma solidity ^0.4.24;
 
-contract LibOrder {
+import "./LibEIP712.sol";
 
-    bytes32 constant DOMAIN_SEPARATOR_SCHEMA_HASH = keccak256(
-        "DomainSeparator(address contract)"
-    );
+contract LibOrder is
+    LibEIP712
+{
 
-    bytes32 constant ORDER_SCHEMA_HASH = keccak256(
-        "Order(",
-        "address makerAddress,",
-        "address takerAddress,",
-        "address feeRecipientAddress,",
-        "address senderAddress,",
-        "uint256 makerAssetAmount,",
-        "uint256 takerAssetAmount,",
-        "uint256 makerFee,",
-        "uint256 takerFee,",
-        "uint256 expirationTimeSeconds,",
-        "uint256 salt,",
-        "bytes makerAssetData,",
-        "bytes takerAssetData,",
-        ")"
-    );
+    bytes32 constant EIP712_ORDER_SCHEMA_HASH = keccak256(
+        abi.encodePacked(
+            "Order(",
+            "address makerAddress,",
+            "address takerAddress,",
+            "address feeRecipientAddress,",
+            "address senderAddress,",
+            "uint256 makerAssetAmount,",
+            "uint256 takerAssetAmount,",
+            "uint256 makerFee,",
+            "uint256 takerFee,",
+            "uint256 expirationTimeSeconds,",
+            "uint256 salt,",
+            "bytes makerAssetData,",
+            "bytes takerAssetData",
+            ")"
+    ));
+
+    // A valid order remains fillable until it is expired, fully filled, or cancelled.
+    // An order's state is unaffected by external factors, like account balances.
+    enum OrderStatus {
+        INVALID,                     // Default value
+        INVALID_MAKER_ASSET_AMOUNT,  // Order does not have a valid maker asset amount
+        INVALID_TAKER_ASSET_AMOUNT,  // Order does not have a valid taker asset amount
+        FILLABLE,                    // Order is fillable
+        EXPIRED,                     // Order has already expired
+        FULLY_FILLED,                // Order is fully filled
+        CANCELLED                    // Order has been cancelled
+    }
 
     struct Order {
         address makerAddress;
@@ -73,27 +86,23 @@ contract LibOrder {
         view
         returns (bytes32 orderHash)
     {
-        // TODO: EIP712 is not finalized yet
-        // Source: https://github.com/ethereum/EIPs/pull/712
-        orderHash = keccak256(
-            DOMAIN_SEPARATOR_SCHEMA_HASH,
-            keccak256(address(this)),
-            ORDER_SCHEMA_HASH,
+        orderHash = createEIP712Message(
             keccak256(
-                order.makerAddress,
-                order.takerAddress,
-                order.feeRecipientAddress,
-                order.senderAddress,
+                abi.encodePacked(
+                EIP712_ORDER_SCHEMA_HASH,
+                bytes32(order.makerAddress),
+                bytes32(order.takerAddress),
+                bytes32(order.feeRecipientAddress),
+                bytes32(order.senderAddress),
                 order.makerAssetAmount,
                 order.takerAssetAmount,
                 order.makerFee,
                 order.takerFee,
                 order.expirationTimeSeconds,
                 order.salt,
-                keccak256(order.makerAssetData),
-                keccak256(order.takerAssetData)
-            )
-        );
+                keccak256(abi.encodePacked(order.makerAssetData)),
+                keccak256(abi.encodePacked(order.takerAssetData))
+        )));
         return orderHash;
     }
 }
