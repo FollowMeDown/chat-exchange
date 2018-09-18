@@ -1,6 +1,6 @@
 import { Styles } from '@0xproject/react-shared';
 
-import { colors } from 'ts/style/colors';
+import { colors } from 'ts/utils/colors';
 
 export const styles: Styles = {
     focusedItem: {
