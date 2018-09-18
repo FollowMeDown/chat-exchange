@@ -71,18 +71,18 @@ contract TestLibs is
 
     function getOrderSchemaHash()
         public
-        pure
+        view
         returns (bytes32)
     {
-        return EIP712_ORDER_SCHEMA_HASH;
+        return ORDER_SCHEMA_HASH;
     }
 
     function getDomainSeparatorSchemaHash()
         public
-        pure
+        view
         returns (bytes32)
     {
-        return EIP712_DOMAIN_SEPARATOR_SCHEMA_HASH;
+        return DOMAIN_SEPARATOR_SCHEMA_HASH;
     }
 
     function publicAddFillResults(FillResults memory totalFillResults, FillResults memory singleFillResults)
