@@ -159,6 +159,7 @@ export function isValidECSignature(data: string, signature: ECSignature, signerA
     assert.isHexString('data', data);
     assert.doesConformToSchema('signature', signature, schemas.ecSignatureSchema);
     assert.isETHAddressHex('signerAddress', signerAddress);
+    const normalizedSignerAddress = signerAddress.toLowerCase();
 
     const msgHashBuff = ethUtil.toBuffer(data);
     try {

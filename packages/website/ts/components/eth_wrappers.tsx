@@ -20,6 +20,7 @@ import {
 } from 'ts/types';
 import { configs } from 'ts/utils/configs';
 import { constants } from 'ts/utils/constants';
+import { utils } from 'ts/utils/utils';
 
 const DATE_FORMAT = 'D/M/YY';
 const ICON_DIMENSION = 40;

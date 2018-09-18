@@ -1,4 +1,8 @@
 import { Compiler, CompilerOptions } from '@0xproject/sol-compiler';
+import * as fs from 'fs';
+import * as glob from 'glob';
+import * as _ from 'lodash';
+import * as path from 'path';
 import * as rimraf from 'rimraf';
 
 import { ContractData } from '../types';

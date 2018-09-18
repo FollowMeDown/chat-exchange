@@ -1,3 +1,4 @@
+import * as React from 'react';
 import { constants } from 'ts/utils/constants';
 
 interface RedirecterProps {

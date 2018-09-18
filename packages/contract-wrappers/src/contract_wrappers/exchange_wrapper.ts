@@ -8,10 +8,12 @@ import {
     LogEntry,
     LogWithDecodedArgs,
     Order,
+    OrderAddresses,
     OrderState,
+    OrderValues,
     SignedOrder,
 } from '@0xproject/types';
-import { BigNumber } from '@0xproject/utils';
+import { AbiDecoder, BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as _ from 'lodash';
 
@@ -33,6 +35,7 @@ import { assert } from '../utils/assert';
 import { decorators } from '../utils/decorators';
 import { ExchangeTransferSimulator } from '../utils/exchange_transfer_simulator';
 import { OrderValidationUtils } from '../utils/order_validation_utils';
+import { utils } from '../utils/utils';
 
 import { ContractWrapper } from './contract_wrapper';
 import {

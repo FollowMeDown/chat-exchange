@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import * as React from 'react';
 import { AddressInput } from 'ts/components/inputs/address_input';
 import { Identicon } from 'ts/components/ui/identicon';

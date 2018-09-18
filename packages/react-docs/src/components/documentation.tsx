@@ -3,6 +3,7 @@ import {
     constants as sharedConstants,
     EtherscanLinkSuffixes,
     MarkdownSection,
+    MenuSubsectionsBySection,
     NestedSidebarMenu,
     Networks,
     SectionHeader,
@@ -12,11 +13,13 @@ import {
 import * as _ from 'lodash';
 import CircularProgress from 'material-ui/CircularProgress';
 import * as React from 'react';
+import { scroller } from 'react-scroll';
 
 import { DocsInfo } from '../docs_info';
 import {
     AddressByContractName,
     DocAgnosticFormat,
+    DoxityDocObj,
     Event,
     Property,
     SolidityMethod,
@@ -26,6 +29,7 @@ import {
     TypescriptMethod,
 } from '../types';
 import { constants } from '../utils/constants';
+import { utils } from '../utils/utils';
 
 import { Badge } from './badge';
 import { Comment } from './comment';

@@ -32,9 +32,9 @@ contract LibFillResults is
     }
 
     struct MatchedFillResults {
-        FillResults left;
-        FillResults right;
-        uint256 leftMakerAssetSpreadAmount;
+        LibFillResults.FillResults left;
+        LibFillResults.FillResults right;
+        uint256 takerFillAmount;
     }
 
     /// @dev Adds properties of both FillResults instances.
@@ -49,5 +49,20 @@ contract LibFillResults is
         totalFillResults.takerAssetFilledAmount = safeAdd(totalFillResults.takerAssetFilledAmount, singleFillResults.takerAssetFilledAmount);
         totalFillResults.makerFeePaid = safeAdd(totalFillResults.makerFeePaid, singleFillResults.makerFeePaid);
         totalFillResults.takerFeePaid = safeAdd(totalFillResults.takerFeePaid, singleFillResults.takerFeePaid);
+    }
+
+    /// @dev Returns a null fill results struct
+    function getNullFillResults()
+        internal
+        pure
+        returns (FillResults memory)
+    {
+        // returns zeroed out FillResults instance
+        return FillResults({
+            makerAssetFilledAmount: 0,
+            takerAssetFilledAmount: 0,
+            makerFeePaid: 0,
+            takerFeePaid: 0
+        });
     }
 }
