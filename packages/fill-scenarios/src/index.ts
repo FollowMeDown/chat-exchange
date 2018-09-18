@@ -1,15 +1,14 @@
-import { assetProxyUtils, orderFactory } from '@0xproject/order-utils';
-import { SignedOrder, Token } from '@0xproject/types';
+import { formatters, orderFactory } from '@0xproject/order-utils';
+import { Provider, SignedOrder, Token } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
-import { Provider } from 'ethereum-types';
 import * as _ from 'lodash';
 
 import { artifacts } from './artifacts';
 import { constants } from './constants';
-import { DummyERC20TokenContract } from './generated_contract_wrappers/dummy_e_r_c20_token';
-import { ERC20TokenContract } from './generated_contract_wrappers/e_r_c20_token';
+import { DummyTokenContract } from './generated_contract_wrappers/dummy_token';
 import { ExchangeContract } from './generated_contract_wrappers/exchange';
+import { TokenContract } from './generated_contract_wrappers/token';
 
 const INITIAL_COINBASE_TOKEN_SUPPLY_IN_UNITS = new BigNumber(100);
 
@@ -19,25 +18,25 @@ export class FillScenarios {
     private _tokens: Token[];
     private _coinbase: string;
     private _zrxTokenAddress: string;
-    private _exchangeAddress: string;
+    private _exchangeContractAddress: string;
     constructor(
         provider: Provider,
         userAddresses: string[],
         tokens: Token[],
         zrxTokenAddress: string,
-        exchangeAddress: string,
+        exchangeContractAddress: string,
     ) {
         this._web3Wrapper = new Web3Wrapper(provider);
         this._userAddresses = userAddresses;
         this._tokens = tokens;
         this._coinbase = userAddresses[0];
         this._zrxTokenAddress = zrxTokenAddress;
-        this._exchangeAddress = exchangeAddress;
+        this._exchangeContractAddress = exchangeContractAddress;
     }
     public async initTokenBalancesAsync(): Promise<void> {
         for (const token of this._tokens) {
             if (token.symbol !== 'ZRX' && token.symbol !== 'WETH') {
-                const dummyERC20Token = new DummyERC20TokenContract(
+                const dummyToken = new DummyTokenContract(
                     artifacts.DummyToken.abi,
                     token.address,
                     this._web3Wrapper.getProvider(),
@@ -47,7 +46,7 @@ export class FillScenarios {
                     INITIAL_COINBASE_TOKEN_SUPPLY_IN_UNITS,
                     token.decimals,
                 );
-                const txHash = await dummyERC20Token.setBalance.sendTransactionAsync(this._coinbase, tokenSupply, {
+                const txHash = await dummyToken.setBalance.sendTransactionAsync(this._coinbase, tokenSupply, {
                     from: this._coinbase,
                 });
                 await this._web3Wrapper.awaitTransactionSuccessAsync(txHash);
@@ -55,162 +54,148 @@ export class FillScenarios {
         }
     }
     public async createFillableSignedOrderAsync(
-        makerAssetData: string,
-        takerAssetData: string,
+        makerTokenAddress: string,
+        takerTokenAddress: string,
         makerAddress: string,
         takerAddress: string,
         fillableAmount: BigNumber,
-        expirationTimeSeconds?: BigNumber,
+        expirationUnixTimestampSec?: BigNumber,
     ): Promise<SignedOrder> {
         return this.createAsymmetricFillableSignedOrderAsync(
-            makerAssetData,
-            takerAssetData,
+            makerTokenAddress,
+            takerTokenAddress,
             makerAddress,
             takerAddress,
             fillableAmount,
             fillableAmount,
-            expirationTimeSeconds,
+            expirationUnixTimestampSec,
         );
     }
     public async createFillableSignedOrderWithFeesAsync(
-        makerAssetData: string,
-        takerAssetData: string,
+        makerTokenAddress: string,
+        takerTokenAddress: string,
         makerFee: BigNumber,
         takerFee: BigNumber,
         makerAddress: string,
         takerAddress: string,
         fillableAmount: BigNumber,
-        feeRecepientAddress: string,
-        expirationTimeSeconds?: BigNumber,
+        feeRecepient: string,
+        expirationUnixTimestampSec?: BigNumber,
     ): Promise<SignedOrder> {
         return this._createAsymmetricFillableSignedOrderWithFeesAsync(
-            makerAssetData,
-            takerAssetData,
+            makerTokenAddress,
+            takerTokenAddress,
             makerFee,
             takerFee,
             makerAddress,
             takerAddress,
             fillableAmount,
             fillableAmount,
-            feeRecepientAddress,
-            expirationTimeSeconds,
+            feeRecepient,
+            expirationUnixTimestampSec,
         );
     }
     public async createAsymmetricFillableSignedOrderAsync(
-        makerAssetData: string,
-        takerAssetData: string,
+        makerTokenAddress: string,
+        takerTokenAddress: string,
         makerAddress: string,
         takerAddress: string,
         makerFillableAmount: BigNumber,
         takerFillableAmount: BigNumber,
-        expirationTimeSeconds?: BigNumber,
+        expirationUnixTimestampSec?: BigNumber,
     ): Promise<SignedOrder> {
         const makerFee = new BigNumber(0);
         const takerFee = new BigNumber(0);
-        const feeRecepientAddress = constants.NULL_ADDRESS;
+        const feeRecepient = constants.NULL_ADDRESS;
         return this._createAsymmetricFillableSignedOrderWithFeesAsync(
-            makerAssetData,
-            takerAssetData,
+            makerTokenAddress,
+            takerTokenAddress,
             makerFee,
             takerFee,
             makerAddress,
             takerAddress,
             makerFillableAmount,
             takerFillableAmount,
-            feeRecepientAddress,
-            expirationTimeSeconds,
+            feeRecepient,
+            expirationUnixTimestampSec,
         );
     }
     public async createPartiallyFilledSignedOrderAsync(
-        makerAssetData: string,
-        takerAssetData: string,
+        makerTokenAddress: string,
+        takerTokenAddress: string,
         takerAddress: string,
         fillableAmount: BigNumber,
         partialFillAmount: BigNumber,
     ): Promise<SignedOrder> {
         const [makerAddress] = this._userAddresses;
         const signedOrder = await this.createAsymmetricFillableSignedOrderAsync(
-            makerAssetData,
-            takerAssetData,
+            makerTokenAddress,
+            takerTokenAddress,
             makerAddress,
             takerAddress,
             fillableAmount,
             fillableAmount,
         );
+        const shouldThrowOnInsufficientBalanceOrAllowance = false;
         const exchangeInstance = new ExchangeContract(
             artifacts.Exchange.abi,
-            signedOrder.exchangeAddress,
+            signedOrder.exchangeContractAddress,
             this._web3Wrapper.getProvider(),
             this._web3Wrapper.getContractDefaults(),
         );
 
-        const orderWithoutExchangeAddress = {
-            senderAddress: signedOrder.senderAddress,
-            makerAddress: signedOrder.makerAddress,
-            takerAddress: signedOrder.takerAddress,
-            feeRecipientAddress: signedOrder.feeRecipientAddress,
-            makerAssetAmount: signedOrder.makerAssetAmount,
-            takerAssetAmount: signedOrder.takerAssetAmount,
-            makerFee: signedOrder.makerFee,
-            takerFee: signedOrder.takerFee,
-            expirationTimeSeconds: signedOrder.expirationTimeSeconds,
-            salt: signedOrder.salt,
-            makerAssetData: signedOrder.makerAssetData,
-            takerAssetData: signedOrder.takerAssetData,
-        };
+        const [orderAddresses, orderValues] = formatters.getOrderAddressesAndValues(signedOrder);
 
         await exchangeInstance.fillOrder.sendTransactionAsync(
-            orderWithoutExchangeAddress,
+            orderAddresses,
+            orderValues,
             partialFillAmount,
-            signedOrder.signature,
+            shouldThrowOnInsufficientBalanceOrAllowance,
+            signedOrder.ecSignature.v,
+            signedOrder.ecSignature.r,
+            signedOrder.ecSignature.s,
             { from: takerAddress },
         );
         return signedOrder;
     }
     private async _createAsymmetricFillableSignedOrderWithFeesAsync(
-        makerAssetData: string,
-        takerAssetData: string,
+        makerTokenAddress: string,
+        takerTokenAddress: string,
         makerFee: BigNumber,
         takerFee: BigNumber,
         makerAddress: string,
         takerAddress: string,
         makerFillableAmount: BigNumber,
         takerFillableAmount: BigNumber,
-        feeRecepientAddress: string,
-        expirationTimeSeconds?: BigNumber,
+        feeRecepient: string,
+        expirationUnixTimestampSec?: BigNumber,
     ): Promise<SignedOrder> {
-        const makerERC20ProxyData = assetProxyUtils.decodeERC20ProxyData(makerAssetData);
-        const makerTokenAddress = makerERC20ProxyData.tokenAddress;
-        const takerERC20ProxyData = assetProxyUtils.decodeERC20ProxyData(takerAssetData);
-        const takerTokenAddress = takerERC20ProxyData.tokenAddress;
         await Promise.all([
-            this._increaseERC20BalanceAndAllowanceAsync(makerTokenAddress, makerAddress, makerFillableAmount),
-            this._increaseERC20BalanceAndAllowanceAsync(takerTokenAddress, takerAddress, takerFillableAmount),
+            this._increaseBalanceAndAllowanceAsync(makerTokenAddress, makerAddress, makerFillableAmount),
+            this._increaseBalanceAndAllowanceAsync(takerTokenAddress, takerAddress, takerFillableAmount),
         ]);
         await Promise.all([
-            this._increaseERC20BalanceAndAllowanceAsync(this._zrxTokenAddress, makerAddress, makerFee),
-            this._increaseERC20BalanceAndAllowanceAsync(this._zrxTokenAddress, takerAddress, takerFee),
+            this._increaseBalanceAndAllowanceAsync(this._zrxTokenAddress, makerAddress, makerFee),
+            this._increaseBalanceAndAllowanceAsync(this._zrxTokenAddress, takerAddress, takerFee),
         ]);
-        const senderAddress = constants.NULL_ADDRESS;
 
         const signedOrder = await orderFactory.createSignedOrderAsync(
             this._web3Wrapper.getProvider(),
             makerAddress,
             takerAddress,
-            senderAddress,
             makerFee,
             takerFee,
             makerFillableAmount,
-            makerAssetData,
+            makerTokenAddress,
             takerFillableAmount,
-            takerAssetData,
-            this._exchangeAddress,
-            feeRecepientAddress,
-            expirationTimeSeconds,
+            takerTokenAddress,
+            this._exchangeContractAddress,
+            feeRecepient,
+            expirationUnixTimestampSec,
         );
         return signedOrder;
     }
-    private async _increaseERC20BalanceAndAllowanceAsync(
+    private async _increaseBalanceAndAllowanceAsync(
         tokenAddress: string,
         address: string,
         amount: BigNumber,
@@ -219,12 +204,12 @@ export class FillScenarios {
             return; // noop
         }
         await Promise.all([
-            this._increaseERC20BalanceAsync(tokenAddress, address, amount),
-            this._increaseERC20AllowanceAsync(tokenAddress, address, amount),
+            this._increaseBalanceAsync(tokenAddress, address, amount),
+            this._increaseAllowanceAsync(tokenAddress, address, amount),
         ]);
     }
-    private async _increaseERC20BalanceAsync(tokenAddress: string, address: string, amount: BigNumber): Promise<void> {
-        const token = new ERC20TokenContract(
+    private async _increaseBalanceAsync(tokenAddress: string, address: string, amount: BigNumber): Promise<void> {
+        const token = new TokenContract(
             artifacts.Token.abi,
             tokenAddress,
             this._web3Wrapper.getProvider(),
@@ -234,12 +219,8 @@ export class FillScenarios {
             from: this._coinbase,
         });
     }
-    private async _increaseERC20AllowanceAsync(
-        tokenAddress: string,
-        address: string,
-        amount: BigNumber,
-    ): Promise<void> {
-        const tokenInstance = new ERC20TokenContract(
+    private async _increaseAllowanceAsync(tokenAddress: string, address: string, amount: BigNumber): Promise<void> {
+        const tokenInstance = new TokenContract(
             artifacts.Token.abi,
             tokenAddress,
             this._web3Wrapper.getProvider(),
