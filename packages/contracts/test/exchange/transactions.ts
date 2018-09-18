@@ -1,6 +1,6 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
-import { assetProxyUtils, generatePseudoRandomSalt } from '@0xproject/order-utils';
-import { AssetProxyId, Order, OrderWithoutExchangeAddress, SignedOrder } from '@0xproject/types';
+import { generatePseudoRandomSalt } from '@0xproject/order-utils';
+import { Order, SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
 import * as ethUtil from 'ethereumjs-util';
@@ -11,6 +11,7 @@ import { ERC20ProxyContract } from '../../src/contract_wrappers/generated/e_r_c2
 import { ExchangeContract } from '../../src/contract_wrappers/generated/exchange';
 import { WhitelistContract } from '../../src/contract_wrappers/generated/whitelist';
 import { artifacts } from '../../src/utils/artifacts';
+import { assetProxyUtils } from '../../src/utils/asset_proxy_utils';
 import { chaiSetup } from '../../src/utils/chai_setup';
 import { constants } from '../../src/utils/constants';
 import { ERC20Wrapper } from '../../src/utils/erc20_wrapper';
@@ -18,7 +19,13 @@ import { ExchangeWrapper } from '../../src/utils/exchange_wrapper';
 import { OrderFactory } from '../../src/utils/order_factory';
 import { orderUtils } from '../../src/utils/order_utils';
 import { TransactionFactory } from '../../src/utils/transaction_factory';
-import { ERC20BalancesByOwner, OrderStatus, SignedTransaction } from '../../src/utils/types';
+import {
+    AssetProxyId,
+    ERC20BalancesByOwner,
+    ExchangeStatus,
+    SignatureType,
+    SignedTransaction,
+} from '../../src/utils/types';
 import { provider, txDefaults, web3Wrapper } from '../../src/utils/web3_wrapper';
 
 chaiSetup.configure();
@@ -41,7 +48,7 @@ describe('Exchange transactions', () => {
     let erc20Balances: ERC20BalancesByOwner;
     let signedOrder: SignedOrder;
     let signedTx: SignedTransaction;
-    let orderWithoutExchangeAddress: OrderWithoutExchangeAddress;
+    let order: Order;
     let orderFactory: OrderFactory;
     let makerTransactionFactory: TransactionFactory;
     let takerTransactionFactory: TransactionFactory;
@@ -114,11 +121,11 @@ describe('Exchange transactions', () => {
             beforeEach(async () => {
                 erc20Balances = await erc20Wrapper.getBalancesAsync();
                 signedOrder = orderFactory.newSignedOrder();
-                orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
+                order = orderUtils.getOrderStruct(signedOrder);
 
                 takerAssetFillAmount = signedOrder.takerAssetAmount.div(2);
                 const data = exchange.fillOrder.getABIEncodedTransactionData(
-                    orderWithoutExchangeAddress,
+                    order,
                     takerAssetFillAmount,
                     signedOrder.signature,
                 );
@@ -182,7 +189,7 @@ describe('Exchange transactions', () => {
 
         describe('cancelOrder', () => {
             beforeEach(async () => {
-                const data = exchange.cancelOrder.getABIEncodedTransactionData(orderWithoutExchangeAddress);
+                const data = exchange.cancelOrder.getABIEncodedTransactionData(order);
                 signedTx = makerTransactionFactory.newSignedTransaction(data);
             });
 
@@ -194,9 +201,9 @@ describe('Exchange transactions', () => {
 
             it('should cancel the order when signed by maker and called by sender', async () => {
                 await exchangeWrapper.executeTransactionAsync(signedTx, senderAddress);
-                return expect(exchangeWrapper.fillOrderAsync(signedOrder, senderAddress)).to.be.rejectedWith(
-                    constants.REVERT,
-                );
+                const res = await exchangeWrapper.fillOrderAsync(signedOrder, senderAddress);
+                const newBalances = await erc20Wrapper.getBalancesAsync();
+                expect(newBalances).to.deep.equal(erc20Balances);
             });
         });
     });
@@ -241,12 +248,12 @@ describe('Exchange transactions', () => {
                 await whitelist.updateWhitelistStatus.sendTransactionAsync(takerAddress, isApproved, { from: owner }),
             );
 
-            orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
+            const orderStruct = orderUtils.getOrderStruct(signedOrder);
             const takerAssetFillAmount = signedOrder.takerAssetAmount;
             const salt = generatePseudoRandomSalt();
             return expect(
                 whitelist.fillOrderIfWhitelisted.sendTransactionAsync(
-                    orderWithoutExchangeAddress,
+                    orderStruct,
                     takerAssetFillAmount,
                     salt,
                     signedOrder.signature,
@@ -261,12 +268,12 @@ describe('Exchange transactions', () => {
                 await whitelist.updateWhitelistStatus.sendTransactionAsync(makerAddress, isApproved, { from: owner }),
             );
 
-            orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
+            const orderStruct = orderUtils.getOrderStruct(signedOrder);
             const takerAssetFillAmount = signedOrder.takerAssetAmount;
             const salt = generatePseudoRandomSalt();
             return expect(
                 whitelist.fillOrderIfWhitelisted.sendTransactionAsync(
-                    orderWithoutExchangeAddress,
+                    orderStruct,
                     takerAssetFillAmount,
                     salt,
                     signedOrder.signature,
@@ -285,12 +292,12 @@ describe('Exchange transactions', () => {
                 await whitelist.updateWhitelistStatus.sendTransactionAsync(takerAddress, isApproved, { from: owner }),
             );
 
-            orderWithoutExchangeAddress = orderUtils.getOrderWithoutExchangeAddress(signedOrder);
+            const orderStruct = orderUtils.getOrderStruct(signedOrder);
             const takerAssetFillAmount = signedOrder.takerAssetAmount;
             const salt = generatePseudoRandomSalt();
             await web3Wrapper.awaitTransactionSuccessAsync(
                 await whitelist.fillOrderIfWhitelisted.sendTransactionAsync(
-                    orderWithoutExchangeAddress,
+                    orderStruct,
                     takerAssetFillAmount,
                     salt,
                     signedOrder.signature,

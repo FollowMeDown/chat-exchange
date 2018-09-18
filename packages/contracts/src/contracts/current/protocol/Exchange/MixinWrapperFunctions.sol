@@ -20,15 +20,17 @@ pragma solidity ^0.4.24;
 pragma experimental ABIEncoderV2;
 
 import "../../utils/LibBytes/LibBytes.sol";
+import "./mixins/MExchangeCore.sol";
 import "./libs/LibMath.sol";
 import "./libs/LibOrder.sol";
 import "./libs/LibFillResults.sol";
 import "./libs/LibExchangeErrors.sol";
-import "./mixins/MExchangeCore.sol";
 
 contract MixinWrapperFunctions is
+    SafeMath,
     LibBytes,
     LibMath,
+    LibOrder,
     LibFillResults,
     LibExchangeErrors,
     MExchangeCore
@@ -38,7 +40,7 @@ contract MixinWrapperFunctions is
     /// @param takerAssetFillAmount Desired amount of takerAsset to sell.
     /// @param signature Proof that order has been created by maker.
     function fillOrKillOrder(
-        LibOrder.Order memory order,
+        Order memory order,
         uint256 takerAssetFillAmount,
         bytes memory signature)
         public
@@ -63,7 +65,7 @@ contract MixinWrapperFunctions is
     /// @param signature Proof that order has been created by maker.
     /// @return Amounts filled and fees paid by maker and taker.
     function fillOrderNoThrow(
-        LibOrder.Order memory order,
+        Order memory order,
         uint256 takerAssetFillAmount,
         bytes memory signature)
         public
@@ -262,7 +264,7 @@ contract MixinWrapperFunctions is
     /// @param takerAssetFillAmounts Array of desired amounts of takerAsset to sell in orders.
     /// @param signatures Proofs that orders have been created by makers.
     function batchFillOrders(
-        LibOrder.Order[] memory orders,
+        Order[] memory orders,
         uint256[] memory takerAssetFillAmounts,
         bytes[] memory signatures)
         public
@@ -281,7 +283,7 @@ contract MixinWrapperFunctions is
     /// @param takerAssetFillAmounts Array of desired amounts of takerAsset to sell in orders.
     /// @param signatures Proofs that orders have been created by makers.
     function batchFillOrKillOrders(
-        LibOrder.Order[] memory orders,
+        Order[] memory orders,
         uint256[] memory takerAssetFillAmounts,
         bytes[] memory signatures)
         public
@@ -301,7 +303,7 @@ contract MixinWrapperFunctions is
     /// @param takerAssetFillAmounts Array of desired amounts of takerAsset to sell in orders.
     /// @param signatures Proofs that orders have been created by makers.
     function batchFillOrdersNoThrow(
-        LibOrder.Order[] memory orders,
+        Order[] memory orders,
         uint256[] memory takerAssetFillAmounts,
         bytes[] memory signatures)
         public
@@ -321,7 +323,7 @@ contract MixinWrapperFunctions is
     /// @param signatures Proofs that orders have been created by makers.
     /// @return Amounts filled and fees paid by makers and taker.
     function marketSellOrders(
-        LibOrder.Order[] memory orders,
+        Order[] memory orders,
         uint256 takerAssetFillAmount,
         bytes[] memory signatures)
         public
@@ -364,7 +366,7 @@ contract MixinWrapperFunctions is
     /// @param signatures Proofs that orders have been signed by makers.
     /// @return Amounts filled and fees paid by makers and taker.
     function marketSellOrdersNoThrow(
-        LibOrder.Order[] memory orders,
+        Order[] memory orders,
         uint256 takerAssetFillAmount,
         bytes[] memory signatures)
         public
@@ -406,7 +408,7 @@ contract MixinWrapperFunctions is
     /// @param signatures Proofs that orders have been signed by makers.
     /// @return Amounts filled and fees paid by makers and taker.
     function marketBuyOrders(
-        LibOrder.Order[] memory orders,
+        Order[] memory orders,
         uint256 makerAssetFillAmount,
         bytes[] memory signatures)
         public
@@ -457,7 +459,7 @@ contract MixinWrapperFunctions is
     /// @param signatures Proofs that orders have been signed by makers.
     /// @return Amounts filled and fees paid by makers and taker.
     function marketBuyOrdersNoThrow(
-        LibOrder.Order[] memory orders,
+        Order[] memory orders,
         uint256 makerAssetFillAmount,
         bytes[] memory signatures)
         public
@@ -503,7 +505,7 @@ contract MixinWrapperFunctions is
 
     /// @dev Synchronously cancels multiple orders in a single transaction.
     /// @param orders Array of order specifications.
-    function batchCancelOrders(LibOrder.Order[] memory orders)
+    function batchCancelOrders(Order[] memory orders)
         public
     {
         for (uint256 i = 0; i < orders.length; i++) {
