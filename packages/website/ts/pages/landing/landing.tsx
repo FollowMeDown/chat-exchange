@@ -1,13 +1,11 @@
 import { colors } from '@0xproject/react-shared';
 import * as _ from 'lodash';
+import RaisedButton from 'material-ui/RaisedButton';
 import * as React from 'react';
 import DocumentTitle = require('react-document-title');
 import { Link } from 'react-router-dom';
 import { Footer } from 'ts/components/footer';
-import { SubscribeForm } from 'ts/components/forms/subscribe_form';
 import { TopBar } from 'ts/components/top_bar/top_bar';
-import { CallToAction } from 'ts/components/ui/button';
-import { Container } from 'ts/components/ui/container';
 import { Dispatcher } from 'ts/redux/dispatcher';
 import { Deco, Key, Language, ScreenWidths, WebsitePaths } from 'ts/types';
 import { constants } from 'ts/utils/constants';
@@ -238,7 +236,7 @@ export class Landing extends React.Component<LandingProps, LandingState> {
             <div className="clearfix py4" style={{ backgroundColor: colors.heroGrey }}>
                 <div className="mx-auto max-width-4 clearfix">
                     {this._renderWhatsNew()}
-                    <div className="lg-pt4 md-pt4 sm-pt2 lg-pb4 md-pb4 lg-mt4 md-mt4 sm-mt2 sm-mb4 clearfix">
+                    <div className="lg-pt4 md-pt4 sm-pt2 lg-pb4 md-pb4 lg-my4 md-my4 sm-mt2 sm-mb4 clearfix">
                         <div className="col lg-col-5 md-col-5 col-12 sm-center">
                             <img src="/images/landing/hero_chip_image.png" height={isSmallScreen ? 300 : 395} />
                         </div>
@@ -270,31 +268,40 @@ export class Landing extends React.Component<LandingProps, LandingState> {
                                 >
                                     {this.props.translate.get(Key.TopTagline)}
                                 </div>
-                                <Container className="pt3 clearfix sm-mx-auto" maxWidth="390px">
-                                    <div className="lg-pr2 md-pr2 lg-col lg-col-6 sm-center sm-col sm-col-12 mb2">
+                                <div className="pt3 clearfix sm-mx-auto" style={{ maxWidth: 389 }}>
+                                    <div className="lg-pr2 md-pr2 col col-6 sm-center">
                                         <Link to={WebsitePaths.ZeroExJs} className="text-decoration-none">
-                                            <CallToAction width="175px" type="light">
-                                                {this.props.translate.get(Key.BuildCallToAction, Deco.Cap)}
-                                            </CallToAction>
+                                            <RaisedButton
+                                                style={{ borderRadius: 6, minWidth: 157.36 }}
+                                                buttonStyle={{ borderRadius: 6 }}
+                                                labelStyle={buttonLabelStyle}
+                                                label={this.props.translate.get(Key.BuildCallToAction, Deco.Cap)}
+                                                onClick={_.noop}
+                                            />
                                         </Link>
                                     </div>
-                                    <div className="lg-col lg-col-6 sm-center sm-col sm-col-12">
+                                    <div className="col col-6 sm-center">
                                         <a
                                             href={constants.URL_ZEROEX_CHAT}
                                             target="_blank"
                                             className="text-decoration-none"
                                         >
-                                            <CallToAction width="175px">
-                                                {this.props.translate.get(Key.CommunityCallToAction, Deco.Cap)}
-                                            </CallToAction>
+                                            <RaisedButton
+                                                style={{ borderRadius: 6, minWidth: 150 }}
+                                                buttonStyle={lightButtonStyle}
+                                                labelColor="white"
+                                                backgroundColor={colors.heroGrey}
+                                                labelStyle={buttonLabelStyle}
+                                                label={this.props.translate.get(Key.CommunityCallToAction, Deco.Cap)}
+                                                onClick={_.noop}
+                                            />
                                         </a>
                                     </div>
-                                </Container>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                {this.props.translate.getLanguage() === Language.English && <SubscribeForm />}
             </div>
         );
     }
@@ -775,9 +782,15 @@ export class Landing extends React.Component<LandingProps, LandingState> {
                         </div>
                         <div className="sm-center sm-pt2 lg-table-cell md-table-cell">
                             <Link to={WebsitePaths.ZeroExJs} className="text-decoration-none">
-                                <CallToAction fontSize="15px">
-                                    {this.props.translate.get(Key.BuildCallToAction, Deco.Cap)}
-                                </CallToAction>
+                                <RaisedButton
+                                    style={{ borderRadius: 6, minWidth: 150 }}
+                                    buttonStyle={lightButtonStyle}
+                                    labelColor={colors.white}
+                                    backgroundColor={colors.heroGrey}
+                                    labelStyle={buttonLabelStyle}
+                                    label={this.props.translate.get(Key.BuildCallToAction, Deco.Cap)}
+                                    onClick={_.noop}
+                                />
                             </Link>
                         </div>
                     </div>
