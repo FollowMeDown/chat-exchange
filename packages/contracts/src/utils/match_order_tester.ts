@@ -1,21 +1,42 @@
-import { assetProxyUtils, orderHashUtils } from '@0xproject/order-utils';
-import { AssetProxyId, SignedOrder } from '@0xproject/types';
+import { BlockchainLifecycle } from '@0xproject/dev-utils';
+import { SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
+import { LogWithDecodedArgs } from 'ethereum-types';
+import ethUtil = require('ethereumjs-util');
 import * as _ from 'lodash';
 
+import { DummyERC20TokenContract } from '../contract_wrappers/generated/dummy_e_r_c20_token';
+import { DummyERC721TokenContract } from '../contract_wrappers/generated/dummy_e_r_c721_token';
+import { ERC20ProxyContract } from '../contract_wrappers/generated/e_r_c20_proxy';
+import { ERC721ProxyContract } from '../contract_wrappers/generated/e_r_c721_proxy';
+import {
+    CancelContractEventArgs,
+    ExchangeContract,
+    FillContractEventArgs,
+} from '../contract_wrappers/generated/exchange';
+import { assetProxyUtils } from '../utils/asset_proxy_utils';
 import { chaiSetup } from '../utils/chai_setup';
+import { constants } from '../utils/constants';
+import { crypto } from '../utils/crypto';
 import { ERC20Wrapper } from '../utils/erc20_wrapper';
 import { ERC721Wrapper } from '../utils/erc721_wrapper';
 import { ExchangeWrapper } from '../utils/exchange_wrapper';
+import { OrderFactory } from '../utils/order_factory';
+import { orderUtils } from '../utils/order_utils';
 import {
+    AssetProxyId,
+    ContractName,
     ERC20BalancesByOwner,
     ERC721TokenIdsByOwner,
+    ExchangeStatus,
     TransferAmountsByMatchOrders as TransferAmounts,
 } from '../utils/types';
+import { provider, web3Wrapper } from '../utils/web3_wrapper';
 
 chaiSetup.configure();
 const expect = chai.expect;
+const blockchainLifecycle = new BlockchainLifecycle(web3Wrapper);
 
 export class MatchOrderTester {
     private _exchangeWrapper: ExchangeWrapper;
@@ -95,9 +116,14 @@ export class MatchOrderTester {
         initialTakerAssetFilledAmountLeft?: BigNumber,
         initialTakerAssetFilledAmountRight?: BigNumber,
     ): Promise<[ERC20BalancesByOwner, ERC721TokenIdsByOwner]> {
+        // Test setup & verify preconditions
+        const makerAddressLeft = signedOrderLeft.makerAddress;
+        const makerAddressRight = signedOrderRight.makerAddress;
+        const feeRecipientAddressLeft = signedOrderLeft.feeRecipientAddress;
+        const feeRecipientAddressRight = signedOrderRight.feeRecipientAddress;
         // Verify Left order preconditions
         const orderTakerAssetFilledAmountLeft = await this._exchangeWrapper.getTakerAssetFilledAmountAsync(
-            orderHashUtils.getOrderHashHex(signedOrderLeft),
+            orderUtils.getOrderHashHex(signedOrderLeft),
         );
         const expectedOrderFilledAmountLeft = initialTakerAssetFilledAmountLeft
             ? initialTakerAssetFilledAmountLeft
@@ -105,7 +131,7 @@ export class MatchOrderTester {
         expect(expectedOrderFilledAmountLeft).to.be.bignumber.equal(orderTakerAssetFilledAmountLeft);
         // Verify Right order preconditions
         const orderTakerAssetFilledAmountRight = await this._exchangeWrapper.getTakerAssetFilledAmountAsync(
-            orderHashUtils.getOrderHashHex(signedOrderRight),
+            orderUtils.getOrderHashHex(signedOrderRight),
         );
         const expectedOrderFilledAmountRight = initialTakerAssetFilledAmountRight
             ? initialTakerAssetFilledAmountRight
@@ -156,7 +182,7 @@ export class MatchOrderTester {
         orderTakerAssetFilledAmountRight: BigNumber,
     ): Promise<TransferAmounts> {
         let amountBoughtByLeftMaker = await this._exchangeWrapper.getTakerAssetFilledAmountAsync(
-            orderHashUtils.getOrderHashHex(signedOrderLeft),
+            orderUtils.getOrderHashHex(signedOrderLeft),
         );
         amountBoughtByLeftMaker = amountBoughtByLeftMaker.minus(orderTakerAssetFilledAmountLeft);
         const amountSoldByLeftMaker = amountBoughtByLeftMaker
@@ -167,7 +193,7 @@ export class MatchOrderTester {
             .dividedToIntegerBy(signedOrderRight.makerAssetAmount);
         const amountReceivedByTaker = amountSoldByLeftMaker.minus(amountReceivedByRightMaker);
         let amountBoughtByRightMaker = await this._exchangeWrapper.getTakerAssetFilledAmountAsync(
-            orderHashUtils.getOrderHashHex(signedOrderRight),
+            orderUtils.getOrderHashHex(signedOrderRight),
         );
         amountBoughtByRightMaker = amountBoughtByRightMaker.minus(orderTakerAssetFilledAmountRight);
         const amountSoldByRightMaker = amountBoughtByRightMaker

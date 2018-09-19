@@ -1,4 +1,5 @@
 import { colors } from '@0xproject/react-shared';
+import * as _ from 'lodash';
 import RaisedButton from 'material-ui/RaisedButton';
 import * as React from 'react';
 import { utils } from 'ts/utils/utils';

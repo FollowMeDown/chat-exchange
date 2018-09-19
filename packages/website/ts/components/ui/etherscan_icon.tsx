@@ -2,6 +2,7 @@ import { colors, EtherscanLinkSuffixes, utils as sharedUtils } from '@0xproject/
 import * as _ from 'lodash';
 import * as React from 'react';
 import ReactTooltip = require('react-tooltip');
+import { utils } from 'ts/utils/utils';
 
 interface EtherScanIconProps {
     addressOrTxHash: string;

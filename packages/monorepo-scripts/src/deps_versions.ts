@@ -19,7 +19,6 @@ interface VersionsByDependency {
 
 const PACKAGE_JSON_GLOB = '../*/package.json';
 
-// tslint:disable:no-unused-variable
 function getDependencies(path: string): Dependencies {
     const file = fs.readFileSync(path).toString();
     const parsed = JSON.parse(file);
@@ -53,4 +52,3 @@ _.map(versionsByDependency, (versions: Versions, depName: string) => {
         });
     }
 });
-// tslint:disable:no-unused-variable

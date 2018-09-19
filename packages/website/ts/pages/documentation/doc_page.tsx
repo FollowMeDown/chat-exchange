@@ -1,4 +1,5 @@
-import { DocAgnosticFormat, DocsInfo, Documentation } from '@0xproject/react-docs';
+import { DocAgnosticFormat, DocsInfo, Documentation, DoxityDocObj } from '@0xproject/react-docs';
+import { MenuSubsectionsBySection } from '@0xproject/react-shared';
 import findVersions = require('find-versions');
 import * as _ from 'lodash';
 import * as React from 'react';
@@ -8,6 +9,7 @@ import { SidebarHeader } from 'ts/components/sidebar_header';
 import { TopBar } from 'ts/components/top_bar/top_bar';
 import { Dispatcher } from 'ts/redux/dispatcher';
 import { DocPackages } from 'ts/types';
+import { configs } from 'ts/utils/configs';
 import { constants } from 'ts/utils/constants';
 import { docUtils } from 'ts/utils/doc_utils';
 import { Translate } from 'ts/utils/translate';

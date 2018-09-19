@@ -1,8 +1,10 @@
-import { BigNumber } from '@0xproject/utils';
+import { BigNumber, NULL_BYTES } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import { Provider, TxData } from 'ethereum-types';
+import * as _ from 'lodash';
 
 import { ArtifactWriter } from '../artifact_writer';
+import { ContractName } from '../types';
 import { erc20TokenInfo, erc721TokenInfo } from '../utils/token_info';
 
 import { artifacts } from './artifacts';
@@ -94,7 +96,6 @@ export const runV2MigrationsAsync = async (provider: Provider, artifactsDir: str
     // Dummy ERC20 tokens
     for (const token of erc20TokenInfo) {
         const totalSupply = new BigNumber(100000000000000000000);
-        // tslint:disable-next-line:no-unused-variable
         const dummyErc20Token = await DummyERC20TokenContract.deployFrom0xArtifactAsync(
             artifacts.DummyERC20Token,
             provider,
@@ -107,7 +108,6 @@ export const runV2MigrationsAsync = async (provider: Provider, artifactsDir: str
     }
 
     // ERC721
-    // tslint:disable-next-line:no-unused-variable
     const cryptoKittieToken = await DummyERC721TokenContract.deployFrom0xArtifactAsync(
         artifacts.DummyERC721Token,
         provider,

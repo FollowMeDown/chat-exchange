@@ -1,5 +1,8 @@
 import { assert } from '@0xproject/assert';
 import {
+    ContractSource,
+    ContractSources,
+    EnumerableResolver,
     FallthroughResolver,
     FSResolver,
     NameResolver,
@@ -8,8 +11,9 @@ import {
     Resolver,
     URLResolver,
 } from '@0xproject/sol-resolver';
-import { logUtils } from '@0xproject/utils';
+import { logUtils, promisify } from '@0xproject/utils';
 import chalk from 'chalk';
+import { ContractAbi } from 'ethereum-types';
 import * as ethUtil from 'ethereumjs-util';
 import * as fs from 'fs';
 import 'isomorphic-fetch';
@@ -30,7 +34,15 @@ import {
 } from './utils/compiler';
 import { constants } from './utils/constants';
 import { fsWrapper } from './utils/fs_wrapper';
-import { CompilerOptions, ContractArtifact, ContractVersionData } from './utils/types';
+import {
+    CompilerOptions,
+    ContractArtifact,
+    ContractNetworkData,
+    ContractNetworks,
+    ContractSourceData,
+    ContractSpecificSourceData,
+    ContractVersionData,
+} from './utils/types';
 import { utils } from './utils/utils';
 
 type TYPE_ALL_FILES_IDENTIFIER = '*';
@@ -160,6 +172,7 @@ export class Compiler {
         const solcInstance = solc.setupMethods(requireFromString(solcjs, compilerBinFilename));
 
         logUtils.log(`Compiling ${contractName} with Solidity v${solcVersion}...`);
+        const source = contractSource.source;
         const standardInput: solc.StandardInput = {
             language: 'Solidity',
             sources: {
