@@ -1,18 +1,10 @@
-import { crypto, EIP712Schema, EIP712Utils, generatePseudoRandomSalt } from '@0xproject/order-utils';
+import { crypto, generatePseudoRandomSalt } from '@0xproject/order-utils';
 import { SignatureType } from '@0xproject/types';
+import { BigNumber } from '@0xproject/utils';
 import * as ethUtil from 'ethereumjs-util';
 
 import { signingUtils } from './signing_utils';
 import { SignedTransaction } from './types';
-
-const EIP712_EXECUTE_TRANSACTION_SCHEMA: EIP712Schema = {
-    name: 'ExecuteTransaction',
-    parameters: [
-        { name: 'salt', type: 'uint256' },
-        { name: 'signer', type: 'address' },
-        { name: 'data', type: 'bytes' },
-    ],
-};
 
 export class TransactionFactory {
     private _signerBuff: Buffer;
@@ -24,16 +16,8 @@ export class TransactionFactory {
         this._signerBuff = ethUtil.privateToAddress(this._privateKey);
     }
     public newSignedTransaction(data: string, signatureType: SignatureType = SignatureType.EthSign): SignedTransaction {
-        const executeTransactionSchemaHashBuff = EIP712Utils.compileSchema(EIP712_EXECUTE_TRANSACTION_SCHEMA);
         const salt = generatePseudoRandomSalt();
-        const dataHash = crypto.solSHA3([ethUtil.toBuffer(data)]);
-        const executeTransactionDataHash = crypto.solSHA3([
-            executeTransactionSchemaHashBuff,
-            salt,
-            EIP712Utils.pad32Buffer(this._signerBuff),
-            dataHash,
-        ]);
-        const txHash = EIP712Utils.createEIP712Message(executeTransactionDataHash, this._exchangeAddress);
+        const txHash = crypto.solSHA3([this._exchangeAddress, this._signerBuff, salt, ethUtil.toBuffer(data)]);
         const signature = signingUtils.signMessage(txHash, this._privateKey, signatureType);
         const signedTx = {
             exchangeAddress: this._exchangeAddress,

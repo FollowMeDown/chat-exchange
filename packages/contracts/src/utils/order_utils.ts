@@ -1,4 +1,4 @@
-import { OrderWithoutExchangeAddress, SignedOrder } from '@0xproject/types';
+import { Order, OrderWithoutExchangeAddress, SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import ethUtil = require('ethereumjs-util');
 
