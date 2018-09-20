@@ -13,7 +13,6 @@ import Dialog from 'material-ui/Dialog';
 import Divider from 'material-ui/Divider';
 import FlatButton from 'material-ui/FlatButton';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
-import RaisedButton from 'material-ui/RaisedButton';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import ContentRemove from 'material-ui/svg-icons/content/remove';
 import { Table, TableBody, TableHeader, TableHeaderColumn, TableRow, TableRowColumn } from 'material-ui/Table';
@@ -57,7 +56,7 @@ const TOKEN_COL_SPAN_SM = 1;
 
 const styles: Styles = {
     bgColor: {
-        backgroundColor: 'transparent',
+        backgroundColor: colors.grey50,
     },
 };
 
@@ -73,22 +72,20 @@ interface TokenBalancesProps {
     userEtherBalanceInWei: BigNumber;
     networkId: number;
     lastForceTokenStateRefetch: number;
-    isFullWidth?: boolean;
 }
 
 interface TokenBalancesState {
     errorType: BalanceErrs;
-    trackedTokenStateByAddress: TokenStateByAddress;
     isBalanceSpinnerVisible: boolean;
     isZRXSpinnerVisible: boolean;
     isTokenPickerOpen: boolean;
     isAddingToken: boolean;
+    trackedTokenStateByAddress: TokenStateByAddress;
 }
 
 export class TokenBalances extends React.Component<TokenBalancesProps, TokenBalancesState> {
     public static defaultProps: Partial<TokenBalancesProps> = {
         userEtherBalanceInWei: new BigNumber(0),
-        isFullWidth: false,
     };
     private _isUnmounted: boolean;
     public constructor(props: TokenBalancesProps) {
@@ -171,7 +168,6 @@ export class TokenBalances extends React.Component<TokenBalancesProps, TokenBala
             />,
         ];
         const isTestNetwork = utils.isTestNetwork(this.props.networkId);
-        const isKovanTestNetwork = this.props.networkId === constants.NETWORK_ID_KOVAN;
         const stubColumnStyle = {
             display: isTestNetwork ? 'none' : 'table-cell',
         };
@@ -189,9 +185,8 @@ export class TokenBalances extends React.Component<TokenBalancesProps, TokenBala
             this.props.userEtherBalanceInWei,
             constants.DECIMAL_PLACES_ETH,
         );
-        const rootClassName = this.props.isFullWidth ? 'pb2' : 'lg-px4 md-px4 sm-px1 pb2';
         return (
-            <div className={rootClassName}>
+            <div className="lg-px4 md-px4 sm-px1 pb2">
                 <h3>{isTestNetwork ? 'Test ether' : 'Ether'}</h3>
                 <Divider />
                 <div className="pt2 pb2">
@@ -271,7 +266,7 @@ export class TokenBalances extends React.Component<TokenBalancesProps, TokenBala
                                 <div className="inline-block">Allowance</div>
                                 <HelpTooltip style={{ paddingLeft: 4 }} explanation={allowanceExplanation} />
                             </TableHeaderColumn>
-                            {isTestNetwork && <TableHeaderColumn>Action</TableHeaderColumn>}
+                            <TableHeaderColumn>Action</TableHeaderColumn>
                             {this.props.screenWidth !== ScreenWidths.Sm && <TableHeaderColumn>Send</TableHeaderColumn>}
                         </TableRow>
                     </TableHeader>
@@ -376,17 +371,17 @@ export class TokenBalances extends React.Component<TokenBalancesProps, TokenBala
                         refetchTokenStateAsync={this._refetchTokenStateAsync.bind(this, token.address)}
                     />
                 </TableRowColumn>
-                {utils.isTestNetwork(this.props.networkId) && (
-                    <TableRowColumn style={{ paddingLeft: actionPaddingX, paddingRight: actionPaddingX }}>
-                        {isMintable && (
-                            <LifeCycleRaisedButton
-                                labelReady="Mint"
-                                labelLoading={<span style={{ fontSize: 12 }}>Minting...</span>}
-                                labelComplete="Minted!"
-                                onClickAsyncFn={this._onMintTestTokensAsync.bind(this, token)}
-                            />
-                        )}
-                        {token.symbol === ZRX_TOKEN_SYMBOL && (
+                <TableRowColumn style={{ paddingLeft: actionPaddingX, paddingRight: actionPaddingX }}>
+                    {isMintable && (
+                        <LifeCycleRaisedButton
+                            labelReady="Mint"
+                            labelLoading={<span style={{ fontSize: 12 }}>Minting...</span>}
+                            labelComplete="Minted!"
+                            onClickAsyncFn={this._onMintTestTokensAsync.bind(this, token)}
+                        />
+                    )}
+                    {token.symbol === ZRX_TOKEN_SYMBOL &&
+                        utils.isTestNetwork(this.props.networkId) && (
                             <LifeCycleRaisedButton
                                 labelReady="Request"
                                 labelLoading="Sending..."
@@ -394,8 +389,7 @@ export class TokenBalances extends React.Component<TokenBalancesProps, TokenBala
                                 onClickAsyncFn={this._faucetRequestAsync.bind(this, false)}
                             />
                         )}
-                    </TableRowColumn>
-                )}
+                </TableRowColumn>
                 {this.props.screenWidth !== ScreenWidths.Sm && (
                     <TableRowColumn
                         style={{

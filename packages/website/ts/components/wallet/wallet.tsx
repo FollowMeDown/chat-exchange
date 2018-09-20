@@ -1,25 +1,15 @@
-import {
-    constants as sharedConstants,
-    EtherscanLinkSuffixes,
-    Styles,
-    utils as sharedUtils,
-} from '@0xproject/react-shared';
+import { EtherscanLinkSuffixes, Styles, utils as sharedUtils } from '@0xproject/react-shared';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as _ from 'lodash';
 import CircularProgress from 'material-ui/CircularProgress';
-import FlatButton from 'material-ui/FlatButton';
 import FloatingActionButton from 'material-ui/FloatingActionButton';
 import { ListItem } from 'material-ui/List';
 import ActionAccountBalanceWallet from 'material-ui/svg-icons/action/account-balance-wallet';
 import ContentAdd from 'material-ui/svg-icons/content/add';
 import ContentRemove from 'material-ui/svg-icons/content/remove';
-import NavigationArrowDownward from 'material-ui/svg-icons/navigation/arrow-downward';
-import NavigationArrowUpward from 'material-ui/svg-icons/navigation/arrow-upward';
-import Close from 'material-ui/svg-icons/navigation/close';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import ReactTooltip = require('react-tooltip');
 import firstBy = require('thenby');
 
 import { Blockchain } from 'ts/blockchain';
@@ -32,10 +22,7 @@ import { TokenIcon } from 'ts/components/ui/token_icon';
 import { WalletDisconnectedItem } from 'ts/components/wallet/wallet_disconnected_item';
 import { WrapEtherItem } from 'ts/components/wallet/wrap_ether_item';
 import { Dispatcher } from 'ts/redux/dispatcher';
-import { colors } from 'ts/style/colors';
-import { zIndex } from 'ts/style/z_index';
 import {
-    BalanceErrs,
     BlockchainErrs,
     ProviderType,
     ScreenWidths,
@@ -46,7 +33,9 @@ import {
     TokenStateByAddress,
     WebsitePaths,
 } from 'ts/types';
+import { colors } from 'ts/utils/colors';
 import { constants } from 'ts/utils/constants';
+import { zIndex } from 'ts/utils/style';
 import { utils } from 'ts/utils/utils';
 import { styles as walletItemStyles } from 'ts/utils/wallet_item_styles';
 
@@ -146,10 +135,8 @@ const NO_ALLOWANCE_TOGGLE_SPACE_WIDTH = 56;
 const ACCOUNT_PATH = `${WebsitePaths.Portal}/account`;
 
 export class Wallet extends React.Component<WalletProps, WalletState> {
-    private _isUnmounted: boolean;
     constructor(props: WalletProps) {
         super(props);
-        this._isUnmounted = false;
         this.state = {
             wrappedEtherDirection: undefined,
             isHoveringSidebar: false,
@@ -183,7 +170,6 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         );
     }
     private _renderDisconnectedHeaderRows(): React.ReactElement<{}> {
-        const userAddress = this.props.userAddress;
         const primaryText = 'wallet';
         return (
             <StandardIconRow
@@ -509,17 +495,6 @@ export class Wallet extends React.Component<WalletProps, WalletState> {
         return (
             <IconButton iconName={buttonIconName} labelText={buttonLabel} onClick={onClick} color={colors.mediumBlue} />
         );
-    }
-    private _getInitialTrackedTokenStateByAddress(tokenAddresses: string[]): TokenStateByAddress {
-        const trackedTokenStateByAddress: TokenStateByAddress = {};
-        _.each(tokenAddresses, tokenAddress => {
-            trackedTokenStateByAddress[tokenAddress] = {
-                balance: new BigNumber(0),
-                allowance: new BigNumber(0),
-                isLoaded: false,
-            };
-        });
-        return trackedTokenStateByAddress;
     }
     private _openWrappedEtherActionRow(wrappedEtherDirection: Side): void {
         this.setState({

@@ -47,8 +47,6 @@ interface GenerateOrderFormProps {
     sideToAssetToken: SideToAssetToken;
     tokenByAddress: TokenByAddress;
     lastForceTokenStateRefetch: number;
-    isFullWidth?: boolean;
-    shouldRenderHeader?: boolean;
 }
 
 interface GenerateOrderFormState {
@@ -58,10 +56,6 @@ interface GenerateOrderFormState {
 }
 
 export class GenerateOrderForm extends React.Component<GenerateOrderFormProps, GenerateOrderFormState> {
-    public static defaultProps: Partial<GenerateOrderFormProps> = {
-        isFullWidth: false,
-        shouldRenderHeader: true,
-    };
     constructor(props: GenerateOrderFormProps) {
         super(props);
         this.state = {
@@ -86,15 +80,10 @@ export class GenerateOrderForm extends React.Component<GenerateOrderFormProps, G
         const exchangeContractIfExists = this.props.blockchain.getExchangeContractAddressIfExists();
         const initialTakerAddress =
             this.props.orderTakerAddress === constants.NULL_ADDRESS ? '' : this.props.orderTakerAddress;
-        const rootClassName = this.props.isFullWidth ? 'clearfix mb2' : 'clearfix mb2 lg-px4 md-px4 sm-px2';
         return (
-            <div className={rootClassName}>
-                {this.props.shouldRenderHeader && (
-                    <div>
-                        <h3>Generate an order</h3>
-                        <Divider />
-                    </div>
-                )}
+            <div className="clearfix mb2 lg-px4 md-px4 sm-px2">
+                <h3>Generate an order</h3>
+                <Divider />
                 <div className="mx-auto" style={{ maxWidth: 580 }}>
                     <div className="pt3">
                         <div className="mx-auto clearfix">
