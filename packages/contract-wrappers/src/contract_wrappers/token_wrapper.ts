@@ -1,6 +1,6 @@
 import { schemas } from '@0xproject/json-schemas';
 import { LogWithDecodedArgs } from '@0xproject/types';
-import { BigNumber } from '@0xproject/utils';
+import { AbiDecoder, BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as _ from 'lodash';
 
@@ -414,7 +414,6 @@ export class TokenWrapper extends ContractWrapper {
         );
         return logs;
     }
-    // tslint:disable:no-unused-variable
     private _invalidateContractInstances(): void {
         this.unsubscribeAll();
         this._tokenContractsByAddress = {};

@@ -1,3 +1,4 @@
+import { web3Factory } from '@0xproject/dev-utils';
 import { Order } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
@@ -7,6 +8,7 @@ import 'mocha';
 import { constants, orderHashUtils } from '../src';
 
 import { chaiSetup } from './utils/chai_setup';
+import { web3Wrapper } from './utils/web3_wrapper';
 
 chaiSetup.configure();
 const expect = chai.expect;

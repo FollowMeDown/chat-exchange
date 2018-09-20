@@ -1,6 +1,7 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
 import { assetProxyUtils, orderHashUtils } from '@0xproject/order-utils';
 import { SignedOrder } from '@0xproject/types';
+import { BigNumber } from '@0xproject/utils';
 import * as chai from 'chai';
 import ethUtil = require('ethereumjs-util');
 

@@ -1,4 +1,5 @@
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
+import * as Web3 from 'web3';
 
 export class BlockchainLifecycle {
     private _web3Wrapper: Web3Wrapper;

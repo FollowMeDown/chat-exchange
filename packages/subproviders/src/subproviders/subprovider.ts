@@ -1,5 +1,6 @@
 import { promisify } from '@0xproject/utils';
 import { JSONRPCRequestPayload, JSONRPCResponsePayload } from 'ethereum-types';
+import * as Web3 from 'web3';
 
 import { Callback, ErrorCallback, JSONRPCRequestPayloadWithMethod } from '../types';
 /**

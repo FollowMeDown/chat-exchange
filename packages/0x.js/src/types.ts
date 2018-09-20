@@ -1,3 +1,15 @@
+import {
+    BlockParam,
+    BlockParamLiteral,
+    ContractAbi,
+    ContractEventArg,
+    ExchangeContractErrs,
+    FilterObject,
+    LogWithDecodedArgs,
+    Order,
+    OrderState,
+    SignedOrder,
+} from '@0xproject/types';
 
 export enum InternalZeroExError {
     NoAbiDecoder = 'NO_ABI_DECODER',

@@ -1,8 +1,10 @@
-import { ContractSource } from '@0xproject/sol-resolver';
+import { ContractSource, ContractSources } from '@0xproject/sol-resolver';
 import { logUtils } from '@0xproject/utils';
 import * as _ from 'lodash';
 import * as path from 'path';
+import * as solc from 'solc';
 
+import { constants } from './constants';
 import { fsWrapper } from './fs_wrapper';
 import { ContractArtifact } from './types';
 

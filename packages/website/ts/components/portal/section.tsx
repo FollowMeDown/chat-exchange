@@ -1,3 +1,4 @@
+import { Styles } from '@0xproject/react-shared';
 import * as React from 'react';
 
 export interface SectionProps {

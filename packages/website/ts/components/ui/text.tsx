@@ -1,6 +1,8 @@
 import { colors } from '@0xproject/react-shared';
 import * as React from 'react';
 import { styled } from 'ts/style/theme';
+import { Deco, Key } from 'ts/types';
+import { Translate } from 'ts/utils/translate';
 
 export type TextTag = 'p' | 'div' | 'span' | 'label';
 

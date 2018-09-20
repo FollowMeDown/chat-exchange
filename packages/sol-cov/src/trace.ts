@@ -1,6 +1,7 @@
 import { addressUtils, BigNumber, logUtils } from '@0xproject/utils';
-import { OpCode, StructLog } from 'ethereum-types';
-import { addHexPrefix } from 'ethereumjs-util';
+import { OpCode, StructLog, TransactionTrace } from 'ethereum-types';
+import { addHexPrefix, stripHexPrefix } from 'ethereumjs-util';
+import * as fs from 'fs';
 import * as _ from 'lodash';
 
 export interface TraceByContractAddress {

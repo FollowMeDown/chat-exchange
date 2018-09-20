@@ -1,6 +1,7 @@
 import { BlockchainLifecycle, devConstants } from '@0xproject/dev-utils';
 import { ContractArtifact } from '@0xproject/sol-compiler';
 import { BigNumber } from '@0xproject/utils';
+import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
 import { LogWithDecodedArgs } from 'ethereum-types';
 import 'make-promises-safe';
@@ -17,7 +18,7 @@ const artifact: ContractArtifact = MetacoinArtifact as any;
 chaiSetup.configure();
 const { expect } = chai;
 const blockchainLifecycle = new BlockchainLifecycle(web3Wrapper);
-// tslint:disable:no-unnecessary-type-assertion
+
 describe('Metacoin', () => {
     let metacoin: MetacoinContract;
     const ownerAddress = devConstants.TESTRPC_FIRST_ADDRESS;
@@ -115,4 +116,3 @@ describe('Metacoin', () => {
         });
     });
 });
-// tslint:enable:no-unnecessary-type-assertion

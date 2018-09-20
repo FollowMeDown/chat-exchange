@@ -1,5 +1,6 @@
 import { ECSignature } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
+import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Blockchain } from 'ts/blockchain';

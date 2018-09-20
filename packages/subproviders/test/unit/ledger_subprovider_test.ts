@@ -3,6 +3,7 @@ import { JSONRPCResponsePayload } from 'ethereum-types';
 import * as ethUtils from 'ethereumjs-util';
 import * as _ from 'lodash';
 import 'make-promises-safe';
+import Web3 = require('web3');
 import Web3ProviderEngine = require('web3-provider-engine');
 
 import { LedgerSubprovider } from '../../src';

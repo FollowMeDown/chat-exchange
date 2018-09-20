@@ -1,4 +1,4 @@
-import { BlockchainLifecycle, callbackErrorReporter } from '@0xproject/dev-utils';
+import { BlockchainLifecycle, callbackErrorReporter, devConstants } from '@0xproject/dev-utils';
 import { EmptyWalletSubprovider } from '@0xproject/subproviders';
 import { DoneCallback, Provider } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
@@ -218,6 +218,7 @@ describe('TokenWrapper', () => {
         describe('With provider without accounts', () => {
             let zeroExContractWithoutAccounts: ContractWrappers;
             before(async () => {
+                const hasAddresses = false;
                 const emptyWalletProvider = addEmptyWalletSubprovider(provider);
                 zeroExContractWithoutAccounts = new ContractWrappers(emptyWalletProvider, config);
             });
@@ -360,6 +361,7 @@ describe('TokenWrapper', () => {
         describe('With provider without accounts', () => {
             let zeroExContractWithoutAccounts: ContractWrappers;
             before(async () => {
+                const hasAddresses = false;
                 const emptyWalletProvider = addEmptyWalletSubprovider(provider);
                 zeroExContractWithoutAccounts = new ContractWrappers(emptyWalletProvider, config);
             });

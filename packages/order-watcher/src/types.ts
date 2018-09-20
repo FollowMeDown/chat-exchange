@@ -1,8 +1,17 @@
+import { BigNumber } from '@0xproject/utils';
 
 import {
+    BlockParam,
     BlockParamLiteral,
+    ContractAbi,
+    ContractEventArg,
+    ExchangeContractErrs,
+    FilterObject,
     LogEntryEvent,
+    LogWithDecodedArgs,
+    Order,
     OrderState,
+    SignedOrder,
 } from '@0xproject/types';
 
 export enum OrderWatcherError {
